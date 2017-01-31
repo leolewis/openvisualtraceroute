@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Open Visual Traceroute"
-#define MyAppVersion "1.6.5"
+#define MyAppVersion "1.6.4"
 #define MyAppPublisher "Leo Lewis"
 #define MyAppURL "https://sourceforge.net/projects/openvisualtrace/"
 #define MyAppExeName "ovtr.exe"
@@ -21,10 +21,10 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
-LicenseFile=D:\workspace\org.leo.traceroute\product\License.txt
-OutputDir=D:\workspace\org.leo.traceroute\released
-OutputBaseFilename=OpenVisualTraceroute1.6.5
-SetupIconFile=D:\workspace\org.leo.traceroute\product\resources\icon.ico
+LicenseFile=D:\workspace\git\org.leo.traceroute\product\License.txt
+OutputDir=D:\workspace\git\org.leo.traceroute\released
+OutputBaseFilename=OpenVisualTraceroute1.6.4
+SetupIconFile=D:\workspace\git\org.leo.traceroute\product\resources\icon.ico
 Compression=lzma
 SolidCompression=yes
 
@@ -36,12 +36,12 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
-Source: "D:\workspace\org.leo.traceroute\product\ovtr.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\workspace\org.leo.traceroute\product\org.leo.traceroute.jar"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\workspace\org.leo.traceroute\build\win\WinPcap_4_1_3.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\workspace\org.leo.traceroute\product\lib\*"; DestDir: "{app}\lib"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\workspace\org.leo.traceroute\product\native\win\*"; DestDir: "{app}\native\win"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\workspace\org.leo.traceroute\product\resources\*"; DestDir: "{app}\resources"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\workspace\git\org.leo.traceroute\product\ovtr.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\workspace\git\org.leo.traceroute\product\org.leo.traceroute.jar"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\workspace\git\org.leo.traceroute\build\win\WinPcap_4_1_3.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\workspace\git\org.leo.traceroute\product\lib\*"; DestDir: "{app}\lib"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\workspace\git\org.leo.traceroute\product\native\win\*"; DestDir: "{app}\native\win"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\workspace\git\org.leo.traceroute\product\resources\*"; DestDir: "{app}\resources"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
