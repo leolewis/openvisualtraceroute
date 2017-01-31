@@ -2,7 +2,7 @@
 ~~~~~~~ Open Visual Trace Route ~~~~~~~ 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Version 1.6.4
+Version 1.6.5
 I could successfully make this version on multiple systems, but my tests do not cover everything, so if you find a bug, a typo in some label feel free to post a bug report and/or fix
 - on Sourceforge http://sourceforge.net/projects/openvisualtrace/
 - or by email at leo.lewis.software@gmail.com
@@ -44,7 +44,7 @@ Wish list :
 Release Note 
 
 1.6.5
-
+- Fix Fatal error IOException: Failed to download geoip database
 - UI : Fix status bar tooltip
 - Traceroute : Fix consecutive unknown locations diplayed in the (0, 0)
 

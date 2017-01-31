@@ -19,6 +19,9 @@ package org.leo.traceroute.resources;
 
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -28,7 +31,10 @@ import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
 
+import org.apache.commons.io.IOUtils;
 import org.leo.traceroute.install.Env;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Resources $Id: Resources.java 279 2016-10-10 05:53:47Z leolewis $
@@ -36,6 +42,8 @@ import org.leo.traceroute.install.Env;
  * @author Leo Lewis
  */
 public class Resources {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(Resources.class);
 
 	/** */
 	protected static final String RESOURCE = Resources.class.getPackage().getName();
@@ -81,10 +89,32 @@ public class Resources {
 	 * Get resource label corresponding to given key
 	 *
 	 * @param key key
-	 * @return String lable
+	 * @return String version
 	 */
 	public static String getLabel(final String key) {
 		return LABEL_BUNDLE.getString(key);
+	}
+
+	/**
+	 * Get the installed version of the software
+	 *
+	 * @return String version
+	 */
+	public static String getWorkspaceVersion() {
+		final File file = new File(Env.APP_FOLDER + "/version");
+		if (file.exists()) {
+			try {
+				return IOUtils.toString(new FileInputStream(file));
+			} catch (final Exception e) {
+				LOGGER.error("Failed to load worspace version", e);
+			}
+		}
+		try {
+			IOUtils.write(getVersion(), new FileOutputStream(file));
+		} catch (final Exception e) {
+			LOGGER.error("Failed to save worspace version", e);
+		}
+		return null;
 	}
 
 	/**

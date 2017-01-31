@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Open Visual Traceroute"
-#define MyAppVersion "1.6.4"
+#define MyAppVersion "1.6.5"
 #define MyAppPublisher "Leo Lewis"
 #define MyAppURL "https://sourceforge.net/projects/openvisualtrace/"
 #define MyAppExeName "ovtr.exe"
@@ -23,7 +23,7 @@ DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 LicenseFile=D:\workspace\git\org.leo.traceroute\product\License.txt
 OutputDir=D:\workspace\git\org.leo.traceroute\released
-OutputBaseFilename=OpenVisualTraceroute1.6.4
+OutputBaseFilename=OpenVisualTraceroute1.6.5
 SetupIconFile=D:\workspace\git\org.leo.traceroute\product\resources\icon.ico
 Compression=lzma
 SolidCompression=yes
