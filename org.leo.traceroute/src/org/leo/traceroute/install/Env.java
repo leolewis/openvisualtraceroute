@@ -18,9 +18,6 @@
  */
 package org.leo.traceroute.install;
 
-import gov.nasa.worldwind.Configuration;
-import gov.nasa.worldwind.avlist.AVKey;
-
 import java.awt.Container;
 import java.awt.Font;
 import java.awt.Window;
@@ -65,6 +62,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jogamp.opengl.GLExtensions;
+
+import gov.nasa.worldwind.Configuration;
+import gov.nasa.worldwind.avlist.AVKey;
 
 /**
  * Env $Id: Env.java 286 2016-10-30 06:04:59Z leolewis $
@@ -140,8 +140,8 @@ public enum Env {
 	}
 
 	/** Application folder */
-	public static final File APP_FOLDER = new File(Env.class.getProtectionDomain().getCodeSource().getLocation().getPath()
-			.replaceAll("%20", " ")).getParentFile();
+	public static final File APP_FOLDER = new File(
+			Env.class.getProtectionDomain().getCodeSource().getLocation().getPath().replaceAll("%20", " ")).getParentFile();
 
 	public static final File NATIVE_FOLDER = new File(APP_FOLDER.getAbsolutePath() + Util.FILE_SEPARATOR + "native");
 	public static final File LIB_FOLDER = new File(APP_FOLDER.getAbsolutePath() + Util.FILE_SEPARATOR + "lib");
@@ -154,8 +154,8 @@ public enum Env {
 
 	/** Put it into the tmp folder (to be sure the user has access to it) */
 	public static final File GEO_DATA_FILE = new File(OVTR_FOLDER.getAbsolutePath() + Util.FILE_SEPARATOR + "GeoLiteCity.dat");
-	public static final File GEO_DATA_FILE_OLD = new File(OVTR_FOLDER.getAbsolutePath() + Util.FILE_SEPARATOR
-			+ "GeoLiteCity.dat.old");
+	public static final File GEO_DATA_FILE_OLD = new File(
+			OVTR_FOLDER.getAbsolutePath() + Util.FILE_SEPARATOR + "GeoLiteCity.dat.old");
 	public static final File HISTORY = new File(OVTR_FOLDER.getAbsolutePath() + Util.FILE_SEPARATOR + "ovtr.history");
 
 	/** Config file */
@@ -286,8 +286,9 @@ public enum Env {
 			final String[] usrPath = (String[]) usrPathFiled.get(null);
 			final String[] newUsrPath = new String[usrPath.length + 1];
 			System.arraycopy(usrPath, 0, newUsrPath, 0, usrPath.length);
-			newUsrPath[usrPath.length] = new File(NATIVE_FOLDER + Util.FILE_SEPARATOR + archOs.getLeft() + Util.FILE_SEPARATOR
-					+ archOs.getRight()).getAbsolutePath();
+			newUsrPath[usrPath.length] = new File(
+					NATIVE_FOLDER + Util.FILE_SEPARATOR + archOs.getLeft() + Util.FILE_SEPARATOR + archOs.getRight())
+							.getAbsolutePath();
 			usrPathFiled.set(null, newUsrPath);
 		} catch (final Exception e) {
 			throw new EnvException(e);
@@ -343,8 +344,8 @@ public enum Env {
 						final GLCapabilities caps = new GLCapabilities(glProfile);
 						caps.setOnscreen(false);
 						caps.setPBuffer(false);
-						final GLDrawable offscreenDrawable = GLDrawableFactory.getFactory(glProfile).createOffscreenDrawable(
-								null, caps, new DefaultGLCapabilitiesChooser(), 1, 1);
+						final GLDrawable offscreenDrawable = GLDrawableFactory.getFactory(glProfile).createOffscreenDrawable(null,
+								caps, new DefaultGLCapabilitiesChooser(), 1, 1);
 						offscreenDrawable.setRealized(true);
 						final GLContext context = offscreenDrawable.createContext(null);
 						final int additionalCtxCreationFlags = 0;
@@ -771,7 +772,7 @@ public enum Env {
 			if (factory != null) {
 				factory.updateStartup("loading.dynamic.conf", true);
 			}
-			dynConf = Util.followRedirectOpenConnection(Resources.getLabel("dynamic.conf.url"));
+			dynConf = Util.followRedirectOpenConnection(Resources.getStatic("dynamic.conf.url"));
 			final Properties prop = new Properties();
 			prop.load(dynConf);
 			final String ips = prop.getProperty("ip.resolver");
@@ -792,31 +793,31 @@ public enum Env {
 			IOUtils.closeQuietly(dynConf);
 		}
 		if (_geoIpLocation == null) {
-			_geoIpLocation = Resources.getLabel("update.geoip.url");
+			_geoIpLocation = Resources.getStatic("update.geoip.url");
 		}
 		if (_ipResolvers == null) {
 			_ipResolvers = new String[] { "http://www.trackip.net/ip", "https://api.ipify.org/" };
 		}
 		if (_donateUrl == null) {
-			_donateUrl = Resources.getLabel("donate.url");
+			_donateUrl = Resources.getStatic("donate.url");
 		}
 		if (_versionUrl == null) {
-			_versionUrl = Resources.getLabel("version.url");
+			_versionUrl = Resources.getStatic("version.url");
 		}
 		if (_whatsnewUrl == null) {
-			_whatsnewUrl = Resources.getLabel("whats.new.url");
+			_whatsnewUrl = Resources.getStatic("whats.new.url");
 		}
 		if (_downloadUrl == null) {
-			_downloadUrl = Resources.getLabel("download.url");
+			_downloadUrl = Resources.getStatic("download.url");
 		}
 		if (_supportUrl == null) {
-			_supportUrl = Resources.getLabel("support.url");
+			_supportUrl = Resources.getStatic("support.url");
 		}
 		if (_websitetUrl == null) {
-			_websitetUrl = Resources.getLabel("website.url");
+			_websitetUrl = Resources.getStatic("website.url");
 		}
 		if (_facebookUrl == null) {
-			_facebookUrl = Resources.getLabel("facebook.url");
+			_facebookUrl = Resources.getStatic("facebook.url");
 		}
 	}
 
