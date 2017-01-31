@@ -48,6 +48,8 @@ public class Resources {
 	/** */
 	private static final ResourceBundle VERSION_BUNDLE = ResourceBundle.getBundle(RESOURCE + ".Version");
 
+	private static final ResourceBundle STATIC_BUNDLE = ResourceBundle.getBundle(RESOURCE + ".static");
+
 	public static void initLabels() {
 		// custom bundle to be able to read the UTF-8 Japanese property file
 		String name = "Labels";
@@ -132,5 +134,14 @@ public class Resources {
 			return MessageFormat.format(getLabel(key), parameters);
 		}
 		return getLabel(key);
+	}
+
+	/**
+	 * Get static bundle
+	 * @param key
+	 * @return
+	 */
+	public static String getStatic(final String key) {
+		return STATIC_BUNDLE.getString(key);
 	}
 }
