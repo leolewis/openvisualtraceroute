@@ -1,0 +1,12 @@
+eclipse.preferences.version=1
+encoding//build/win/winpcap.license=UTF-8
+encoding//lib/WinPcap.LICENSE=UTF-8
+encoding//src/gov/nasa/worldwind/util/MessageStrings_de_DE.properties=UTF-8
+encoding//src/gov/nasa/worldwind/util/MessageStrings_fr.properties=UTF-8
+encoding//src/gov/nasa/worldwind/util/MessageStrings_ja.properties=UTF-8
+encoding//src/org/leo/traceroute/resources/Labels.properties=UTF-8
+encoding//src/org/leo/traceroute/resources/Labels_de_DE.properties=UTF-8
+encoding//src/org/leo/traceroute/resources/Labels_fr_FR.properties=UTF-8
+encoding//src/org/leo/traceroute/resources/Labels_ja_JP.properties=UTF-8
+encoding//src/org/leo/traceroute/resources/License.txt=UTF-8
+encoding//src/org/leo/traceroute/ui/util/ToolTip.java=UTF-8
