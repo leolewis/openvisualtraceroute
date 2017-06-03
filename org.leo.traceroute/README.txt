@@ -2,7 +2,7 @@
 ~~~~~~~ Open Visual Trace Route ~~~~~~~ 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Version 1.6.5
+Version 1.6.6
 I could successfully make this version on multiple systems, but my tests do not cover everything, so if you find a bug, a typo in some label feel free to post a bug report and/or fix
 - on Sourceforge http://sourceforge.net/projects/openvisualtrace/
 - or by email at leo.lewis.software@gmail.com
@@ -35,13 +35,15 @@ Limitations, Known issues :
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Wish list : 
-- import a LOC records file
-- manual override geop ip data
 - ipv6 support
 - traceroute server mode
-
+- display active connections
+- export and import traceroute data
+ 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Release Note 
+1.6.6
+- DNS loc records
 
 1.6.5
 - Fix Fatal error IOException: Failed to download geoip database

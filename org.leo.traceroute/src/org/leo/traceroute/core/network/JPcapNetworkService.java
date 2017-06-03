@@ -30,18 +30,18 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import jpcap.JpcapCaptor;
-import jpcap.NetworkInterface;
-import jpcap.packet.EthernetPacket;
-import jpcap.packet.Packet;
-
+import org.apache.commons.lang3.tuple.Pair;
 import org.leo.traceroute.core.AbstractObject;
 import org.leo.traceroute.core.ServiceFactory;
 import org.leo.traceroute.install.Env;
 import org.leo.traceroute.install.Env.OS;
-import org.leo.traceroute.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jpcap.JpcapCaptor;
+import jpcap.NetworkInterface;
+import jpcap.packet.EthernetPacket;
+import jpcap.packet.Packet;
 
 /**
  * NetworkManager $Id: JPcapNetworkService.java 247 2016-02-23 06:19:59Z leolewis $
@@ -49,8 +49,8 @@ import org.slf4j.LoggerFactory;
  * </pre>
  * @author Leo Lewis
  */
-public class JPcapNetworkService extends AbstractObject<INetworkInterfaceListener<NetworkInterface>> implements
-		INetworkService<NetworkInterface> {
+public class JPcapNetworkService extends AbstractObject<INetworkInterfaceListener<NetworkInterface>>
+		implements INetworkService<NetworkInterface> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServiceFactory.class);
 
@@ -116,7 +116,7 @@ public class JPcapNetworkService extends AbstractObject<INetworkInterfaceListene
 									getwayMac = ((EthernetPacket) ping.datalink).dst_mac;
 								}
 							}
-							return Pair.create(netInterface, getwayMac);
+							return Pair.of(netInterface, getwayMac);
 						}
 					}));
 
@@ -159,9 +159,9 @@ public class JPcapNetworkService extends AbstractObject<INetworkInterfaceListene
 		final List<Pair<Integer, String>> list = new ArrayList<Pair<Integer, String>>();
 		for (int i = 0; i < _devices.size(); i++) {
 			final NetworkInterface net = _devices.get(i);
-			final String text = net.description == null || net.description.trim().length() == 0 ? net.name : (net.description
-					+ " (" + net.name + ")");
-			list.add(Pair.create(i, text));
+			final String text = net.description == null || net.description.trim().length() == 0 ? net.name
+					: (net.description + " (" + net.name + ")");
+			list.add(Pair.of(i, text));
 		}
 		return list;
 	}

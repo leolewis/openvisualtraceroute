@@ -25,6 +25,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.Properties;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.commons.lang3.tuple.Pair;
 import org.leo.traceroute.core.ServiceFactory;
 import org.leo.traceroute.core.geo.GeoPoint;
 import org.leo.traceroute.core.route.RoutePoint;
@@ -42,7 +44,6 @@ import org.leo.traceroute.resources.CountryFlagManager.Resolution;
 import org.leo.traceroute.ui.control.ControlPanel.Mode;
 import org.leo.traceroute.ui.util.ColorUtil;
 import org.leo.traceroute.ui.util.SwingUtilities4;
-import org.leo.traceroute.util.Pair;
 
 import com.bbn.openmap.LayerHandler;
 import com.bbn.openmap.MapBean;
@@ -257,8 +258,8 @@ public class OpenMapPanel extends AbstractGeoPanel {
 					points = _omImageToPoint.get(omGraphic);
 				}
 				if (text != null || img != null) {
-					if (_selectedPoint != null
-							&& ((text != null && _selectedPoint.getLeft() == text) || (img != null && _selectedPoint.getRight() == img))) {
+					if (_selectedPoint != null && ((text != null && _selectedPoint.getLeft() == text)
+							|| (img != null && _selectedPoint.getRight() == img))) {
 						_selectionIndex = (_selectionIndex + 1) % (points.size());
 					} else {
 						_selectionIndex = 0;
@@ -267,6 +268,8 @@ public class OpenMapPanel extends AbstractGeoPanel {
 				} else {
 					focus(null);
 				}
+				final Point2D forward = _mapBean.getProjection().forward(e.getX(), e.getY());
+				onMousePosition(forward.getY(), forward.getX());
 			}
 		});
 		add(BorderLayout.CENTER, mapPanel);
@@ -278,6 +281,7 @@ public class OpenMapPanel extends AbstractGeoPanel {
 	 */
 	@Override
 	public void afterShow(final Mode mode) {
+		super.afterShow(mode);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -343,7 +347,7 @@ public class OpenMapPanel extends AbstractGeoPanel {
 			text.setLinePaint(UNSELECTED_COLOR);
 			text.setMattingPaint(UNSELECTED_COLOR);
 			text.putAttribute(OMGraphicConstants.LABEL, new OMTextLabeler(getText(point)));
-			omPoint = Pair.create(text, flagImage);
+			omPoint = Pair.of(text, flagImage);
 			_toAvoidDuplicatedLabels.put(coordKey, omPoint);
 			// in sniffer mode, don't add duplicated points
 			if (_mapShowLabel && _mode != Mode.SNIFFER) {
@@ -368,7 +372,7 @@ public class OpenMapPanel extends AbstractGeoPanel {
 				_layer.addShape(line, false, false);
 				if (_mode == Mode.TRACE_ROUTE) {
 					line.addArrowHead(true);
-					_packetDestCoordToPath.put(coordKey, Pair.create(line, new MutableInt(1)));
+					_packetDestCoordToPath.put(coordKey, Pair.of(line, new MutableInt(1)));
 				}
 			} else if (_mode == Mode.SNIFFER) {
 				final OMLine line = pair.getLeft();

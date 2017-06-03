@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.swing.SwingUtilities;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.leo.traceroute.core.AbstractObject;
 import org.leo.traceroute.core.ServiceFactory;
 import org.leo.traceroute.core.network.DNSLookupService;
@@ -48,7 +49,6 @@ import org.leo.traceroute.install.Env;
 import org.leo.traceroute.install.Env.OS;
 import org.leo.traceroute.ui.route.RouteTablePanel.Column;
 import org.leo.traceroute.ui.task.CancelMonitor;
-import org.leo.traceroute.util.Pair;
 import org.leo.traceroute.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -407,7 +407,7 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 							latency = (int) Float.parseFloat(routePoint[2]);
 						}
 					}
-					previous = addPoint(Pair.create(ip, host), latency, dnslookupTime);
+					previous = addPoint(Pair.of(ip, host), latency, dnslookupTime);
 				}
 				if (monitor.isCanceled()) {
 					return;
@@ -465,20 +465,21 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 	 */
 	protected RoutePoint addPoint(final Pair<String, String> ipAndHost, final int latency, final long dnslookupTime) {
 		final String ip = ipAndHost.getLeft();
-		final String hostname = ipAndHost.getRight();
+		final String dns = ipAndHost.getRight();
 		RoutePoint point;
 		if (ip.startsWith("192.168.") || ip.equals("127.0.0.1")) {
 			// private Ips, calculate location with public IP
-			point = _services.getGeo().populateGeoDataForIP(new RoutePoint(), _services.getGeo().getPublicIp().getLeft());
+			point = _services.getGeo().populateGeoDataForIP(new RoutePoint(), _services.getGeo().getPublicIp().getLeft(), null);
 			point.setIp(ip);
 		} else {
-			point = _services.getGeo().populateGeoDataForIP(new RoutePoint(), ip);
+			point = _services.getGeo().populateGeoDataForIP(new RoutePoint(), ip, dns);
 		}
 		// unknown location
 		if (point.isUnknownGeo()) {
 			if (_route.isEmpty()) {
 				// set to local ip
-				point = _services.getGeo().populateGeoDataForIP(new RoutePoint(), _services.getGeo().getPublicIp().getLeft());
+				point = _services.getGeo().populateGeoDataForIP(new RoutePoint(), _services.getGeo().getPublicIp().getLeft(),
+						null);
 			} else {
 				// set to previous point
 				final RoutePoint previous = _route.get(_route.size() - 1);
@@ -492,7 +493,7 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 		point.setNumber(_route.size() + 1);
 		point.setLatency(latency);
 		point.setDnsLookUpTime(dnslookupTime);
-		point.setHostname(hostname);
+		point.setHostname(dns);
 		return addPoint(point);
 	}
 

@@ -17,20 +17,28 @@
  */
 package org.leo.traceroute.core.geo;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.leo.traceroute.core.IComponent;
 import org.leo.traceroute.core.ServiceFactory;
+import org.leo.traceroute.core.network.DNSLookupService;
 import org.leo.traceroute.install.Env;
 import org.leo.traceroute.resources.Resources;
-import org.leo.traceroute.util.Pair;
 import org.leo.traceroute.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +56,9 @@ public class GeoService implements IComponent {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GeoService.class);
 
+	/** DNS Loc records file */
+	private final static File LOC_RECORDS = new File(Env.OVTR_FOLDER.getAbsolutePath() + "/dns.loc");
+
 	/** Unknown location */
 	private final static String UNKNOWN_LOCATION = "(Unknown)";
 
@@ -61,6 +72,11 @@ public class GeoService implements IComponent {
 
 	private boolean _deleteDbOnClose;
 
+	/** DNS loc records */
+	private final Map<String, Location> _locRecords = new HashMap<String, Location>();
+	/** DNS loc records (raw)*/
+	private final List<LocRecord> _rawLocRecords = new ArrayList<LocRecord>();
+
 	/**
 	 * @see org.leo.traceroute.core.IComponent#init(org.leo.traceroute.core.ServiceFactory)
 	 */
@@ -73,8 +89,7 @@ public class GeoService implements IComponent {
 		GZIPInputStream gzis = null;
 		FileOutputStream out = null;
 		try {
-			if (Env.GEO_DATA_FILE.exists()
-					&& (Env.GEO_DATA_FILE.lastModified() + TimeUnit.DAYS.toMillis(30)) < System.currentTimeMillis()) {
+			if (Env.GEO_DATA_FILE.exists() && (Env.GEO_DATA_FILE.lastModified() + TimeUnit.DAYS.toMillis(30)) < System.currentTimeMillis()) {
 				// geoip db expires after once month
 				Env.GEO_DATA_FILE.renameTo(Env.GEO_DATA_FILE_OLD);
 				LOGGER.info("GeoIP database expired, force redownloading a new one");
@@ -113,10 +128,10 @@ public class GeoService implements IComponent {
 		services.updateStartup("init.public.ip", retry == 0);
 		final String ip = Util.getPublicIp();
 		try {
-			_publicIp = Pair.create(ip, Inet4Address.getByName(ip));
-			_localIpGeoLocation = populateGeoDataForIP(new GeoPoint(), _publicIp.getLeft());
+			_publicIp = Pair.of(ip, Inet4Address.getByName(ip));
+			computePublicIpGeoLocation();
 		} catch (final UnknownHostException e) {
-			_publicIp = Pair.create(ip, null);
+			_publicIp = Pair.of(ip, null);
 		} catch (final ArrayIndexOutOfBoundsException e) {
 			LOGGER.info("Corrupted GeoIP database, force redownloading a new one");
 			if (retry++ > 2) {
@@ -124,7 +139,18 @@ public class GeoService implements IComponent {
 				doInit(services, retry);
 			}
 		}
+		if (LOC_RECORDS.exists()) {
+			final Pair<String, Exception> error = parseAndLoadDNSRecords(IOUtils.toString(new FileInputStream(LOC_RECORDS)));
+			if (StringUtils.isNoneEmpty(error.getKey())) {
+				LOGGER.error(error.getKey(), error.getValue());
+			} else {
+				LOGGER.info("DNS LOC records file {} loaded", LOC_RECORDS.getAbsolutePath());
+			}
+		}
+	}
 
+	private void computePublicIpGeoLocation() {
+		_localIpGeoLocation = populateGeoDataForIP(new GeoPoint(), _publicIp.getLeft(), null);
 	}
 
 	public void deleteGeoIpDbOnExit() {
@@ -138,14 +164,23 @@ public class GeoService implements IComponent {
 	 * @param ip the IP
 	 * @return the updated point
 	 */
-	public <P extends GeoPoint> P populateGeoDataForIP(final P point, final String ip) {
-		Location response = null;
+	public <P extends GeoPoint> P populateGeoDataForIP(final P point, final String ip, final String dns) {
+		Location location = null;
 		try {
 			point.setIp(ip);
-			response = _lookupService.getLocation(ip);
-			if (response != null) {
-				final String city = response.city;
-				final String country = response.countryName;
+			// check loc records
+			if (DNSLookupService.UNKNOWN_HOST.equals(dns)) {
+				location = _locRecords.get(ip);
+			} else {
+				location = _locRecords.get(dns);
+			}
+			// nothing in the loc records, check with the geoip db
+			if (location == null) {
+				location = _lookupService.getLocation(ip);
+			}
+			if (location != null) {
+				final String city = location.city;
+				final String country = location.countryName;
 				if (city == null || "".equals(city)) {
 					point.setTown(UNKNOWN_LOCATION);
 				} else {
@@ -156,13 +191,13 @@ public class GeoService implements IComponent {
 				} else {
 					point.setCountry(country);
 				}
-				if (response.latitude == 0f && response.longitude == 0f) {
+				if (location.latitude == 0f && location.longitude == 0f) {
 					point.setUnknownGeo(true);
 				} else {
-					point.setLat(response.latitude);
-					point.setLon(response.longitude);
+					point.setLat(location.latitude);
+					point.setLon(location.longitude);
 				}
-				point.setCountryIso(response.countryCode);
+				point.setCountryIso(location.countryCode);
 				if (ip.equals("239.255.255.250")) {
 					point.setCountry("SSDP");
 					point.setTown("SSDP");
@@ -171,7 +206,7 @@ public class GeoService implements IComponent {
 		} catch (final Exception e) {
 			LOGGER.warn("Failed to lookup geoip data for ip " + ip, e);
 		}
-		if (response == null) {
+		if (location == null) {
 			point.setUnknownGeo(true);
 			point.setTown(UNKNOWN_LOCATION);
 			point.setCountry(UNKNOWN_LOCATION);
@@ -190,7 +225,7 @@ public class GeoService implements IComponent {
 	}
 
 	public GeoPoint getLocalIpGeoLocation() {
-		return populateGeoDataForIP(new GeoPoint(), _publicIp.getLeft());
+		return populateGeoDataForIP(new GeoPoint(), _publicIp.getLeft(), null);
 	}
 
 	/**
@@ -216,5 +251,88 @@ public class GeoService implements IComponent {
 				LOGGER.error("Failed to delete geoip db {} {}", Env.GEO_DATA_FILE.getAbsolutePath());
 			}
 		}
+		try {
+			IOUtils.write(getLocRecordsStr(), new FileOutputStream(LOC_RECORDS));
+			LOGGER.info("DNS LOC records saved to {}", LOC_RECORDS.getAbsolutePath());
+		} catch (final Exception e) {
+			LOGGER.error("Failed to save DNS LOC records {}", LOC_RECORDS, e);
+		}
+	}
+
+	public Pair<String, Exception> parseAndLoadDNSRecords(final String raw) {
+		clear();
+		final StringBuilder error = new StringBuilder();
+		Exception ex = null;
+		final String[] lines = raw.split("\\r?\\n");
+		try {
+			StringBuilder comment = null;
+			for (final String line : lines) {
+				if (line.trim().isEmpty() || line.startsWith(";")) {
+					if (comment == null) {
+						comment = new StringBuilder();
+					}
+					comment.append(line).append("\n");
+					continue;
+				}
+				LocRecord record = null;
+				try {
+					record = new LocRecord(line, comment == null ? "" : comment.toString());
+				} catch (final Exception e) {
+					error.append("Invalid record " + line + ": " + e.getMessage());
+					ex = e;
+					// invalid record, comment it out
+					final String r = ";Invalid record :" + e.getMessage() + "\n;" + line;
+					record = new LocRecord(r, comment.toString());
+				}
+				addLocRecord(record);
+				comment = null;
+			}
+		} catch (final Exception e) {
+			error.append("Failed to load loc records " + LOC_RECORDS.getAbsolutePath() + e.getMessage());
+			ex = e;
+		}
+		return Pair.of(error.toString(), ex);
+	}
+
+	private void addLocRecord(final LocRecord record) {
+		if (record.isValid()) {
+			final Location old = _locRecords.put(record.getOwner(), record.getLocation());
+			if (old != null) {
+				_rawLocRecords.remove(old);
+			}
+		}
+		_rawLocRecords.add(record);
+	}
+
+	/**
+	 * Return the value of the field locRecordsStr
+	 * @return the value of locRecordsStr
+	 */
+	public String getLocRecordsStr() {
+		if (_rawLocRecords.isEmpty()) {
+			return "; LOC record format is https://en.wikipedia.org/wiki/LOC_record\n"
+					+ ";owner TTL class LOC ( d1 [m1 [s1]] {\"N\"|\"S\"} d2 [m2 [s2]] {\"E\"|\"W\"} alt[\"m\"] [siz[\"m\"] [hp[\"m\"] [vp[\"m\"]]]] )\n" + "; example\n"
+					+ "; statdns.net. TTL IN LOC 52 22 23.000 N 4 53 32.000 E -2.00m 0.00m 10000m 10m";
+		}
+		final StringBuilder sb = new StringBuilder();
+		for (final LocRecord record : _rawLocRecords) {
+			sb.append(record.getRaw());
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * @param host
+	 * @param lat
+	 * @param lon
+	 */
+	public void addLocRecord(final String host, final double lat, final double lon) {
+		addLocRecord(new LocRecord(host, lat, lon));
+		computePublicIpGeoLocation();
+	}
+
+	private void clear() {
+		_rawLocRecords.clear();
+		_locRecords.clear();
 	}
 }

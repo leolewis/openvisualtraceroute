@@ -18,16 +18,10 @@
 package org.leo.traceroute.core.sniffer.impl;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import jpcap.JpcapCaptor;
-import jpcap.NetworkInterface;
-import jpcap.NetworkInterfaceAddress;
-import jpcap.PacketReceiver;
-import jpcap.packet.IPPacket;
-import jpcap.packet.Packet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.leo.traceroute.core.IComponent;
@@ -39,6 +33,13 @@ import org.leo.traceroute.core.sniffer.IPacketListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jpcap.JpcapCaptor;
+import jpcap.NetworkInterface;
+import jpcap.NetworkInterfaceAddress;
+import jpcap.PacketReceiver;
+import jpcap.packet.IPPacket;
+import jpcap.packet.Packet;
+
 /**
  * Packet Sniffer $Id: JPcapPacketSniffer.java 102 2014-05-04 07:16:40Z leolewis $
  * <pre>
@@ -46,8 +47,8 @@ import org.slf4j.LoggerFactory;
  * @author Leo Lewis
  */
 @Deprecated
-public class JPcapPacketSniffer extends AbstractSniffer implements PacketReceiver, IComponent,
-INetworkInterfaceListener<NetworkInterface> {
+public class JPcapPacketSniffer extends AbstractSniffer
+		implements PacketReceiver, IComponent, INetworkInterfaceListener<NetworkInterface> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JPcapPacketSniffer.class);
 	private static final int RESET = 500;
@@ -131,13 +132,14 @@ INetworkInterfaceListener<NetworkInterface> {
 				if (!_captureProtocols.contains(protocol)) {
 					return;
 				}
-				final String dest = tpt.dst_ip.getHostAddress();
+				final InetAddress dest = tpt.dst_ip;
 				JPcapPacketPoint point;
 				// packets with dest to local device
 				if (_localAddresses.contains(dest)) {
-					point = _services.getGeo().populateGeoDataForLocalIp(new JPcapPacketPoint(), dest);
+					point = _services.getGeo().populateGeoDataForLocalIp(new JPcapPacketPoint(), dest.getHostAddress());
 				} else {
-					point = _services.getGeo().populateGeoDataForIP(new JPcapPacketPoint(), dest);
+					point = _services.getGeo().populateGeoDataForIP(new JPcapPacketPoint(), dest.getHostAddress(),
+							dest.getHostName());
 				}
 				if (point != null) {
 					point.setProtocol(protocol);

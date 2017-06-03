@@ -23,6 +23,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.ByteOrder;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapAddr;
 import org.jnetpcap.PcapBpfProgram;
@@ -43,7 +44,6 @@ import org.jnetpcap.protocol.tcpip.Tcp;
 import org.leo.traceroute.core.ServiceFactory;
 import org.leo.traceroute.core.network.INetworkService;
 import org.leo.traceroute.ui.task.CancelMonitor;
-import org.leo.traceroute.util.Pair;
 
 /**
  * Trace Route service $Id: JNetCapTraceRoute.java 103 2014-05-04 10:57:42Z leolewis $
@@ -137,7 +137,7 @@ public class JNetCapTraceRoute extends AbstractTraceRoute<PcapIf> {
 					dnslookup = System.currentTimeMillis() - now;
 				}
 				// add the new route point
-				addPoint(Pair.create(ip, hostname), latency, dnslookup);
+				addPoint(Pair.of(ip, hostname), latency, dnslookup);
 				previousTime = System.currentTimeMillis();
 				sendPacket(captor, sendPacket);
 			}

@@ -29,11 +29,11 @@
     <runtimeBits>64/32</runtimeBits>
   </jre>
   <versionInfo>
-    <fileVersion>1.6.5.0</fileVersion>
+    <fileVersion>1.6.6.0</fileVersion>
     <txtFileVersion>1.0</txtFileVersion>
     <fileDescription>Open Visual Traceroute</fileDescription>
     <copyright>Leo Lewis</copyright>
-    <productVersion>1.6.5.0</productVersion>
+    <productVersion>1.6.6.0</productVersion>
     <txtProductVersion>1.0</txtProductVersion>
     <productName>Open Visual Traceroute</productName>
     <companyName>Leo Lewis</companyName>

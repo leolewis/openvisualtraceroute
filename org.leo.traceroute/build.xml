@@ -250,11 +250,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 	<target name="installer_deb">
 
 		<desktopentry toFile="${basedir}/product/ovtr.desktop" name="Open Visual Traceroute" comment="Traceroute that displays route data in a map component." 
-			exec="/usr/share/${appli.name}/gksu_ovtr.sh" path="/usr/share/${appli.name}/" 
+			exec="/usr/share/${appli.name}/ovtr.sh" path="/usr/share/${appli.name}/" 
 			icon="/usr/share/${appli.name}/resources/icon.png" categories="Utility;" terminal="false" type="Application" />
 
 		<deb todir="${basedir}/released/" package="ovtr" architecture="i386" section="utils" 
-			depends="gksu, traceroute, whois, sun-java6-jre | sun-java7-jre | openjdk-6-jre-headless | openjdk-7-jre-headless | openjdk-6-jdk | openjdk-7-jdk | openjdk-8-jre-headless | openjdk-8-jdk" version="${version.full}">
+			depends="traceroute, whois, sun-java6-jre | sun-java7-jre | openjdk-6-jre-headless | openjdk-7-jre-headless | openjdk-6-jdk | openjdk-7-jdk | openjdk-8-jre-headless | openjdk-8-jdk" version="${version.full}">
 			<version upstream="${version.full}" />
 			<maintainer name="Leo Lewis" email="leo.lewis.software@gmail.com" />
 			<description synopsis="OpenVisualTraceroute">
@@ -280,7 +280,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 			<tarfileset file="${basedir}/product/ovtr.desktop" prefix="usr/share/applications" />
 		</deb>
 		<deb todir="${basedir}/released/" package="ovtr" architecture="amd64" section="utils" 
-			depends="gksu, traceroute, whois, sun-java6-jre | sun-java7-jre | openjdk-6-jre-headless | openjdk-7-jre-headless | openjdk-6-jdk | openjdk-7-jdk | openjdk-8-jre-headless | openjdk-8-jdk" version="${version.full}">
+			depends="traceroute, whois, sun-java6-jre | sun-java7-jre | openjdk-6-jre-headless | openjdk-7-jre-headless | openjdk-6-jdk | openjdk-7-jdk | openjdk-8-jre-headless | openjdk-8-jdk" version="${version.full}">
 			<version upstream="${version.full}" />
 			<maintainer name="Leo Lewis" email="leo.lewis.software@gmail.com" />
 			<description synopsis="OpenVisualTraceroute">

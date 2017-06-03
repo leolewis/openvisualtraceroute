@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 
@@ -81,7 +82,7 @@ public class Resources {
 		try {
 			LABEL_BUNDLE = new PropertyResourceBundle(new InputStreamReader(stream, "UTF-8"));
 		} catch (final Exception e) {
-			e.printStackTrace();
+			LOGGER.error("Failed to load resource bundle", e);
 		}
 	}
 
@@ -92,7 +93,10 @@ public class Resources {
 	 * @return String version
 	 */
 	public static String getLabel(final String key) {
-		return LABEL_BUNDLE.getString(key);
+		if (LABEL_BUNDLE.containsKey(key)) {
+			return LABEL_BUNDLE.getString(key);
+		}
+		return key;
 	}
 
 	/**
@@ -123,8 +127,7 @@ public class Resources {
 	 * @return String lable
 	 */
 	public static String getVersion() {
-		return VERSION_BUNDLE.getString("version") + "." + VERSION_BUNDLE.getString("build") + " "
-				+ VERSION_BUNDLE.getString("type");
+		return VERSION_BUNDLE.getString("version") + "." + VERSION_BUNDLE.getString("build") + " " + VERSION_BUNDLE.getString("type");
 	}
 
 	/**
@@ -161,7 +164,10 @@ public class Resources {
 	 */
 	public static String getLabel(final String key, final Object... parameters) {
 		if (parameters.length > 0) {
-			return MessageFormat.format(getLabel(key), parameters);
+			if (LABEL_BUNDLE.containsKey(key)) {
+				return MessageFormat.format(getLabel(key), parameters);
+			}
+			return key + ": " + Arrays.toString(parameters);
 		}
 		return getLabel(key);
 	}

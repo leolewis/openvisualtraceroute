@@ -23,13 +23,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapIf;
 import org.leo.traceroute.core.AbstractObject;
 import org.leo.traceroute.core.ServiceFactory;
 import org.leo.traceroute.install.Env;
 import org.leo.traceroute.install.Env.OS;
-import org.leo.traceroute.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,9 +95,9 @@ public class JNetCapNetworkService extends AbstractObject<INetworkInterfaceListe
 		final List<Pair<Integer, String>> list = new ArrayList<Pair<Integer, String>>();
 		int i = 0;
 		for (final PcapIf net : _devices) {
-			final String text = net.getDescription() == null || net.getDescription().trim().length() == 0 ? net.getName() : (net
-					.getDescription() + " (" + net.getName() + ")");
-			list.add(Pair.create(i++, text));
+			final String text = net.getDescription() == null || net.getDescription().trim().length() == 0 ? net.getName()
+					: (net.getDescription() + " (" + net.getName() + ")");
+			list.add(Pair.of(i++, text));
 		}
 		return list;
 	}

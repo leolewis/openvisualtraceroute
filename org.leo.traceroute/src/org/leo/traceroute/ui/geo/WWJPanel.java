@@ -17,6 +17,43 @@
  */
 package org.leo.traceroute.ui.geo;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
+import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.commons.lang3.tuple.Pair;
+import org.leo.traceroute.core.ServiceFactory;
+import org.leo.traceroute.core.geo.GeoPoint;
+import org.leo.traceroute.core.route.RoutePoint;
+import org.leo.traceroute.install.Env;
+import org.leo.traceroute.resources.CountryFlagManager.Resolution;
+import org.leo.traceroute.resources.Resources;
+import org.leo.traceroute.ui.control.ControlPanel.Mode;
+import org.leo.traceroute.ui.util.ColorUtil;
+import org.leo.traceroute.ui.util.GlassPane;
+import org.leo.traceroute.util.Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import gov.nasa.worldwind.Configuration;
 import gov.nasa.worldwind.View;
 import gov.nasa.worldwind.WorldWind;
@@ -41,41 +78,6 @@ import gov.nasa.worldwindx.applications.worldwindow.core.ToolBar;
 import gov.nasa.worldwindx.applications.worldwindow.core.WWPanel;
 import gov.nasa.worldwindx.applications.worldwindow.core.layermanager.LayerPath;
 import gov.nasa.worldwindx.examples.util.LabeledPath;
-
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.Insets;
-import java.awt.Point;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.leo.traceroute.core.ServiceFactory;
-import org.leo.traceroute.core.geo.GeoPoint;
-import org.leo.traceroute.core.route.RoutePoint;
-import org.leo.traceroute.install.Env;
-import org.leo.traceroute.resources.CountryFlagManager.Resolution;
-import org.leo.traceroute.resources.Resources;
-import org.leo.traceroute.ui.control.ControlPanel.Mode;
-import org.leo.traceroute.ui.util.ColorUtil;
-import org.leo.traceroute.ui.util.GlassPane;
-import org.leo.traceroute.util.Pair;
-import org.leo.traceroute.util.Util;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * WWJPanel $Id: WWJPanel.java 286 2016-10-30 06:04:59Z leolewis $
@@ -192,12 +194,10 @@ public class WWJPanel extends AbstractGeoPanel {
 					_controller.getLayerManager().addLayer(_renderableLayer, path);
 					_controller.getLayerManager().getNode(path).setSelected(true);
 					_controller.getLayerManager().selectLayer(_renderableLayer, true);
-
 					_controller.getWWd().addSelectListener(new SelectListener() {
 						@Override
 						public void selected(final SelectEvent event) {
-							if (event.getEventAction().equals(SelectEvent.LEFT_CLICK) && event.hasObjects()
-									&& event.getTopObject() instanceof ScreenAnnotation) {
+							if (event.getEventAction().equals(SelectEvent.LEFT_CLICK) && event.hasObjects() && event.getTopObject() instanceof ScreenAnnotation) {
 								final ScreenAnnotation sa = (ScreenAnnotation) event.getTopObject();
 								final List<GeoPoint> points = _annotationToPoint.get(sa);
 								if (_lastSelection != null && _lastSelection.getLeft().getAnnotation() == sa) {
@@ -214,6 +214,25 @@ public class WWJPanel extends AbstractGeoPanel {
 							}
 						}
 					});
+					_controller.getWWd().getInputHandler().addMouseListener(new MouseAdapter() {
+						@Override
+						public void mouseClicked(final MouseEvent e) {
+							final Position currentPosition = _controller.getWWd().getCurrentPosition();
+							if (currentPosition != null) {
+								onMousePosition(currentPosition.getLatitude().getDegrees(), currentPosition.getLongitude().getDegrees());
+							}
+						}
+
+						@Override
+						public void mouseDragged(final MouseEvent e) {
+							final Position currentPosition = _controller.getWWd().getCurrentPosition();
+							if (currentPosition != null && _lastSelection != null) {
+								final LabeledPath path = _lastSelection.getKey();
+								path.getAnnotation().setScreenPoint(e.getLocationOnScreen());
+							}
+						}
+
+					});
 					_controller.getWWPanel().getJPanel().invalidate();
 					invalidate();
 					revalidate();
@@ -221,8 +240,7 @@ public class WWJPanel extends AbstractGeoPanel {
 			});
 		} catch (final Exception e) {
 			LOGGER.error(e.getLocalizedMessage(), e);
-			GlassPane.displayMessage(this, "Error while initializing the World Wind Component\n" + e.getMessage(),
-					Resources.getImageIcon("error.png"));
+			GlassPane.displayMessage(this, "Error while initializing the World Wind Component\n" + e.getMessage(), Resources.getImageIcon("error.png"));
 		}
 	}
 
@@ -231,6 +249,7 @@ public class WWJPanel extends AbstractGeoPanel {
 	 */
 	@Override
 	public void afterShow(final Mode mode) {
+		super.afterShow(mode);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -279,7 +298,7 @@ public class WWJPanel extends AbstractGeoPanel {
 			if (_mapShowLabel) {
 				_renderableLayer.addRenderable(label);
 			}
-			labelAndAnnotation = Pair.create(label, annotation);
+			labelAndAnnotation = Pair.of(label, annotation);
 			_toAvoidDuplicatedLabels.put(coordKey, labelAndAnnotation);
 		}
 		// in sniffer mode, don't add duplicated points
@@ -289,7 +308,7 @@ public class WWJPanel extends AbstractGeoPanel {
 				final Path path = createPath(ColorUtil.INSTANCE.getColorForNumOfPoints(1));
 				_renderableLayer.addRenderable(path);
 				path.setPositions(Arrays.asList(new Position(_sourcePos, _sourcePos.getAltitude()), pos));
-				_packetDestCoordToPath.put(coordKey, Pair.create(path, new MutableInt(1)));
+				_packetDestCoordToPath.put(coordKey, Pair.of(path, new MutableInt(1)));
 			} else {
 				// update elevation and color of the line depending on the number of packets received from the dest coordinates
 				final MutableInt num = pathAndNumberOfPackets.getRight();
@@ -297,8 +316,7 @@ public class WWJPanel extends AbstractGeoPanel {
 				final Path path = pathAndNumberOfPackets.getLeft();
 				final Color color = ColorUtil.INSTANCE.getColorForNumOfPoints(num.intValue());
 				path.getAttributes().setOutlineMaterial(new Material(color));
-				path.getAttributes().setInteriorMaterial(
-						new Material(new Color(color.getRed(), color.getGreen(), color.getBlue(), 50), 50));
+				path.getAttributes().setInteriorMaterial(new Material(new Color(color.getRed(), color.getGreen(), color.getBlue(), 50), 50));
 				final List<Position> copy = new ArrayList<Position>();
 				for (final Position p : path.getPositions()) {
 					copy.add(new Position(p, normalizeElevation(num.intValue(), 5e3)));
@@ -474,8 +492,7 @@ public class WWJPanel extends AbstractGeoPanel {
 			final ScreenAnnotation lastSelectedAnnotation = lastSelectedLabel.getAnnotation();
 			final GeoPoint lastSelectedPoint = _lastSelection.getRight();
 			if (_mapShowLabel) {
-				lastSelectedAnnotation.setAttributes(createAnnotationAttr(false,
-						lastSelectedPoint.getCountryFlag(IMAGE_RESOLUTION), getText(lastSelectedPoint)));
+				lastSelectedAnnotation.setAttributes(createAnnotationAttr(false, lastSelectedPoint.getCountryFlag(IMAGE_RESOLUTION), getText(lastSelectedPoint)));
 				lastSelectedAnnotation.setAlwaysOnTop(false);
 			} else {
 				_renderableLayer.removeRenderable(lastSelectedLabel);
@@ -489,7 +506,7 @@ public class WWJPanel extends AbstractGeoPanel {
 			_renderableLayer.addRenderable(label);
 			_controller.redraw();
 		}
-		_lastSelection = Pair.create(label, point);
+		_lastSelection = Pair.of(label, point);
 	}
 
 	/**

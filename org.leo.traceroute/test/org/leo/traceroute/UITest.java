@@ -28,6 +28,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.leo.traceroute.core.ServiceFactory;
 import org.leo.traceroute.core.autocomplete.AutoCompleteProvider;
 import org.leo.traceroute.core.geo.GeoService;
@@ -46,7 +47,6 @@ import org.leo.traceroute.ui.route.GanttPanel;
 import org.leo.traceroute.ui.route.RouteTablePanel;
 import org.leo.traceroute.ui.task.CancelMonitor;
 import org.leo.traceroute.ui.util.SplashScreen;
-import org.leo.traceroute.util.Pair;
 
 /**
  * WWTest $Id: UITest.java 281 2016-10-11 04:09:33Z leolewis $
@@ -96,9 +96,9 @@ public class UITest {
 			protected void computeRoute(final String formatedDest, final CancelMonitor monitor, final boolean resolveHostname,
 					final int maxHops) throws IOException {
 				for (int i = 0; i < 100; i++) {
-					addPoint(Pair.create("118.236.194.140", "localhost"), 10, 10);
+					addPoint(Pair.of("118.236.194.140", "localhost"), 10, 10);
 				}
-				addPoint(Pair.create("66.249.64.0", "google.com"), 10, 10);
+				addPoint(Pair.of("66.249.64.0", "google.com"), 10, 10);
 			}
 
 			@Override

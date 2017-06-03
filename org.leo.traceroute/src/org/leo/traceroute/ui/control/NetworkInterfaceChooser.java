@@ -27,6 +27,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.leo.traceroute.core.ServiceFactory;
 import org.leo.traceroute.core.geo.GeoPoint;
 import org.leo.traceroute.core.route.RoutePoint;
@@ -35,7 +36,6 @@ import org.leo.traceroute.install.Env;
 import org.leo.traceroute.resources.Resources;
 import org.leo.traceroute.ui.AbstractPanel;
 import org.leo.traceroute.ui.control.ControlPanel.Mode;
-import org.leo.traceroute.util.Pair;
 
 /**
  * NetworkInterfaceChooser $Id: NetworkInterfaceChooser.java 241 2016-02-20 21:23:52Z leolewis $
@@ -84,14 +84,14 @@ public class NetworkInterfaceChooser extends AbstractPanel {
 			}
 		});
 		add(_deviceSelectionCombo, BorderLayout.CENTER);
-		final List<Pair<Integer, String>> devices = _services.getNetwork(
-				mode == Mode.SNIFFER ? ServiceFactory.SNIFFER_NETWORK_LIB : ServiceFactory.TRACEROUTE_NETWORK_LIB)
+		final List<Pair<Integer, String>> devices = _services
+				.getNetwork(mode == Mode.SNIFFER ? ServiceFactory.SNIFFER_NETWORK_LIB : ServiceFactory.TRACEROUTE_NETWORK_LIB)
 				.getNetworkDevices();
 		for (final Pair<Integer, String> net : devices) {
 			_deviceSelectionCombo.addItem(net.getRight());
 		}
-		final int index = services.getNetwork(
-				mode == Mode.SNIFFER ? ServiceFactory.SNIFFER_NETWORK_LIB : ServiceFactory.TRACEROUTE_NETWORK_LIB)
+		final int index = services
+				.getNetwork(mode == Mode.SNIFFER ? ServiceFactory.SNIFFER_NETWORK_LIB : ServiceFactory.TRACEROUTE_NETWORK_LIB)
 				.getCurrentNetworkInterfaceIndex();
 		if (_deviceSelectionCombo.getItemCount() > index) {
 			_deviceSelectionCombo.setSelectedIndex(index);
@@ -108,8 +108,9 @@ public class NetworkInterfaceChooser extends AbstractPanel {
 	public void applySelection() {
 		final int selection = _deviceSelectionCombo.getSelectedIndex();
 		if (selection != -1) {
-			_services.getNetwork(
-					_mode == Mode.SNIFFER ? ServiceFactory.SNIFFER_NETWORK_LIB : ServiceFactory.TRACEROUTE_NETWORK_LIB)
+			_services
+					.getNetwork(
+							_mode == Mode.SNIFFER ? ServiceFactory.SNIFFER_NETWORK_LIB : ServiceFactory.TRACEROUTE_NETWORK_LIB)
 					.setCurrentNetworkDevice(selection);
 			if (_mode == Mode.TRACE_ROUTE) {
 				Env.INSTANCE.setTrInterfaceIndex(selection);

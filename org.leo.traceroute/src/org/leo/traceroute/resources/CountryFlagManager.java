@@ -24,6 +24,8 @@ import java.util.Map;
 import javax.swing.ImageIcon;
 
 import org.leo.traceroute.core.geo.GeoPoint;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * CountryFlagManager $Id: CountryFlagManager.java 231 2016-01-27 08:24:31Z leolewis $
@@ -35,14 +37,15 @@ import org.leo.traceroute.core.geo.GeoPoint;
  */
 public class CountryFlagManager {
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(CountryFlagManager.class);
+
 	/**
 	 * Resolution $Id: CountryFlagManager.java 231 2016-01-27 08:24:31Z leolewis $
 	 */
 	public enum Resolution {
 
 		R16(16),
-		R32(32),
-		R64(64);
+		R32(32);
 
 		/** res */
 		int _res;
@@ -57,14 +60,8 @@ public class CountryFlagManager {
 		}
 	}
 
-	/** Unknown */
-	private static final Map<Resolution, ImageIcon> UNKNOWN = new HashMap<Resolution, ImageIcon>() {
-		{
-			put(Resolution.R16, Resources.getImageIcon("info.gif"));
-			put(Resolution.R32, Resources.getImageIcon("info2.png"));
-			put(Resolution.R64, Resources.getImageIcon("info3.png"));
-		}
-	};
+	/** cache */
+	private static final Map<String, ImageIcon> CACHE = new HashMap<String, ImageIcon>();
 
 	/**
 	 * Get the image for the given route point
@@ -84,13 +81,29 @@ public class CountryFlagManager {
 	 * @return image
 	 */
 	public synchronized static ImageIcon getImageFor(final GeoPoint point, final Resolution resolution) {
-		try {
-			if (point.getCountryIso() == GeoPoint.UNKNOWN) {
-				return UNKNOWN.get(resolution);
+		final String key = resolution.name() + "_" + point.getCountryIso();
+
+		ImageIcon icon = CACHE.get(key);
+		if (icon == null) {
+			try {
+				if (!GeoPoint.UNKNOWN.equals(point.getCountryIso())) {
+					icon = Resources.getImageIcon("flag/" + resolution._res + "/" + point.getCountryIso() + ".png");
+				}
+			} catch (final Exception e) {
+				LOGGER.warn("Failed to load icon {}", key, e);
 			}
-			return Resources.getImageIcon("flag/" + resolution._res + "/" + point.getCountryIso() + ".png");
-		} catch (final Exception e) {
-			return UNKNOWN.get(resolution);
+			if (icon == null) {
+				switch (resolution) {
+				case R16:
+					icon = Resources.getImageIcon("info.gif");
+					break;
+				default:
+					icon = Resources.getImageIcon("info2.png");
+					break;
+				}
+			}
+			CACHE.put(key, icon);
 		}
+		return icon;
 	}
 }

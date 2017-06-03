@@ -60,6 +60,7 @@ import org.leo.traceroute.ui.LicenseDialog;
 import org.leo.traceroute.ui.control.ControlPanel;
 import org.leo.traceroute.ui.control.ControlPanel.Mode;
 import org.leo.traceroute.ui.control.NetworkInterfaceChooser;
+import org.leo.traceroute.ui.geo.LocRecordsView;
 
 import say.swing.JFontChooser;
 
@@ -139,8 +140,7 @@ public class ConfigDialog extends JDialog {
 			private static final long serialVersionUID = -9191123841398822547L;
 
 			@Override
-			public Component getListCellRendererComponent(final JList list, final Object value, final int index,
-					final boolean isSelected, final boolean cellHasFocus) {
+			public Component getListCellRendererComponent(final JList list, final Object value, final int index, final boolean isSelected, final boolean cellHasFocus) {
 				super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 				setText(((Language) value).getLanguageName());
 				return this;
@@ -154,8 +154,7 @@ public class ConfigDialog extends JDialog {
 		final JPanel splash = new JPanel();
 		splash.setLayout(new FlowLayout(FlowLayout.LEFT, HGAP, VGAP));
 		splash.add(new JLabel(Resources.getLabel("show.splashscreen")));
-		final JToggleButton showSplash = new JToggleButton(Resources.getImageIcon("splash.png"),
-				!Env.INSTANCE.isHideSplashScreen());
+		final JToggleButton showSplash = new JToggleButton(Resources.getImageIcon("splash.png"), !Env.INSTANCE.isHideSplashScreen());
 		showSplash.setPreferredSize(new Dimension(100, ControlPanel.H));
 		showSplash.setToolTipText(Resources.getLabel("show.splashscreen"));
 		showSplash.setText((Resources.getLabel(showSplash.isSelected() ? "yes" : "no")));
@@ -225,8 +224,22 @@ public class ConfigDialog extends JDialog {
 		geoip.add(updateGeoIp);
 		generalPanel.add(geoip);
 
-		generalPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY, 2),
-				Resources.getLabel("settings.general")));
+		final JPanel dnsloc = new JPanel();
+		dnsloc.setLayout(new FlowLayout(FlowLayout.LEFT, HGAP, VGAP));
+		dnsloc.add(new JLabel(Resources.getLabel("see.dnsloc")));
+		final JButton openDns = new JButton(Resources.getImageIcon("map.png"));
+		openDns.setPreferredSize(new Dimension(60, ControlPanel.H));
+		openDns.setToolTipText(Resources.getLabel("see.dnsloc"));
+		openDns.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
+				new LocRecordsView(owner, services);
+			}
+		});
+		dnsloc.add(openDns);
+		generalPanel.add(dnsloc);
+
+		generalPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY, 2), Resources.getLabel("settings.general")));
 		main.add(generalPanel);
 
 		// traceroute settings
@@ -337,8 +350,7 @@ public class ConfigDialog extends JDialog {
 		trPanel6.add(replayTime);
 		trPanel.add(trPanel6);
 
-		trPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY, 2),
-				Resources.getLabel("settings.tr")));
+		trPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY, 2), Resources.getLabel("settings.tr")));
 		main.add(trPanel);
 
 		// sniffer settings
@@ -350,8 +362,7 @@ public class ConfigDialog extends JDialog {
 			snifferInterfaceChooser.setPreferredSize(new Dimension(NETWORK_COMBO_W, ControlPanel.H));
 			snifferPanel.add(snifferInterfaceChooser);
 
-			snifferPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY, 2),
-					Resources.getLabel("settings.sniffer")));
+			snifferPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY, 2), Resources.getLabel("settings.sniffer")));
 			main.add(snifferPanel);
 		} else {
 			if (Env.INSTANCE.getMode() == Mode.SNIFFER) {
@@ -388,8 +399,7 @@ public class ConfigDialog extends JDialog {
 		mapShowLabel.setText((Resources.getLabel(Env.INSTANCE.isMapShowLabel() ? "yes" : "no")));
 		mapPanel2.add(mapShowLabel);
 		mapPanel.add(mapPanel2);
-		mapPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY, 2),
-				Resources.getLabel("map.settings")));
+		mapPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY, 2), Resources.getLabel("map.settings")));
 		final JPanel mapPanel3 = new JPanel();
 		mapPanel3.setLayout(new FlowLayout(FlowLayout.LEFT, HGAP, VGAP));
 		final JSpinner mapLineThickness = new JSpinner();
@@ -435,8 +445,7 @@ public class ConfigDialog extends JDialog {
 		proxyPanel.add(new JLabel(Resources.getLabel("settings.proxy.port")));
 		proxyPanel.add(port);
 
-		proxyPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY, 2),
-				Resources.getLabel("settings.proxy")));
+		proxyPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY, 2), Resources.getLabel("settings.proxy")));
 		main.add(proxyPanel);
 
 		setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
@@ -460,8 +469,8 @@ public class ConfigDialog extends JDialog {
 				try {
 					final Language appliLanguage = (Language) languageCombo.getSelectedItem();
 					if (Env.INSTANCE.getAppliLanguage() != appliLanguage) {
-						final int select = JOptionPane.showConfirmDialog(ConfigDialog.this,
-								Resources.getLabel("restart.appli.required"), "", JOptionPane.OK_CANCEL_OPTION);
+						final int select = JOptionPane.showConfirmDialog(ConfigDialog.this, Resources.getLabel("restart.appli.required"), "",
+								JOptionPane.OK_CANCEL_OPTION);
 						if (select == JOptionPane.OK_OPTION) {
 							Env.INSTANCE.setAppliLanguage(appliLanguage);
 						} else {
@@ -500,8 +509,7 @@ public class ConfigDialog extends JDialog {
 					}
 				} else {
 					// some errors, display them
-					JOptionPane.showMessageDialog(ConfigDialog.this, message.toString(), Resources.getLabel("error.label"),
-							JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(ConfigDialog.this, message.toString(), Resources.getLabel("error.label"), JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});

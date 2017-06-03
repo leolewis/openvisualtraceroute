@@ -17,10 +17,6 @@
  */
 package org.leo.traceroute.util;
 
-import gov.nasa.worldwind.geom.Angle;
-import gov.nasa.worldwind.geom.LatLon;
-import gov.nasa.worldwind.globes.Earth;
-
 import java.awt.Desktop;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -62,6 +58,10 @@ import org.leo.traceroute.install.Env;
 import org.leo.traceroute.resources.Resources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gov.nasa.worldwind.geom.Angle;
+import gov.nasa.worldwind.geom.LatLon;
+import gov.nasa.worldwind.globes.Earth;
 
 /**
  * Util $Id: Util.java 281 2016-10-11 04:09:33Z leolewis $
@@ -267,8 +267,8 @@ public final class Util {
 					HttpURLConnection connection = null;
 					try {
 						connection = (HttpURLConnection) url.openConnection();
-						connection.setConnectTimeout(1000);
-						connection.setReadTimeout(1000);
+						connection.setConnectTimeout(10000);
+						connection.setReadTimeout(10000);
 						return IOUtils.toString(connection.getInputStream());
 					} finally {
 						if (connection != null) {
@@ -368,8 +368,7 @@ public final class Util {
 				} else {
 					sb.append(Arrays.toString((Object[]) obj));
 				}
-			} else if (obj instanceof Number || obj instanceof Byte || obj instanceof Boolean || obj.getClass().isPrimitive()
-					|| obj instanceof String) {
+			} else if (obj instanceof Number || obj instanceof Byte || obj instanceof Boolean || obj.getClass().isPrimitive() || obj instanceof String) {
 				return obj.toString();
 			} else if (obj instanceof InetAddress) {
 				return ((InetAddress) obj).getHostAddress();
@@ -402,11 +401,12 @@ public final class Util {
 
 	public static InputStream followRedirectOpenConnection(final String url) throws MalformedURLException, IOException {
 		HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+		connection.setConnectTimeout(100000);
+		connection.setReadTimeout(100000);
 		connection.setInstanceFollowRedirects(true);
 		InputStream inputStream = connection.getInputStream();
 		int status = connection.getResponseCode();
-		if (status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_MOVED_PERM
-				|| status == HttpURLConnection.HTTP_SEE_OTHER) {
+		if (status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_MOVED_PERM || status == HttpURLConnection.HTTP_SEE_OTHER) {
 			final String newUrl = connection.getHeaderField("Location");
 			IOUtils.close(connection);
 			connection = (HttpURLConnection) new URL(newUrl).openConnection();

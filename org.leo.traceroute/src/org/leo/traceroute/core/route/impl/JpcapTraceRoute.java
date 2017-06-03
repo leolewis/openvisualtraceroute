@@ -21,6 +21,18 @@ import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 
+import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.leo.traceroute.core.ServiceFactory;
+import org.leo.traceroute.core.network.DNSLookupService;
+import org.leo.traceroute.core.network.INetworkService;
+import org.leo.traceroute.core.route.MaxHopsException;
+import org.leo.traceroute.core.route.RoutePoint;
+import org.leo.traceroute.ui.task.CancelMonitor;
+import org.leo.traceroute.util.Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jpcap.JpcapCaptor;
 import jpcap.JpcapSender;
 import jpcap.NetworkInterface;
@@ -28,18 +40,6 @@ import jpcap.NetworkInterfaceAddress;
 import jpcap.packet.EthernetPacket;
 import jpcap.packet.ICMPPacket;
 import jpcap.packet.IPPacket;
-
-import org.apache.commons.lang3.RandomUtils;
-import org.leo.traceroute.core.ServiceFactory;
-import org.leo.traceroute.core.network.DNSLookupService;
-import org.leo.traceroute.core.network.INetworkService;
-import org.leo.traceroute.core.route.MaxHopsException;
-import org.leo.traceroute.core.route.RoutePoint;
-import org.leo.traceroute.ui.task.CancelMonitor;
-import org.leo.traceroute.util.Pair;
-import org.leo.traceroute.util.Util;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Trace Route service $Id: JpcapTraceRoute.java 242 2016-02-21 20:53:16Z leolewis $
@@ -169,7 +169,7 @@ public class JpcapTraceRoute extends AbstractTraceRoute<NetworkInterface> {
 					dnslookup = System.currentTimeMillis() - now;
 				}
 				// add the new route point
-				previous = addPoint(Pair.create(ip, hostname), latency, dnslookup);
+				previous = addPoint(Pair.of(ip, hostname), latency, dnslookup);
 				previousTime = System.currentTimeMillis();
 				_sender.sendPacket(packet);
 			}
@@ -202,7 +202,8 @@ public class JpcapTraceRoute extends AbstractTraceRoute<NetworkInterface> {
 		packet.type = ICMPPacket.ICMP_ECHO;
 		packet.seq = 100;
 		packet.id = (short) RandomUtils.nextInt(0, 100);
-		packet.setIPv4Parameter(0, false, false, false, 0, false, false, false, 0, 0, 0, IPPacket.IPPROTO_ICMP, _deviceIp, destIp);
+		packet.setIPv4Parameter(0, false, false, false, 0, false, false, false, 0, 0, 0, IPPacket.IPPROTO_ICMP, _deviceIp,
+				destIp);
 		final String data = "ovtr";
 		packet.data = data.getBytes();
 		final EthernetPacket ether = new EthernetPacket();

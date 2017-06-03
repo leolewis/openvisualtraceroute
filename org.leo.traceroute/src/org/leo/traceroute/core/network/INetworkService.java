@@ -19,8 +19,8 @@ package org.leo.traceroute.core.network;
 
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.leo.traceroute.core.IComponent;
-import org.leo.traceroute.util.Pair;
 
 /**
  * INetworkService $Id$

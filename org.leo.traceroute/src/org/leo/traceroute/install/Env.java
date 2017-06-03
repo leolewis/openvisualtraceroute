@@ -51,12 +51,12 @@ import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.leo.traceroute.core.ServiceFactory;
 import org.leo.traceroute.resources.Resources;
 import org.leo.traceroute.ui.control.ControlPanel.Mode;
 import org.leo.traceroute.ui.geo.IMapConfigListener;
 import org.leo.traceroute.ui.util.SwingUtilities4;
-import org.leo.traceroute.util.Pair;
 import org.leo.traceroute.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -327,7 +327,7 @@ public enum Env {
 		if (arch == null || os == null) {
 			throw new EnvException("Unsupported os/architecture : " + osName + "/" + archName);
 		}
-		return Pair.create(os, arch);
+		return Pair.of(os, arch);
 	}
 
 	/**

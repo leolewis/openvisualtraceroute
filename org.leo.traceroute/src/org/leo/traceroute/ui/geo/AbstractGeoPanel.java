@@ -38,6 +38,7 @@ public abstract class AbstractGeoPanel extends AbstractPanel implements IMapConf
 	protected boolean _mapShowLabel = Env.INSTANCE.isMapShowLabel();
 	protected int _mapLineThickness = Env.INSTANCE.getMapLineThickness();
 	protected Mode _mode;
+	private final LocPanel _loc;
 
 	/**
 	 * Constructor
@@ -46,6 +47,13 @@ public abstract class AbstractGeoPanel extends AbstractPanel implements IMapConf
 	public AbstractGeoPanel(final ServiceFactory services) {
 		super(services);
 		Env.INSTANCE.addShowLabelsListener(this);
+		_loc = new LocPanel(services);
+	}
+
+	@Override
+	public void afterShow(final Mode mode) {
+		super.afterShow(mode);
+		//add(_loc, BorderLayout.SOUTH);
 	}
 
 	protected void reinit() {
@@ -191,4 +199,8 @@ public abstract class AbstractGeoPanel extends AbstractPanel implements IMapConf
 	protected abstract void changeMapShowLabel(boolean show);
 
 	protected abstract void changeLineThickness(int thickness);
+
+	protected void onMousePosition(final double lat, final double lon) {
+		_loc.setPoint(lat, lon);
+	}
 }

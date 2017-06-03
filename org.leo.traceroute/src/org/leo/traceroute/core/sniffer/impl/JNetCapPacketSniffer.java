@@ -51,8 +51,8 @@ import org.slf4j.LoggerFactory;
  * </pre>
  * @author Leo Lewis
  */
-public class JNetCapPacketSniffer extends AbstractSniffer implements PcapPacketHandler<Void>, IComponent,
-INetworkInterfaceListener<PcapIf> {
+public class JNetCapPacketSniffer extends AbstractSniffer
+		implements PcapPacketHandler<Void>, IComponent, INetworkInterfaceListener<PcapIf> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JNetCapPacketSniffer.class);
 
@@ -96,12 +96,13 @@ INetworkInterfaceListener<PcapIf> {
 		try {
 			final Ip4 ip = packet.getHeader(new Ip4());
 			if (ip != null) {
-				final String dest = InetAddress.getByAddress(ip.destination()).getHostAddress();
+				final InetAddress dest = InetAddress.getByAddress(ip.destination());
 				JNetCapPacketPoint point;
 				// packets with dest to local device
-				point = _services.getGeo().populateGeoDataForIP(new JNetCapPacketPoint(), dest);
+				point = _services.getGeo().populateGeoDataForIP(new JNetCapPacketPoint(), dest.getHostAddress(),
+						dest.getHostName());
 				if (point == null || _localAddresses.contains(dest)) {
-					point = _services.getGeo().populateGeoDataForLocalIp(new JNetCapPacketPoint(), dest);
+					point = _services.getGeo().populateGeoDataForLocalIp(new JNetCapPacketPoint(), dest.getHostAddress());
 				}
 				if (point != null) {
 					if (point.setPacket(packet)) {

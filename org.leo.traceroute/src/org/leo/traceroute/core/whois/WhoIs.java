@@ -100,7 +100,7 @@ public class WhoIs extends AbstractObject<IWhoIsListener> {
 				listener.startWhoIs(ipOrHost);
 			}
 			final InetAddress address = InetAddress.getByName(ipOrHost);
-			_point = _geo.populateGeoDataForIP(new GeoPoint(), address.getHostAddress());
+			_point = _geo.populateGeoDataForIP(new GeoPoint(), address.getHostAddress(), address.getHostName());
 
 			_point.setHostname(_dns.dnsLookup(_point.getIp()));
 			for (final IWhoIsListener listener : getListeners()) {
