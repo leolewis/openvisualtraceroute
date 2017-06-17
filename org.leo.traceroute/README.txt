@@ -44,6 +44,9 @@ Wish list :
 Release Note 
 1.6.6
 - DNS loc records
+- Upgrade world wind
+- Use system proxy when available
+
 
 1.6.5
 - Fix Fatal error IOException: Failed to download geoip database

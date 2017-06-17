@@ -140,8 +140,7 @@ public enum Env {
 	}
 
 	/** Application folder */
-	public static final File APP_FOLDER = new File(
-			Env.class.getProtectionDomain().getCodeSource().getLocation().getPath().replaceAll("%20", " ")).getParentFile();
+	public static final File APP_FOLDER = new File(Env.class.getProtectionDomain().getCodeSource().getLocation().getPath().replaceAll("%20", " ")).getParentFile();
 
 	public static final File NATIVE_FOLDER = new File(APP_FOLDER.getAbsolutePath() + Util.FILE_SEPARATOR + "native");
 	public static final File LIB_FOLDER = new File(APP_FOLDER.getAbsolutePath() + Util.FILE_SEPARATOR + "lib");
@@ -154,8 +153,7 @@ public enum Env {
 
 	/** Put it into the tmp folder (to be sure the user has access to it) */
 	public static final File GEO_DATA_FILE = new File(OVTR_FOLDER.getAbsolutePath() + Util.FILE_SEPARATOR + "GeoLiteCity.dat");
-	public static final File GEO_DATA_FILE_OLD = new File(
-			OVTR_FOLDER.getAbsolutePath() + Util.FILE_SEPARATOR + "GeoLiteCity.dat.old");
+	public static final File GEO_DATA_FILE_OLD = new File(OVTR_FOLDER.getAbsolutePath() + Util.FILE_SEPARATOR + "GeoLiteCity.dat.old");
 	public static final File HISTORY = new File(OVTR_FOLDER.getAbsolutePath() + Util.FILE_SEPARATOR + "ovtr.history");
 
 	/** Config file */
@@ -272,6 +270,7 @@ public enum Env {
 	public Pair<OS, Arch> initEnv() throws EnvException {
 		// print some properties
 		LOGGER.info("Java run-time version: " + System.getProperty("java.version"));
+		System.setProperty("java.net.useSystemProxies", "true");
 		LOGGER.info(gov.nasa.worldwind.Version.getVersion());
 		LOGGER.info(System.getProperty("java.library.path"));
 		System.setErr(new PrintStream(new OutputStream() {
@@ -286,9 +285,7 @@ public enum Env {
 			final String[] usrPath = (String[]) usrPathFiled.get(null);
 			final String[] newUsrPath = new String[usrPath.length + 1];
 			System.arraycopy(usrPath, 0, newUsrPath, 0, usrPath.length);
-			newUsrPath[usrPath.length] = new File(
-					NATIVE_FOLDER + Util.FILE_SEPARATOR + archOs.getLeft() + Util.FILE_SEPARATOR + archOs.getRight())
-							.getAbsolutePath();
+			newUsrPath[usrPath.length] = new File(NATIVE_FOLDER + Util.FILE_SEPARATOR + archOs.getLeft() + Util.FILE_SEPARATOR + archOs.getRight()).getAbsolutePath();
 			usrPathFiled.set(null, newUsrPath);
 		} catch (final Exception e) {
 			throw new EnvException(e);
@@ -299,8 +296,7 @@ public enum Env {
 			loadConfig();
 		} catch (final Exception e) {
 			LOGGER.error("Error while loading application saved configuration", e);
-			JOptionPane.showMessageDialog(null, Resources.getLabel("error.init", e.getMessage()),
-					Resources.getLabel("fatal.error"), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, Resources.getLabel("error.init", e.getMessage()), Resources.getLabel("fatal.error"), JOptionPane.ERROR_MESSAGE);
 			System.exit(-1);
 		}
 		return archOs;
@@ -344,8 +340,8 @@ public enum Env {
 						final GLCapabilities caps = new GLCapabilities(glProfile);
 						caps.setOnscreen(false);
 						caps.setPBuffer(false);
-						final GLDrawable offscreenDrawable = GLDrawableFactory.getFactory(glProfile).createOffscreenDrawable(null,
-								caps, new DefaultGLCapabilitiesChooser(), 1, 1);
+						final GLDrawable offscreenDrawable = GLDrawableFactory.getFactory(glProfile).createOffscreenDrawable(null, caps,
+								new DefaultGLCapabilitiesChooser(), 1, 1);
 						offscreenDrawable.setRealized(true);
 						final GLContext context = offscreenDrawable.createContext(null);
 						final int additionalCtxCreationFlags = 0;
@@ -725,9 +721,9 @@ public enum Env {
 			Configuration.removeKey(AVKey.URL_PROXY_TYPE);
 			System.getProperties().remove("http.proxyHost");
 		} else {
-			Configuration.setValue(AVKey.URL_PROXY_HOST, proxyHost);
-			Configuration.setValue(AVKey.URL_PROXY_TYPE, Proxy.Type.HTTP);
-			System.setProperty("http.proxyHost", proxyHost);
+			//			Configuration.setValue(AVKey.URL_PROXY_HOST, proxyHost);
+			//			Configuration.setValue(AVKey.URL_PROXY_TYPE, Proxy.Type.HTTP);
+			//			System.setProperty("http.proxyHost", proxyHost);
 		}
 	}
 

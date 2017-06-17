@@ -446,7 +446,7 @@ public class ConfigDialog extends JDialog {
 		proxyPanel.add(port);
 
 		proxyPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY, 2), Resources.getLabel("settings.proxy")));
-		main.add(proxyPanel);
+		//		main.add(proxyPanel);
 
 		setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 

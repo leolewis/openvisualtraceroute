@@ -61,8 +61,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Leo Lewis
  */
-public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListener>
-		implements ITraceRoute, INetworkInterfaceListener<T> {
+public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListener> implements ITraceRoute, INetworkInterfaceListener<T> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTraceRoute.class);
 
@@ -150,8 +149,8 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 	 * @param resolveHostname if resolve host name
 	 */
 	@Override
-	public void compute(final String dest, final CancelMonitor monitor, final boolean resolveHostname, final long timeOutMs,
-			final boolean useOsTraceroute, final boolean ipV4, final int maxHops) {
+	public void compute(final String dest, final CancelMonitor monitor, final boolean resolveHostname, final long timeOutMs, final boolean useOsTraceroute,
+			final boolean ipV4, final int maxHops) {
 		try {
 			_semaphore.acquire();
 			_route.clear();
@@ -206,8 +205,7 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 								}
 							}, 0, 100);
 						}
-						LOGGER.info("Starting {} traceroute to {} with maxhops={} and timeout={}ms",
-								useOsTraceroute ? "OS" : "embedded", fdest, maxHops, timeOutMs);
+						LOGGER.info("Starting {} traceroute to {} with maxhops={} and timeout={}ms", useOsTraceroute ? "OS" : "embedded", fdest, maxHops, timeOutMs);
 						if (useOsTraceroute || !ipV4) {
 							computeOSRoute(fdest, monitor, resolveHostname, ipV4, maxHops);
 						} else {
@@ -283,8 +281,7 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 	 * @param resolveHostname
 	 * @param maxHops
 	 */
-	protected abstract void computeRoute(final String formatedDest, final CancelMonitor monitor, final boolean resolveHostname,
-			final int maxHops) throws Exception;
+	protected abstract void computeRoute(final String formatedDest, final CancelMonitor monitor, final boolean resolveHostname, final int maxHops) throws Exception;
 
 	/**
 	 * Compute the route using OS command
@@ -292,8 +289,8 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 	 * @param monitor
 	 * @param resolveHostname
 	 */
-	private void computeOSRoute(final String formatedDest, final CancelMonitor monitor, final boolean resolveHostname,
-			final boolean ipV4, final int maxHops) throws Exception {
+	private void computeOSRoute(final String formatedDest, final CancelMonitor monitor, final boolean resolveHostname, final boolean ipV4, final int maxHops)
+			throws Exception {
 		try {
 			String cmd;
 			if (Env.INSTANCE.getOs() == OS.win) {
@@ -355,9 +352,7 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 					if (linebuffer.toString().startsWith("over a maximum")) {
 						continue;
 					}
-					final String line = Util
-							.replaceTs(linebuffer.toString().trim().replaceAll(" +", " "), Env.INSTANCE.getOs() == OS.win ? 3 : 1)
-							.replaceAll(" +", " ");
+					final String line = Util.replaceTs(linebuffer.toString().trim().replaceAll(" +", " "), Env.INSTANCE.getOs() == OS.win ? 3 : 1).replaceAll(" +", " ");
 					if (line.isEmpty()) {
 						continue;
 					}
@@ -380,8 +375,7 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 					final int dnslookupTime = DNSLookupService.UNDEF;
 
 					if (Env.INSTANCE.getOs() == OS.win) {
-						latency = (parseWindowsTime(routePoint[1]) + parseWindowsTime(routePoint[2])
-								+ parseWindowsTime(routePoint[3])) / 3;
+						latency = (parseWindowsTime(routePoint[1]) + parseWindowsTime(routePoint[2]) + parseWindowsTime(routePoint[3])) / 3;
 						if (resolveHostname) {
 							if (routePoint.length > 5) {
 								host = routePoint[4];
@@ -419,8 +413,7 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 					final StringBuilder m = new StringBuilder();
 					for (final String e : errors) {
 						// for some reason, this info message is dumped to the error stream, so just ignore it
-						if (!e.startsWith("traceroute to " + formatedDest)
-								&& !e.startsWith("traceroute: Warning: " + formatedDest + " has multiple addresses")) {
+						if (!e.startsWith("traceroute to " + formatedDest) && !e.startsWith("traceroute: Warning: " + formatedDest + " has multiple addresses")) {
 							m.append(e).append("\n");
 						}
 					}
@@ -467,22 +460,24 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 		final String ip = ipAndHost.getLeft();
 		final String dns = ipAndHost.getRight();
 		RoutePoint point;
+		// set to previous point
+		RoutePoint previous = null;
+		if (!_route.isEmpty()) {
+			previous = _route.get(_route.size() - 1);
+		}
 		if (ip.startsWith("192.168.") || ip.equals("127.0.0.1")) {
 			// private Ips, calculate location with public IP
 			point = _services.getGeo().populateGeoDataForIP(new RoutePoint(), _services.getGeo().getPublicIp().getLeft(), null);
 			point.setIp(ip);
 		} else {
-			point = _services.getGeo().populateGeoDataForIP(new RoutePoint(), ip, dns);
+			point = _services.getGeo().populateGeoDataForIP(new RoutePoint(), ip, dns, previous);
 		}
 		// unknown location
 		if (point.isUnknownGeo()) {
 			if (_route.isEmpty()) {
 				// set to local ip
-				point = _services.getGeo().populateGeoDataForIP(new RoutePoint(), _services.getGeo().getPublicIp().getLeft(),
-						null);
+				point = _services.getGeo().populateGeoDataForIP(new RoutePoint(), _services.getGeo().getPublicIp().getLeft(), null);
 			} else {
-				// set to previous point
-				final RoutePoint previous = _route.get(_route.size() - 1);
 				point.setCountry(previous.getCountry());
 				point.setCountryIso(previous.getCountryIso());
 				point.setTown(previous.getTown());

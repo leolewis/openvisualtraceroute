@@ -381,7 +381,11 @@ public class WWJPanel extends AbstractGeoPanel {
 		attrs.setInsets(new Insets(5, 15, 28, 15));
 		attrs.setHighlighted(selected);
 		attrs.setImageOpacity(1);
-		attrs.setImageOffset(new Point(Math.max(28, normalizedText.length() * 3), 17));
+		int w = normalizedText.length() * 3;
+		if (normalizedText.equals("*")) {
+			w = 28;
+		}
+		attrs.setImageOffset(new Point(w, 17));
 		// attrs.setImageScale(0.5);
 		attrs.setImageSource(Util.toBufferedImage(image));
 		attrs.setImageRepeat(AVKey.REPEAT_NONE);

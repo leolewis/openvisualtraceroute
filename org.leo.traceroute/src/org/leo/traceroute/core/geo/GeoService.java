@@ -165,6 +165,10 @@ public class GeoService implements IComponent {
 	 * @return the updated point
 	 */
 	public <P extends GeoPoint> P populateGeoDataForIP(final P point, final String ip, final String dns) {
+		return populateGeoDataForIP(point, ip, dns, null);
+	}
+
+	public <P extends GeoPoint> P populateGeoDataForIP(final P point, final String ip, final String dns, final P pointIfUnknown) {
 		Location location = null;
 		try {
 			point.setIp(ip);
@@ -181,8 +185,14 @@ public class GeoService implements IComponent {
 			if (location != null) {
 				final String city = location.city;
 				final String country = location.countryName;
+				float lat = location.latitude;
+				float lon = location.longitude;
 				if (city == null || "".equals(city)) {
 					point.setTown(UNKNOWN_LOCATION);
+					if (pointIfUnknown != null && pointIfUnknown.getCountry().equals(country)) {
+						lat = pointIfUnknown.getLat();
+						lon = pointIfUnknown.getLon();
+					}
 				} else {
 					point.setTown(city);
 				}
@@ -191,11 +201,11 @@ public class GeoService implements IComponent {
 				} else {
 					point.setCountry(country);
 				}
-				if (location.latitude == 0f && location.longitude == 0f) {
+				if (lat == 0f && lon == 0f) {
 					point.setUnknownGeo(true);
 				} else {
-					point.setLat(location.latitude);
-					point.setLon(location.longitude);
+					point.setLat(lat);
+					point.setLon(lon);
 				}
 				point.setCountryIso(location.countryCode);
 				if (ip.equals("239.255.255.250")) {
