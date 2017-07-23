@@ -30,9 +30,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Field;
+import java.net.Authenticator;
+import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
 import java.net.Proxy;
+import java.net.ProxySelector;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -162,6 +169,8 @@ public enum Env {
 	/** Log file */
 	public static final File LOG_FILE = new File(OVTR_FOLDER.getAbsolutePath() + Util.FILE_SEPARATOR + "ovtr.log");
 
+	public static final String PASSWORD = "********";
+
 	static {
 		OVTR_FOLDER.mkdir();
 		// migrate old files to new folder directory
@@ -173,6 +182,8 @@ public enum Env {
 
 	public static final String PROXY_HOST = "proxy_host";
 	public static final String PROXY_PORT = "proxy_port";
+	public static final String PROXY_USER = "proxy_user";
+	public static final String PROXY_PASSWORD = "proxy_password";
 
 	/** App H prop name */
 	private static final String APP_HEIGHT = "apph";
@@ -239,6 +250,8 @@ public enum Env {
 	private int _snifferInterfaceIndex;
 	private String _proxyPort;
 	private String _proxyHost;
+	private String _proxyUser;
+	private String _proxyPassword;
 	private boolean _disableHistory;
 	private boolean _hideSplashScreen;
 	private int _animationSpeed;
@@ -270,9 +283,21 @@ public enum Env {
 	public Pair<OS, Arch> initEnv() throws EnvException {
 		// print some properties
 		LOGGER.info("Java run-time version: " + System.getProperty("java.version"));
-		System.setProperty("java.net.useSystemProxies", "true");
 		LOGGER.info(gov.nasa.worldwind.Version.getVersion());
 		LOGGER.info(System.getProperty("java.library.path"));
+		System.setProperty("java.net.useSystemProxies", "true");
+		final Proxy proxy = getProxy();
+		if (proxy != null) {
+			final InetSocketAddress addr = (InetSocketAddress) proxy.address();
+			if (addr != null) {
+				final String host = addr.getHostName();
+				final int port = addr.getPort();
+				setProxyHost(host);
+				setProxyPort(String.valueOf(port));
+				LOGGER.info("Detected system proxy " + host + ":" + port);
+			}
+
+		}
 		System.setErr(new PrintStream(new OutputStream() {
 			@Override
 			public void write(final int b) {
@@ -421,6 +446,12 @@ public enum Env {
 			if (_proxyPort != null) {
 				_conf.put(PROXY_PORT, _proxyPort);
 			}
+			if (_proxyUser != null) {
+				_conf.put(PROXY_USER, _proxyUser);
+			}
+			if (_proxyPassword != null) {
+				_conf.put(PROXY_PASSWORD, _proxyPassword);
+			}
 			os = new FileOutputStream(Env.CONFIG_FILE);
 			_conf.store(os, "");
 		} catch (final Exception e) {
@@ -456,6 +487,9 @@ public enum Env {
 				setProxyHost(proxyHost);
 				setProxyPort(proxyPort);
 			}
+			final String proxyUser = _conf.getProperty(PROXY_USER);
+			final String proxyPassword = _conf.getProperty(PROXY_PASSWORD);
+			setProxyAuth(proxyUser, proxyPassword);
 			_appHeight = Integer.parseInt(_conf.getProperty(APP_HEIGHT, "800"));
 			_appWidth = Integer.parseInt(_conf.getProperty(APP_WIDTH, "1200"));
 			_separator = Integer.parseInt(_conf.getProperty(SEPARATOR, "700"));
@@ -630,14 +664,6 @@ public enum Env {
 	}
 
 	/**
-	 * Return the value of the field proxyPort
-	 * @return the value of proxyPort
-	 */
-	public String getProxyPort() {
-		return _proxyPort;
-	}
-
-	/**
 	 * Return the value of the field disableHistory
 	 * @return the value of disableHistory
 	 */
@@ -651,6 +677,14 @@ public enum Env {
 	 */
 	public void setDisableHistory(final boolean disableHistory) {
 		_disableHistory = disableHistory;
+	}
+
+	/**
+	 * Return the value of the field proxyPort
+	 * @return the value of proxyPort
+	 */
+	public String getProxyPort() {
+		return _proxyPort;
 	}
 
 	/**
@@ -676,6 +710,65 @@ public enum Env {
 	 */
 	public String getProxyHost() {
 		return _proxyHost;
+	}
+
+	/**
+	 * Set the value of the field proxyHost
+	 * @param proxyHost the new proxyHost to set
+	 */
+	public void setProxyHost(final String proxyHost) {
+		_proxyHost = proxyHost;
+		if (proxyHost == null || "".equals(proxyHost)) {
+			Configuration.removeKey(AVKey.URL_PROXY_HOST);
+			Configuration.removeKey(AVKey.URL_PROXY_TYPE);
+			System.getProperties().remove("http.proxyHost");
+		} else {
+			Configuration.setValue(AVKey.URL_PROXY_HOST, proxyHost);
+			Configuration.setValue(AVKey.URL_PROXY_TYPE, Proxy.Type.HTTP);
+			System.setProperty("http.proxyHost", proxyHost);
+		}
+	}
+
+	/**
+	 * Set proxy auth
+	 * @param user
+	 * @param password
+	 */
+	public void setProxyAuth(final String user, final String password) {
+		_proxyUser = user;
+		if (user == null) {
+			_proxyPassword = null;
+			Authenticator.setDefault(new Authenticator() {
+			});
+			System.getProperties().remove("http.proxyUser");
+			System.getProperties().remove("http.proxyPassword");
+		} else {
+			_proxyPassword = password.equals(PASSWORD) ? _proxyPassword : password;
+			Authenticator.setDefault(new Authenticator() {
+				@Override
+				public PasswordAuthentication getPasswordAuthentication() {
+					return new PasswordAuthentication(user, password.toCharArray());
+				}
+			});
+			System.setProperty("http.proxyUser", user);
+			System.setProperty("http.proxyPassword", password);
+		}
+	}
+
+	/**
+	 * Return the value of the field proxyUser
+	 * @return the value of proxyUser
+	 */
+	public String getProxyUser() {
+		return _proxyUser;
+	}
+
+	/**
+	 * Return the value of the field proxyPassword
+	 * @return the value of proxyPassword
+	 */
+	public String getProxyPassword() {
+		return _proxyPassword;
 	}
 
 	/**
@@ -708,23 +801,6 @@ public enum Env {
 	 */
 	public void setReplaySpeed(final int replaySpeed) {
 		_replaySpeed = replaySpeed;
-	}
-
-	/**
-	 * Set the value of the field proxyHost
-	 * @param proxyHost the new proxyHost to set
-	 */
-	public void setProxyHost(final String proxyHost) {
-		_proxyHost = proxyHost;
-		if (proxyHost == null || "".equals(proxyHost)) {
-			Configuration.removeKey(AVKey.URL_PROXY_HOST);
-			Configuration.removeKey(AVKey.URL_PROXY_TYPE);
-			System.getProperties().remove("http.proxyHost");
-		} else {
-			//			Configuration.setValue(AVKey.URL_PROXY_HOST, proxyHost);
-			//			Configuration.setValue(AVKey.URL_PROXY_TYPE, Proxy.Type.HTTP);
-			//			System.setProperty("http.proxyHost", proxyHost);
-		}
 	}
 
 	/**
@@ -997,4 +1073,21 @@ public enum Env {
 		}
 	}
 
+	private static Proxy getProxy() {
+		List<Proxy> l = null;
+		try {
+			final ProxySelector def = ProxySelector.getDefault();
+			l = def.select(new URI("http://foo/bar"));
+			ProxySelector.setDefault(null);
+		} catch (final Exception e) {
+
+		}
+		if (l != null) {
+			for (final Iterator<Proxy> iter = l.iterator(); iter.hasNext();) {
+				final java.net.Proxy proxy = iter.next();
+				return proxy;
+			}
+		}
+		return null;
+	}
 }

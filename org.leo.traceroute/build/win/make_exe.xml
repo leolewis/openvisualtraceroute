@@ -3,7 +3,7 @@
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
   <jar> 	</jar>
-  <outfile>D:\workspace\git\org.leo.traceroute\product\ovtr.exe</outfile>
+  <outfile>D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\ovtr.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
@@ -13,7 +13,7 @@
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
-  <icon>D:\workspace\git\org.leo.traceroute\resources\icon.ico</icon>
+  <icon>D:\workspace\git\openvisualtraceroute\org.leo.traceroute\resources\icon.ico</icon>
   <classPath>
     <mainClass>org.leo.traceroute.Main</mainClass>
     <cp>org.leo.traceroute.jar</cp>

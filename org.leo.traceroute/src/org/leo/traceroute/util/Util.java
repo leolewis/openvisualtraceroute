@@ -401,8 +401,8 @@ public final class Util {
 
 	public static InputStream followRedirectOpenConnection(final String url) throws MalformedURLException, IOException {
 		HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-		connection.setConnectTimeout(100000);
-		connection.setReadTimeout(100000);
+		connection.setConnectTimeout(100_000);
+		connection.setReadTimeout(100_000);
 		connection.setInstanceFollowRedirects(true);
 		InputStream inputStream = connection.getInputStream();
 		int status = connection.getResponseCode();

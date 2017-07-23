@@ -87,7 +87,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 	<target name="compile">
 		<delete dir="${temp.obj.dir}" />
 		<mkdir dir="${temp.obj.dir}" />
-		<javac destdir="${temp.obj.dir}" memoryinitialsize="64M" memorymaximumsize="212M" fork="true" debug="on" source="1.6" target="1.6">
+		<javac destdir="${temp.obj.dir}" memoryinitialsize="64M" memorymaximumsize="212M" fork="true" debug="on" source="1.8" target="1.8">
 			<compilerarg value="-encoding" />
 			<compilerarg value="ISO-8859-1" />
 			<compilerarg value="-deprecation" />
@@ -211,7 +211,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 	</target>
 	<target name="package_mac">
 		<taskdef name="jarbundler" classname="net.sourceforge.jarbundler.JarBundler" classpathref="ant.classpath" />
-		<jarbundler dir="product" name="OpenVisualTraceroute" mainclass="org.leo.traceroute.Main" jvmversion="1.6+" version="${version}" icon="build/mac/icon.icns">
+		<jarbundler dir="product" name="OpenVisualTraceroute" mainclass="org.leo.traceroute.Main" jvmversion="1.8+" version="${version}" icon="build/mac/icon.icns">
 			<jarfileset dir="product">
 				<include name="resources/*.*" />
 				<include name="*.jar" />
@@ -254,7 +254,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 			icon="/usr/share/${appli.name}/resources/icon.png" categories="Utility;" terminal="false" type="Application" />
 
 		<deb todir="${basedir}/released/" package="ovtr" architecture="i386" section="utils" 
-			depends="traceroute, whois, sun-java6-jre | sun-java7-jre | openjdk-6-jre-headless | openjdk-7-jre-headless | openjdk-6-jdk | openjdk-7-jdk | openjdk-8-jre-headless | openjdk-8-jdk" version="${version.full}">
+			depends="traceroute, whois, openjdk-8-jre-headless | openjdk-8-jdk" version="${version.full}">
 			<version upstream="${version.full}" />
 			<maintainer name="Leo Lewis" email="leo.lewis.software@gmail.com" />
 			<description synopsis="OpenVisualTraceroute">
@@ -280,7 +280,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 			<tarfileset file="${basedir}/product/ovtr.desktop" prefix="usr/share/applications" />
 		</deb>
 		<deb todir="${basedir}/released/" package="ovtr" architecture="amd64" section="utils" 
-			depends="traceroute, whois, sun-java6-jre | sun-java7-jre | openjdk-6-jre-headless | openjdk-7-jre-headless | openjdk-6-jdk | openjdk-7-jdk | openjdk-8-jre-headless | openjdk-8-jdk" version="${version.full}">
+			depends="traceroute, whois, openjdk-8-jre-headless | openjdk-8-jdk" version="${version.full}">
 			<version upstream="${version.full}" />
 			<maintainer name="Leo Lewis" email="leo.lewis.software@gmail.com" />
 			<description synopsis="OpenVisualTraceroute">
@@ -337,7 +337,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 			<rpmfileset prefix="/usr/share/${appli.name}/resources" file="product/rpm/resources/*.*" />
 			<rpmfileset prefix="/usr/share/${appli.name}/native/linux/x86" file="product/rpm/native/linux/x86/*.*" />
 			<rpmfileset prefix="/usr/share/${appli.name}/lib" file="product/rpm/lib/*.*" />
-			<depends name="java" version=">= 1.6"/>
+			<depends name="java" version=">= 1.8"/>
 			<depends name="polkit" />
 			<depends name="jwhois" />
 			<depends name="traceroute" />
@@ -367,7 +367,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 			<rpmfileset prefix="/usr/share/${appli.name}/resources" file="product/rpm/resources/*.*" />
 			<rpmfileset prefix="/usr/share/${appli.name}/native/linux/x64" file="product/rpm/native/linux/x64/*.*" />
 			<rpmfileset prefix="/usr/share/${appli.name}/lib" file="product/rpm/lib/*.*" />
-			<depends name="java" version=">= 1.6"/>
+			<depends name="java" version=">= 1.8"/>
 			<depends name="polkit" />
 			<depends name="jwhois" />
 			<depends name="traceroute" />

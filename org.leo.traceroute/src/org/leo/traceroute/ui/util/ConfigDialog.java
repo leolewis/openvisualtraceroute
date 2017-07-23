@@ -43,6 +43,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
@@ -52,6 +53,7 @@ import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 
+import org.apache.commons.lang3.StringUtils;
 import org.leo.traceroute.core.ServiceFactory;
 import org.leo.traceroute.install.Env;
 import org.leo.traceroute.install.Env.Language;
@@ -429,24 +431,44 @@ public class ConfigDialog extends JDialog {
 
 		// proxy settings
 		final JPanel proxyPanel = new JPanel();
-		proxyPanel.setLayout(new FlowLayout(FlowLayout.LEFT, HGAP, VGAP));
-		proxyPanel.add(new JLabel(Resources.getLabel("settings.proxy.host")));
+		proxyPanel.setLayout(new BoxLayout(proxyPanel, BoxLayout.Y_AXIS));
+		final JPanel proxyPanel1 = new JPanel();
+		proxyPanel1.setLayout(new FlowLayout(FlowLayout.LEFT, HGAP, VGAP));
 		final JTextField host = new JTextField();
 		host.setColumns(20);
-		proxyPanel.add(host);
-		final JTextField port = new JTextField();
-		if (Env.INSTANCE.getProxyPort() != null) {
-			port.setText(Env.INSTANCE.getProxyPort());
-		}
+		proxyPanel1.add(new JLabel(Resources.getLabel("settings.proxy.host")));
+		proxyPanel1.add(host);
 		if (Env.INSTANCE.getProxyHost() != null) {
 			host.setText(Env.INSTANCE.getProxyHost());
 		}
+		final JTextField port = new JTextField();
 		port.setColumns(6);
-		proxyPanel.add(new JLabel(Resources.getLabel("settings.proxy.port")));
-		proxyPanel.add(port);
+		proxyPanel1.add(new JLabel(Resources.getLabel("settings.proxy.port")));
+		proxyPanel1.add(port);
+		if (Env.INSTANCE.getProxyPort() != null) {
+			port.setText(Env.INSTANCE.getProxyPort());
+		}
+		final JPanel proxyPanel2 = new JPanel();
+		proxyPanel2.setLayout(new FlowLayout(FlowLayout.LEFT, HGAP, VGAP));
+		final JTextField user = new JTextField();
+		user.setColumns(15);
+		proxyPanel2.add(new JLabel(Resources.getLabel("settings.proxy.user")));
+		proxyPanel2.add(user);
+		if (Env.INSTANCE.getProxyUser() != null) {
+			user.setText(Env.INSTANCE.getProxyUser());
+		}
+		final JPasswordField password = new JPasswordField();
+		password.setColumns(15);
+		proxyPanel2.add(new JLabel(Resources.getLabel("settings.proxy.password")));
+		proxyPanel2.add(password);
+		if (Env.INSTANCE.getProxyPassword() != null) {
+			password.setText(Env.PASSWORD);
+		}
 
+		proxyPanel.add(proxyPanel1);
+		proxyPanel.add(proxyPanel2);
 		proxyPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.GRAY, 2), Resources.getLabel("settings.proxy")));
-		//		main.add(proxyPanel);
+		main.add(proxyPanel);
 
 		setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
@@ -493,6 +515,11 @@ public class ConfigDialog extends JDialog {
 						}
 						Env.INSTANCE.setProxyHost(host.getText());
 						Env.INSTANCE.setProxyPort(port.getText());
+						if (!StringUtils.isEmpty(user.getText())) {
+							Env.INSTANCE.setProxyAuth(user.getText(), new String(password.getPassword()));
+						} else {
+							Env.INSTANCE.setProxyAuth(null, null);
+						}
 						Env.INSTANCE.setUseOSTraceroute(useOSTraceroute.isSelected());
 						Env.INSTANCE.setTrMaxHop((Integer) maxHops.getValue());
 						Env.INSTANCE.setDisableHistory(!history.isSelected());
