@@ -1,17 +1,4 @@
-Version 1.6.4
-- Sniffer : Add feature to select a list and or range of ports.
-- Sniffer : Add feature to stop the capture after a given amount of time
-- Sniffer : Fix filter on port and packet length greater than 999 issue
-- Traceroute : Fix traceroute timeout greater than 999 issue
-- UI : German translation (thanks to Centauri39) 
-- UI : Japanese translation
-- UI : Save table column width in preferences
-- UI : Save window location
-- UI : Add font chooser in the preference window
-- UI : Fix sorting on row number
-- Map : Choose line thickness in preference window
-- Map : display unknown ips at the previous known location and no longer at (0, 0) 
-- Map : Fix 2D map not repainting in sniffer mode  
-- Windows : change whois provider
-- Linux Mint : fix launcher
-- Linux : add rpm packages
+Version 1.6.5
+- Fix Fatal error IOException: Failed to download geoip database
+- UI : Fix status bar tooltip
+- Traceroute : Fix consecutive unknown locations diplayed in the (0, 0)
