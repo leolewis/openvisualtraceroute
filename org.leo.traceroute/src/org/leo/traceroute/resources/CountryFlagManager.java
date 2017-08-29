@@ -86,7 +86,7 @@ public class CountryFlagManager {
 		ImageIcon icon = CACHE.get(key);
 		if (icon == null) {
 			try {
-				if (!GeoPoint.UNKNOWN.equals(point.getCountryIso())) {
+				if (!GeoPoint.UNKNOWN.equals(point.getCountryIso()) && point.getCountryIso() != null) {
 					icon = Resources.getImageIcon("flag/" + resolution._res + "/" + point.getCountryIso() + ".png");
 				}
 			} catch (final Exception e) {

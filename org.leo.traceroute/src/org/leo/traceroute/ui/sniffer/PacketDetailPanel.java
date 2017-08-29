@@ -60,8 +60,7 @@ public class PacketDetailPanel extends AbstractSnifferPanel {
 				return getUI().getPreferredSize(this).width <= getParent().getSize().width;
 			}
 		};
-		final JScrollPane scroll = new JScrollPane(_details, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		final JScrollPane scroll = new JScrollPane(_details, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		add(scroll, BorderLayout.CENTER);
 	}
 
@@ -101,7 +100,6 @@ public class PacketDetailPanel extends AbstractSnifferPanel {
 		SwingUtilities4.invokeInEDT(new Runnable() {
 			@Override
 			public void run() {
-				_details.setText("");
 				final String[] lines = point.getPayload().split("\n");
 				int max = 0;
 				for (final String line : lines) {

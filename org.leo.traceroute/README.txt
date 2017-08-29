@@ -43,10 +43,10 @@ Wish list :
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Release Note 
 1.6.6
-- DNS loc records
+- DNS loc records feature
 - Upgrade world wind
-- Use system proxy when available
-
+- Use system proxy when available, allow to specify user and password
+- Upgrade required Java version to 1.8
 
 1.6.5
 - Fix Fatal error IOException: Failed to download geoip database

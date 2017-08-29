@@ -154,27 +154,29 @@ public abstract class AbstractSniffer extends AbstractObject<IPacketListener> im
 	}
 
 	protected String convertPortToFilter(final String protocol, final String port) {
+		final StringBuilder sb = new StringBuilder("(");
 		if (port == null) {
-			return "";
-		}
-		final String[] split = port.split(",");
-		final StringBuilder sb = new StringBuilder();
-		boolean first = true;
-		for (final String s : split) {
-			if (first) {
-				first = false;
-			} else {
-				sb.append(" or ");
+			sb.append(protocol);
+		} else {
+			final String[] split = port.split(",");
+			boolean first = true;
+			for (final String s : split) {
+				if (first) {
+					first = false;
+				} else {
+					sb.append(" or ");
+				}
+				sb.append("(").append(protocol).append(" dst ");
+				if (s.contains("-")) {
+					sb.append("portrange ");
+				} else {
+					sb.append("port ");
+				}
+				sb.append(s);
+				sb.append(")");
 			}
-			sb.append("(").append(protocol).append(" dst ");
-			if (s.contains("-")) {
-				sb.append("portrange ");
-			} else {
-				sb.append("port ");
-			}
-			sb.append(s);
-			sb.append(")");
 		}
+		sb.append(")").toString();
 		return sb.toString();
 	}
 }

@@ -67,8 +67,7 @@ public class WhoIsPanel extends AbstractPanel {
 		add(top, BorderLayout.NORTH);
 		_textArea = new JTextArea("", 30, 70);
 		_textArea.setEditable(false);
-		final JScrollPane scroll = new JScrollPane(_textArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		final JScrollPane scroll = new JScrollPane(_textArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		add(scroll, BorderLayout.CENTER);
 		_whois.addListener(this);
 	}
@@ -86,8 +85,8 @@ public class WhoIsPanel extends AbstractPanel {
 	 */
 	@Override
 	public void focusWhoIs(final GeoPoint point) {
-		_label.setText("<html>Who is <b>" + Column.IP.getLabel() + ":</b> " + point.getIp() + "   " + "<b>"
-				+ Column.HOSTNAME.getLabel() + ":</b> " + point.getHostname() + "</html>");
+		_label.setText("<html>Who is <b>" + Column.IP.getLabel() + ":</b> " + point.getIp() + "   " + "<b>" + Column.HOSTNAME.getLabel() + ":</b> " + point.getHostname()
+				+ "</html>");
 		_label.setIcon(point.getCountryFlag(Resolution.R32));
 	}
 
@@ -133,8 +132,7 @@ public class WhoIsPanel extends AbstractPanel {
 	 */
 	public static void showWhoIsDialog(final JComponent parent, final ServiceFactory services, final GeoPoint point) {
 		final WhoIsPanel panel = new WhoIsPanel(services);
-		final JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(parent), "Who is " + point.getIp(),
-				ModalityType.APPLICATION_MODAL) {
+		final JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(parent), "Who is " + point.getIp(), ModalityType.APPLICATION_MODAL) {
 
 			private static final long serialVersionUID = 1258611715478157956L;
 

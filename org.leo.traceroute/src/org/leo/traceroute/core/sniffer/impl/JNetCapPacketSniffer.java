@@ -26,7 +26,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapAddr;
 import org.jnetpcap.PcapBpfProgram;
@@ -51,8 +50,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  * @author Leo Lewis
  */
-public class JNetCapPacketSniffer extends AbstractSniffer
-		implements PcapPacketHandler<Void>, IComponent, INetworkInterfaceListener<PcapIf> {
+public class JNetCapPacketSniffer extends AbstractSniffer implements PcapPacketHandler<Void>, IComponent, INetworkInterfaceListener<PcapIf> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JNetCapPacketSniffer.class);
 
@@ -64,6 +62,7 @@ public class JNetCapPacketSniffer extends AbstractSniffer
 
 	private ScheduledExecutorService _schedule;
 	private ScheduledFuture<?> _scheduleStop;
+	private volatile String _host;
 
 	/**
 	 * Constructor
@@ -99,23 +98,24 @@ public class JNetCapPacketSniffer extends AbstractSniffer
 				final InetAddress dest = InetAddress.getByAddress(ip.destination());
 				JNetCapPacketPoint point;
 				// packets with dest to local device
-				point = _services.getGeo().populateGeoDataForIP(new JNetCapPacketPoint(), dest.getHostAddress(),
-						dest.getHostName());
-				if (point == null || _localAddresses.contains(dest)) {
+				point = _services.getGeo().populateGeoDataForIP(new JNetCapPacketPoint(), dest.getHostAddress(), dest.getHostName());
+				if (point == null || _localAddresses.contains(dest.getHostAddress()) || point.isUnknownGeo()) {
 					point = _services.getGeo().populateGeoDataForLocalIp(new JNetCapPacketPoint(), dest.getHostAddress());
 				}
 				if (point != null) {
-					if (point.setPacket(packet)) {
-						final int c = _count.incrementAndGet();
-						point.setNumber(c);
+					if (point.setPacket(packet) && _captureProtocols.contains(point.getProtocol())) {
 						point.setHostname(_services.getDnsLookup().dnsLookup(point.getIp()));
-						point.setTs(System.currentTimeMillis());
-						if (!_capturing) {
-							return;
-						}
-						_capture.add(point);
-						for (final IPacketListener listener : getListeners()) {
-							listener.packetAdded(point);
+						if (_host == null || _host.isEmpty() || _host.equals(point.getHostname())) {
+							final int c = _count.incrementAndGet();
+							point.setNumber(c);
+							point.setTs(System.currentTimeMillis());
+							if (!_capturing) {
+								return;
+							}
+							_capture.add(point);
+							for (final IPacketListener listener : getListeners()) {
+								listener.packetAdded(point);
+							}
 						}
 					}
 				}
@@ -135,12 +135,13 @@ public class JNetCapPacketSniffer extends AbstractSniffer
 	 * @param port
 	 */
 	@Override
-	public void startCapture(final Set<Protocol> protocols, final String port, final boolean filterLenghtPackets,
-			final int length, final String host, final int captureTimeSeconds) {
+	public void startCapture(final Set<Protocol> protocols, final String port, final boolean filterLenghtPackets, final int length, final String host,
+			final int captureTimeSeconds) {
 		_focusedPoint = null;
 		_count.set(0);
 		_capture.clear();
 		_captureProtocols = protocols;
+		_host = host;
 		_filterLenghtPackets = filterLenghtPackets;
 		_length = length;
 		if (captureTimeSeconds > 0) {
@@ -159,33 +160,31 @@ public class JNetCapPacketSniffer extends AbstractSniffer
 				}
 				_capturing = true;
 				String filter = "";
-				boolean first = true;
+				String previous = "";
 				for (final Protocol prot : _captureProtocols) {
-					if (!first) {
-						filter += ") or (";
-					} else {
-						filter = "(";
-						first = false;
-					}
+					String s = "";
 					if (prot == Protocol.ICMP) {
-						filter += prot.name().toLowerCase();
+						s += prot.name().toLowerCase();
 					} else {
-						filter += convertPortToFilter(prot.name().toLowerCase(), port);
+						s += convertPortToFilter(prot.name().toLowerCase(), port);
 					}
-					if (StringUtils.isNotEmpty(host)) {
-						if (!first) {
-							filter += " and ";
-						} else {
-							first = false;
-						}
-						filter += " dst host " + host;
+					if (!previous.isEmpty() && !s.isEmpty()) {
+						s = " or " + s;
 					}
-					if (filterLenghtPackets) {
-						filter += " and greater " + length;
+					if (filter.isEmpty() && !s.isEmpty()) {
+						filter = "(";
 					}
+					filter += s;
+					previous = s;
 				}
-				if (!first) {
-					filter += ") ";
+				if (!filter.isEmpty()) {
+					filter += ")";
+				}
+				if (filterLenghtPackets) {
+					if (!filter.isEmpty()) {
+						filter += " and";
+					}
+					filter += " greater " + length;
 				}
 				LOGGER.info("Capture filter : " + filter);
 				_filter = filter;
