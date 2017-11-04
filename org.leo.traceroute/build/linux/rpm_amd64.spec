@@ -1,6 +1,6 @@
 Summary:    Open Visual Traceroute
 Name:       Open Visual Traceroute
-Version:    1.6.5
+Version:    1.7.0
 Release:    1
 Group:      Applications/Network
 URL:        https://sourceforge.net/projects/openvisualtrace/

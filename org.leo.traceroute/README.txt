@@ -2,7 +2,7 @@
 ~~~~~~~ Open Visual Trace Route ~~~~~~~ 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Version 1.6.6
+Version 1.7.0
 I could successfully make this version on multiple systems, but my tests do not cover everything, so if you find a bug, a typo in some label feel free to post a bug report and/or fix
 - on Sourceforge http://sourceforge.net/projects/openvisualtrace/
 - or by email at leo.lewis.software@gmail.com
@@ -21,8 +21,8 @@ See http://visualtraceroute.net/installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 OS/Arch notice :
 Tested on the following systems :
-- Windows 7, 8 64 bits
-- Ubuntu 14.04 64 bits
+- Windows 10 64 bits
+- Ubuntu 17.10 64 bits
 - Linux Mint 18 64 bits
 - OpenSUSE Leap 42.1
 - MacOS X 10.10
@@ -42,7 +42,7 @@ Wish list :
  
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Release Note 
-1.6.6
+1.7.0
 - DNS loc records feature
 - Upgrade world wind
 - Use system proxy when available, allow to specify user and password

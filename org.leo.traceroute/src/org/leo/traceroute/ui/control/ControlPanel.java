@@ -146,8 +146,7 @@ public class ControlPanel extends AbstractPanel {
 	 * @param networkInterfaceChooser
 	 * @param replayPanel
 	 */
-	public ControlPanel(final ServiceFactory services, final MainPanel mainPanel, final ReplayPanel replayPanel,
-			final boolean is3d, final Mode mode) {
+	public ControlPanel(final ServiceFactory services, final MainPanel mainPanel, final ReplayPanel replayPanel, final boolean is3d, final Mode mode) {
 		super(services);
 		_mainPanel = mainPanel;
 		setLayout(new WrapLayout(FlowLayout.LEFT, 5, 2));
@@ -258,16 +257,14 @@ public class ControlPanel extends AbstractPanel {
 										@Override
 										public void run() {
 											if (!Util.open(f)) {
-												JOptionPane.showMessageDialog(parent,
-														Resources.getLabel("screenshot.success", f.getAbsolutePath()), "",
+												JOptionPane.showMessageDialog(parent, Resources.getLabel("screenshot.success", f.getAbsolutePath()), "",
 														JOptionPane.INFORMATION_MESSAGE);
 											}
 										}
 									});
 								}
 							} catch (final Exception ex) {
-								JOptionPane.showMessageDialog(parent, Resources.getLabel("screenshot.failed"),
-										Resources.getLabel("error"), JOptionPane.ERROR_MESSAGE);
+								JOptionPane.showMessageDialog(parent, Resources.getLabel("screenshot.failed"), Resources.getLabel("error"), JOptionPane.ERROR_MESSAGE);
 								LOGGER.error(ex.getMessage(), e);
 							}
 						}
@@ -275,8 +272,7 @@ public class ControlPanel extends AbstractPanel {
 					worker.execute();
 
 				} catch (final Exception ex) {
-					JOptionPane.showMessageDialog(parent, Resources.getLabel("screenshot.failed"), Resources.getLabel("error"),
-							JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(parent, Resources.getLabel("screenshot.failed"), Resources.getLabel("error"), JOptionPane.ERROR_MESSAGE);
 					LOGGER.error(ex.getMessage(), e);
 				}
 			}
@@ -298,8 +294,8 @@ public class ControlPanel extends AbstractPanel {
 				final StringSelection data = new StringSelection(csv);
 				final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 				clipboard.setContents(data, data);
-				JOptionPane.showMessageDialog(null, Resources.getLabel("copied.clipboard.message"),
-						Resources.getLabel("copied.clipboard.message"), JOptionPane.INFORMATION_MESSAGE);
+				JOptionPane.showMessageDialog(null, Resources.getLabel("copied.clipboard.message"), Resources.getLabel("copied.clipboard.message"),
+						JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
 		otherControls.add(_copyToClipboard);
@@ -360,16 +356,13 @@ public class ControlPanel extends AbstractPanel {
 							@Override
 							public void run() {
 								if (!Util.open(f)) {
-									JOptionPane.showMessageDialog(parent,
-											Resources.getLabel("export.success", f.getAbsolutePath()), "",
-											JOptionPane.INFORMATION_MESSAGE);
+									JOptionPane.showMessageDialog(parent, Resources.getLabel("export.success", f.getAbsolutePath()), "", JOptionPane.INFORMATION_MESSAGE);
 								}
 							}
 						});
 					}
 				} catch (final Exception ex) {
-					JOptionPane.showMessageDialog(parent, Resources.getLabel("export.failed", ex.getMessage()),
-							Resources.getLabel("error"), JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(parent, Resources.getLabel("export.failed", ex.getMessage()), Resources.getLabel("error"), JOptionPane.ERROR_MESSAGE);
 					LOGGER.error(ex.getMessage(), e);
 				}
 			}
@@ -420,8 +413,8 @@ public class ControlPanel extends AbstractPanel {
 	}
 
 	private void showUpdateDialog(final String content) {
-		final int res = JOptionPane.showConfirmDialog(_mainPanel, Resources.getLabel("new.version") + "\n\n" + content,
-				Resources.getLabel("new.version.title"), JOptionPane.YES_NO_OPTION);
+		final int res = JOptionPane.showConfirmDialog(_mainPanel, Resources.getLabel("new.version") + "\n\n" + content, Resources.getLabel("new.version.title"),
+				JOptionPane.YES_NO_OPTION);
 		if (res == JOptionPane.OK_OPTION) {
 			boolean redirectOK = false;
 			final String url = Env.INSTANCE.getDownloadUrl();
@@ -694,6 +687,8 @@ public class ControlPanel extends AbstractPanel {
 
 		private AutoCompleteComponent _autocomplete;
 
+		private long _ts;
+
 		@SuppressWarnings("serial")
 		public TraceRouteControl(final ReplayPanel replayPanel) {
 			super();
@@ -775,6 +770,11 @@ public class ControlPanel extends AbstractPanel {
 		 * Execute traceroute
 		 */
 		public void traceroute() {
+			final long ts = System.currentTimeMillis();
+			if (ts < _ts + 500) {
+				return;
+			}
+			_ts = ts;
 			if (!_running) {
 				try {
 					_timeOut.commitEdit();
@@ -783,9 +783,8 @@ public class ControlPanel extends AbstractPanel {
 				}
 				_monitor.setCanceled(false);
 				_running = true;
-				_route.compute(_hostIpTextField.getText(), _monitor, _resolveHostname.isSelected(),
-						1000 * Integer.parseInt(_timeOut.getValue().toString()), Env.INSTANCE.isUseOSTraceroute(),
-						_ipV4.isSelected(), Env.INSTANCE.getTrMaxHop());
+				_route.compute(_hostIpTextField.getText(), _monitor, _resolveHostname.isSelected(), 1000 * Integer.parseInt(_timeOut.getValue().toString()),
+						Env.INSTANCE.isUseOSTraceroute(), _ipV4.isSelected(), Env.INSTANCE.getTrMaxHop());
 			} else {
 				_monitor.setCanceled(true);
 				_traceRouteButton.setEnabled(false);
@@ -820,15 +819,17 @@ public class ControlPanel extends AbstractPanel {
 		/** Search button */
 		private final JButton _captureButton;
 
-		private JTextField _portTF;
-		private JCheckBox _allPortCheck;
-		private JTextField _filterLengthTF;
-		private JTextField _capturePeriod;
-		private JCheckBox _filterPacketLengthCheck;
+		private final JTextField _portTF;
+		private final JCheckBox _allPortCheck;
+		private final JTextField _filterLengthTF;
+		private final JTextField _capturePeriod;
+		private final JCheckBox _filterPacketLengthCheck;
 		/** Search textfield */
 		private final JTextField _hostIpTextField;
 
 		private final Map<Protocol, JCheckBox> _packets = new HashMap<Protocol, JCheckBox>();
+
+		private long _ts;
 
 		public SnifferControl() {
 			super();
@@ -902,37 +903,44 @@ public class ControlPanel extends AbstractPanel {
 			_captureButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(final ActionEvent arg0) {
-					if (!_running) {
-						final Set<Protocol> pt = new HashSet<Protocol>();
-						for (final Entry<Protocol, JCheckBox> entry : _packets.entrySet()) {
-							if (entry.getValue().isSelected()) {
-								pt.add(entry.getKey());
-							}
-						}
-						String port = null;
-						if (!_allPortCheck.isSelected()) {
-							port = _portTF.getText();
-						}
-						if (pt.isEmpty()) {
-							JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(ControlPanel.this),
-									Resources.getLabel("protocol.ports.empty"), Resources.getLabel("protocol.ports.empty"),
-									JOptionPane.INFORMATION_MESSAGE);
-							return;
-						}
-						_running = true;
-						String host = _hostIpTextField.getText();
-						if (host.contains(Resources.getLabel("sniffer.host.tooltip"))) {
-							host = null;
-						}
-						_sniffer.startCapture(pt, port, _filterPacketLengthCheck.isSelected(),
-								Integer.parseInt(_filterLengthTF.getText().replace(",", "")), host,
-								Integer.parseInt(_capturePeriod.getText()));
-					} else {
-						_sniffer.endCapture();
-						_running = false;
-					}
+					start();
 				}
 			});
+		}
+
+		private void start() {
+			final long ts = System.currentTimeMillis();
+			if (ts < _ts + 500) {
+				return;
+			}
+			_ts = ts;
+			if (!_running) {
+				final Set<Protocol> pt = new HashSet<Protocol>();
+				for (final Entry<Protocol, JCheckBox> entry : _packets.entrySet()) {
+					if (entry.getValue().isSelected()) {
+						pt.add(entry.getKey());
+					}
+				}
+				String port = null;
+				if (!_allPortCheck.isSelected()) {
+					port = _portTF.getText();
+				}
+				if (pt.isEmpty()) {
+					JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(ControlPanel.this), Resources.getLabel("protocol.ports.empty"),
+							Resources.getLabel("protocol.ports.empty"), JOptionPane.INFORMATION_MESSAGE);
+					return;
+				}
+				_running = true;
+				String host = _hostIpTextField.getText();
+				if (host.contains(Resources.getLabel("sniffer.host.tooltip"))) {
+					host = null;
+				}
+				_sniffer.startCapture(pt, port, _filterPacketLengthCheck.isSelected(), Integer.parseInt(_filterLengthTF.getText().replace(",", "")), host,
+						Integer.parseInt(_capturePeriod.getText()));
+			} else {
+				_sniffer.endCapture();
+				_running = false;
+			}
 		}
 
 		@Override
