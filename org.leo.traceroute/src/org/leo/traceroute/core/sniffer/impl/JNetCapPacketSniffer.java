@@ -105,7 +105,7 @@ public class JNetCapPacketSniffer extends AbstractSniffer implements PcapPacketH
 				if (point != null) {
 					if (point.setPacket(packet) && _captureProtocols.contains(point.getProtocol())) {
 						point.setHostname(_services.getDnsLookup().dnsLookup(point.getIp()));
-						if (_host == null || _host.isEmpty() || _host.equals(point.getHostname())) {
+						if (_host == null || _host.isEmpty() || point.getHostname().contains(_host)) {
 							final int c = _count.incrementAndGet();
 							point.setNumber(c);
 							point.setTs(System.currentTimeMillis());

@@ -176,7 +176,11 @@ public class GeoService implements IComponent {
 			if (DNSLookupService.UNKNOWN_HOST.equals(dns)) {
 				location = _locRecords.get(ip);
 			} else {
-				location = _locRecords.get(dns);
+				if (dns == null) {
+					location = _locRecords.get("localhost");
+				} else {
+					location = _locRecords.get(dns);
+				}
 			}
 			// nothing in the loc records, check with the geoip db
 			if (location == null) {
@@ -292,7 +296,7 @@ public class GeoService implements IComponent {
 					ex = e;
 					// invalid record, comment it out
 					final String r = ";Invalid record :" + e.getMessage() + "\n;" + line;
-					record = new LocRecord(r, comment.toString());
+					record = new LocRecord(r, comment == null ? "" : comment.toString());
 				}
 				addLocRecord(record);
 				comment = null;
@@ -322,7 +326,8 @@ public class GeoService implements IComponent {
 		if (_rawLocRecords.isEmpty()) {
 			return "; LOC record format is https://en.wikipedia.org/wiki/LOC_record\n"
 					+ ";owner TTL class LOC ( d1 [m1 [s1]] {\"N\"|\"S\"} d2 [m2 [s2]] {\"E\"|\"W\"} alt[\"m\"] [siz[\"m\"] [hp[\"m\"] [vp[\"m\"]]]] )\n" + "; example\n"
-					+ "; statdns.net. TTL IN LOC 52 22 23.000 N 4 53 32.000 E -2.00m 0.00m 10000m 10m";
+					+ "; statdns.net. IN LOC 52 22 23.000 N 4 53 32.000 E -2.00m 0.00m 10000m 10m\n" + "; example to override local addresses\n"
+					+ "; localhost. IN LOC 49 14 46.6512 N 123 6 58.4136 W";
 		}
 		final StringBuilder sb = new StringBuilder();
 		for (final LocRecord record : _rawLocRecords) {

@@ -66,7 +66,7 @@ public class LocRecord {
 			try {
 				Integer.parseInt(fields[index]);
 			} catch (final NumberFormatException e) {
-				throw new IllegalArgumentException("invalid TTL field " + fields[index]);
+				throw new IllegalArgumentException("invalid TTL field '" + fields[index] + "'. Expecting an integer");
 			}
 			index++;
 		}
@@ -82,26 +82,26 @@ public class LocRecord {
 			d1 = Integer.parseInt(fields[index]);
 			index++;
 		} catch (final NumberFormatException e) {
-			throw new IllegalArgumentException("invalid d1 field " + fields[index]);
+			throw new IllegalArgumentException("invalid d1 field '" + fields[index] + "'. Expecting an integer");
 		}
 		if (!"N".equals(fields[index]) && !"S".equals(fields[index])) {
 			try {
 				m1 = Integer.parseInt(fields[index]);
 				index++;
 			} catch (final NumberFormatException e) {
-				throw new IllegalArgumentException("invalid m1 field " + fields[index]);
+				throw new IllegalArgumentException("invalid m1 field '" + fields[index] + "'. Expecting an integer");
 			}
 			if (!"N".equals(fields[index]) && !"S".equals(fields[index])) {
 				try {
 					s1 = Float.parseFloat(fields[index]);
 					index++;
 				} catch (final NumberFormatException e) {
-					throw new IllegalArgumentException("invalid s1 field " + fields[index]);
+					throw new IllegalArgumentException("invalid s1 field '" + fields[index] + "'. Expecting a float");
 				}
 			}
 		}
 		if (!"N".equals(fields[index]) && !"S".equals(fields[index])) {
-			throw new IllegalArgumentException("invalid {S|N} field " + fields[index]);
+			throw new IllegalArgumentException("invalid {S|N} field '" + fields[index] + "'. Expecting 'N' or 'S'");
 		}
 		north = "N".equals(fields[index]);
 		index++;
@@ -111,26 +111,26 @@ public class LocRecord {
 			d2 = Integer.parseInt(fields[index]);
 			index++;
 		} catch (final NumberFormatException e) {
-			throw new IllegalArgumentException("invalid d2 field " + fields[index]);
+			throw new IllegalArgumentException("invalid d2 field '" + fields[index] + "'. Expecting an integer");
 		}
 		if (!"W".equals(fields[index]) && !"E".equals(fields[index])) {
 			try {
 				m2 = Integer.parseInt(fields[index]);
 				index++;
 			} catch (final NumberFormatException e) {
-				throw new IllegalArgumentException("invalid m2 field " + fields[index]);
+				throw new IllegalArgumentException("invalid m2 field '" + fields[index] + "'. Expecting an integer");
 			}
 			if (!"W".equals(fields[index]) && !"E".equals(fields[index])) {
 				try {
 					s2 = Float.parseFloat(fields[index]);
 					index++;
 				} catch (final NumberFormatException e) {
-					throw new IllegalArgumentException("invalid s2 field " + fields[index]);
+					throw new IllegalArgumentException("invalid s2 field '" + fields[index] + "'. Expecting an integer");
 				}
 			}
 		}
 		if (!"W".equals(fields[index]) && !"E".equals(fields[index])) {
-			throw new IllegalArgumentException("invalid {E|W} field " + fields[index]);
+			throw new IllegalArgumentException("invalid {E|W} field '" + fields[index] + "'. Expecting 'E' or 'W'");
 		}
 		east = "E".equals(fields[index]);
 		index++;
@@ -140,6 +140,7 @@ public class LocRecord {
 		location = new Location();
 		location.countryCode = LOC;
 		location.countryName = "Loc record";
+		location.city = location.countryName;
 		location.latitude = lat;
 		location.longitude = lon;
 		valid = true;
