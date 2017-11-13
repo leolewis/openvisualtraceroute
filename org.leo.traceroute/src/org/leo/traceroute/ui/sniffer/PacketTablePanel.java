@@ -25,8 +25,6 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,8 +38,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.ToolTipManager;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
@@ -179,7 +175,7 @@ public class PacketTablePanel extends AbstractSnifferPanel implements IConfigPro
 	}
 
 	/** Index to column */
-	private final Map<Integer, Column> _indexToColumn = new HashMap<Integer, Column>();
+	private final Map<Integer, Column> _indexToColumn = new HashMap<>();
 	{
 		int i = 0;
 		for (final Column column : Column.values()) {
@@ -247,20 +243,17 @@ public class PacketTablePanel extends AbstractSnifferPanel implements IConfigPro
 		_table.setAutoCreateRowSorter(true);
 		_table.getTableHeader().setReorderingAllowed(true);
 		// on selection change, notify the route to focus on the selection
-		_table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(final ListSelectionEvent e) {
-				if (!e.getValueIsAdjusting() && _table.getSelectedRow() != -1) {
-					final int index = _table.convertRowIndexToModel(_table.getSelectedRow());
-					if (index >= 0 && index < _sniffer.getCapture().size() && _previousSelectedIndex != index) {
-						if (!_selectionAdjusting) {
-							try {
-								_selectionAdjusting = true;
-								_sniffer.focus(_sniffer.getCapture().get(index), true);
-								_previousSelectedIndex = index;
-							} finally {
-								_selectionAdjusting = false;
-							}
+		_table.getSelectionModel().addListSelectionListener(e -> {
+			if (!e.getValueIsAdjusting() && _table.getSelectedRow() != -1) {
+				final int index = _table.convertRowIndexToModel(_table.getSelectedRow());
+				if (index >= 0 && index < _sniffer.getCapture().size() && _previousSelectedIndex != index) {
+					if (!_selectionAdjusting) {
+						try {
+							_selectionAdjusting = true;
+							_sniffer.focus(_sniffer.getCapture().get(index), true);
+							_previousSelectedIndex = index;
+						} finally {
+							_selectionAdjusting = false;
 						}
 					}
 				}
@@ -304,7 +297,7 @@ public class PacketTablePanel extends AbstractSnifferPanel implements IConfigPro
 	 */
 	@Override
 	public Map<String, String> save() {
-		final Map<String, String> widths = new HashMap<String, String>();
+		final Map<String, String> widths = new HashMap<>();
 		for (int colIndex = 0; colIndex < _table.getColumnCount(); colIndex++) {
 			final Column column = _indexToColumn.get(colIndex);
 			final int w = _table.getColumnModel().getColumn(colIndex).getPreferredWidth();
@@ -460,8 +453,8 @@ public class PacketTablePanel extends AbstractSnifferPanel implements IConfigPro
 		 *      java.lang.Object, boolean, boolean, int, int)
 		 */
 		@Override
-		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected,
-				final boolean hasFocus, final int row, final int column) {
+		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row,
+				final int column) {
 			final Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 			if (c instanceof JLabel) {
 				final JLabel label = (JLabel) c;
@@ -526,8 +519,7 @@ public class PacketTablePanel extends AbstractSnifferPanel implements IConfigPro
 		}
 
 		@Override
-		public Component getTableCellEditorComponent(final JTable table, final Object value, final boolean isSelected,
-				final int row, final int column) {
+		public Component getTableCellEditorComponent(final JTable table, final Object value, final boolean isSelected, final int row, final int column) {
 			final Component c = super.getTableCellEditorComponent(table, value, isSelected, row, column);
 			final JButton button = new JButton("?");
 			button.setMargin(new Insets(0, 0, 0, 0));
@@ -536,16 +528,13 @@ public class PacketTablePanel extends AbstractSnifferPanel implements IConfigPro
 			if (Env.INSTANCE.getOs() == OS.win) {
 				button.setBorder(null);
 			}
-			button.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(final ActionEvent e) {
-					final AbstractPacketPoint point = _sniffer.getCapture().get(_table.convertRowIndexToModel(row));
-					WhoIsPanel.showWhoIsDialog(PacketTablePanel.this, _services, point);
-					if (table.isEditing()) {
-						table.getCellEditor().stopCellEditing();
-					}
-					_whois.clear();
+			button.addActionListener(e -> {
+				final AbstractPacketPoint point = _sniffer.getCapture().get(_table.convertRowIndexToModel(row));
+				WhoIsPanel.showWhoIsDialog(PacketTablePanel.this, _services, point);
+				if (table.isEditing()) {
+					table.getCellEditor().stopCellEditing();
 				}
+				_whois.clear();
 			});
 			return button;
 		}

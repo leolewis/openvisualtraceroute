@@ -38,12 +38,11 @@ public enum ColorUtil {
 	private final RangeMap<Integer, Color> _numOfPointsToColor;
 
 	private ColorUtil() {
-		_latencyToColor = ImmutableRangeMap.<Integer, Color> builder().put(Range.lessThan(5), new Color(0, 51, 255))
-				.put(Range.closedOpen(5, 10), new Color(0, 126, 246)).put(Range.closedOpen(10, 20), new Color(0, 231, 244))
-				.put(Range.closedOpen(20, 50), new Color(0, 249, 126)).put(Range.closedOpen(50, 100), new Color(255, 255, 102))
-				.put(Range.closedOpen(100, 200), new Color(255, 233, 55))
-				.put(Range.closedOpen(200, 500), new Color(255, 172, 39))
-				.put(Range.closedOpen(500, 1000), new Color(255, 23, 21)).put(Range.atLeast(1000), new Color(219, 0, 0)).build();
+		_latencyToColor = ImmutableRangeMap.<Integer, Color> builder().put(Range.lessThan(5), new Color(0, 51, 255)).put(Range.closedOpen(5, 10), new Color(0, 126, 246))
+				.put(Range.closedOpen(10, 20), new Color(0, 231, 244)).put(Range.closedOpen(20, 50), new Color(0, 249, 126))
+				.put(Range.closedOpen(50, 100), new Color(255, 255, 102)).put(Range.closedOpen(100, 200), new Color(255, 233, 55))
+				.put(Range.closedOpen(200, 500), new Color(255, 172, 39)).put(Range.closedOpen(500, 1000), new Color(255, 23, 21))
+				.put(Range.atLeast(1000), new Color(219, 0, 0)).build();
 		_numOfPointsToColor = ImmutableRangeMap.<Integer, Color> builder().put(Range.lessThan(2), new Color(0, 51, 255))
 				.put(Range.closedOpen(2, 5), new Color(0, 126, 246)).put(Range.closedOpen(5, 10), new Color(0, 231, 244))
 				.put(Range.closedOpen(10, 20), new Color(0, 249, 126)).put(Range.closedOpen(20, 40), new Color(255, 255, 102))

@@ -66,7 +66,7 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTraceRoute.class);
 
 	/** Route */
-	protected List<RoutePoint> _route = new ArrayList<RoutePoint>();
+	protected List<RoutePoint> _route = new ArrayList<>();
 
 	/** Route length in KM */
 	protected AtomicLong _lengthInKm;
@@ -87,7 +87,7 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 
 	private final Semaphore _semaphore = new Semaphore(1);
 
-	private final BlockingQueue<RoutePoint> _notifyQueue = new LinkedBlockingQueue<RoutePoint>();
+	private final BlockingQueue<RoutePoint> _notifyQueue = new LinkedBlockingQueue<>();
 	private final AtomicInteger _notified = new AtomicInteger();
 	private final Thread _notifyThread = new Thread("Route async notify thread") {
 		@Override
@@ -97,19 +97,16 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 					final RoutePoint point = _notifyQueue.poll(10, TimeUnit.MILLISECONDS);
 					// notify in the EDT
 					if (point != null) {
-						SwingUtilities.invokeAndWait(new Runnable() {
-							@Override
-							public void run() {
-								// notify route point added
-								for (final IRouteListener listener : getListeners()) {
-									listener.routePointAdded(point);
-								}
-								// focus on the point
-								for (final IRouteListener listener : getListeners()) {
-									listener.focusRoute(point, true, true);
-								}
-								_notified.incrementAndGet();
+						SwingUtilities.invokeAndWait(() -> {
+							// notify route point added
+							for (final IRouteListener listener1 : getListeners()) {
+								listener1.routePointAdded(point);
 							}
+							// focus on the point
+							for (final IRouteListener listener2 : getListeners()) {
+								listener2.focusRoute(point, true, true);
+							}
+							_notified.incrementAndGet();
 						});
 					}
 				} catch (final InterruptedException e) {
@@ -178,88 +175,85 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 			final String fdest = formatedDest;
 			// launch the tracing in a thread
 			final AtomicBoolean timedOut = new AtomicBoolean();
-			_threadPool.execute(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						// notify new route
-						for (final IRouteListener listener : getListeners()) {
-							listener.newRoute(resolveHostname);
-						}
-						// compute route
-						final long time = System.currentTimeMillis();
-						// check for time out if required
-						Timer timer = null;
-						if (timeOutMs > 0) {
-							final long startTime = System.currentTimeMillis();
-							timer = new Timer(true);
-							timer.scheduleAtFixedRate(new TimerTask() {
-								@Override
-								public void run() {
-									// check if timed out
-									if (System.currentTimeMillis() - startTime > timeOutMs) {
-										timedOut.set(true);
-										monitor.setCanceled(true);
-										cancel();
-									}
-								}
-							}, 0, 100);
-						}
-						LOGGER.info("Starting {} traceroute to {} with maxhops={} and timeout={}ms", useOsTraceroute ? "OS" : "embedded", fdest, maxHops, timeOutMs);
-						if (useOsTraceroute || !ipV4) {
-							computeOSRoute(fdest, monitor, resolveHostname, ipV4, maxHops);
-						} else {
-							computeRoute(fdest, monitor, resolveHostname, maxHops);
-						}
-						if (timer != null) {
-							timer.cancel();
-						}
-						// if timed out, nobody to notify (already done)
-						if (!timedOut.get()) {
-							// if monitor canceled, notify canceled
-							if (monitor.isCanceled()) {
-								for (final IRouteListener listener : getListeners()) {
-									listener.routeCancelled();
-								}
-							} else {
-								// notify done
-								_tracerouteTime = System.currentTimeMillis() - time;
-								// wait for pending notifications
-								while (_notified.get() < _route.size()) {
-									Thread.sleep(100);
-								}
-								for (final IRouteListener listener : getListeners()) {
-									listener.routeDone(_tracerouteTime, _lengthInKm.get());
-								}
-							}
-						} else {
-							// notify listeners
-							for (final IRouteListener listener : getListeners()) {
-								listener.routeTimeout();
-							}
-						}
-						// if the traceroute didn't failed, add it to the history
-						_services.getAutocomplete().addToHistory(dest);
-						LOGGER.info("Traceroute to {} completed.", fdest);
-					} catch (final Exception e) {
-						if (!monitor.isCanceled() && !timedOut.get()) {
-							if (e instanceof MaxHopsException) {
-								// notify max hops
-								LOGGER.warn("Traceroute to {} stopped because reached the max hops", fdest);
-								for (final IRouteListener listener : getListeners()) {
-									listener.maxHops();
-								}
-							} else {
-								// notify error
-								LOGGER.error("Traceroute to {} failed", fdest, e);
-								for (final IRouteListener listener : getListeners()) {
-									listener.error(e, AbstractTraceRoute.this);
-								}
-							}
-						}
-					} finally {
-						_semaphore.release();
+			_threadPool.execute(() -> {
+				try {
+					// notify new route
+					for (final IRouteListener listener1 : getListeners()) {
+						listener1.newRoute(resolveHostname);
 					}
+					// compute route
+					final long time = System.currentTimeMillis();
+					// check for time out if required
+					Timer timer = null;
+					if (timeOutMs > 0) {
+						final long startTime = System.currentTimeMillis();
+						timer = new Timer(true);
+						timer.scheduleAtFixedRate(new TimerTask() {
+							@Override
+							public void run() {
+								// check if timed out
+								if (System.currentTimeMillis() - startTime > timeOutMs) {
+									timedOut.set(true);
+									monitor.setCanceled(true);
+									cancel();
+								}
+							}
+						}, 0, 100);
+					}
+					LOGGER.info("Starting {} traceroute to {} with maxhops={} and timeout={}ms", useOsTraceroute ? "OS" : "embedded", fdest, maxHops, timeOutMs);
+					if (useOsTraceroute || !ipV4) {
+						computeOSRoute(fdest, monitor, resolveHostname, ipV4, maxHops);
+					} else {
+						computeRoute(fdest, monitor, resolveHostname, maxHops);
+					}
+					if (timer != null) {
+						timer.cancel();
+					}
+					// if timed out, nobody to notify (already done)
+					if (!timedOut.get()) {
+						// if monitor canceled, notify canceled
+						if (monitor.isCanceled()) {
+							for (final IRouteListener listener2 : getListeners()) {
+								listener2.routeCancelled();
+							}
+						} else {
+							// notify done
+							_tracerouteTime = System.currentTimeMillis() - time;
+							// wait for pending notifications
+							while (_notified.get() < _route.size()) {
+								Thread.sleep(100);
+							}
+							for (final IRouteListener listener3 : getListeners()) {
+								listener3.routeDone(_tracerouteTime, _lengthInKm.get());
+							}
+						}
+					} else {
+						// notify listeners
+						for (final IRouteListener listener4 : getListeners()) {
+							listener4.routeTimeout();
+						}
+					}
+					// if the traceroute didn't failed, add it to the history
+					_services.getAutocomplete().addToHistory(dest);
+					LOGGER.info("Traceroute to {} completed.", fdest);
+				} catch (final Exception e) {
+					if (!monitor.isCanceled() && !timedOut.get()) {
+						if (e instanceof MaxHopsException) {
+							// notify max hops
+							LOGGER.warn("Traceroute to {} stopped because reached the max hops", fdest);
+							for (final IRouteListener listener5 : getListeners()) {
+								listener5.maxHops();
+							}
+						} else {
+							// notify error
+							LOGGER.error("Traceroute to {} failed", fdest, e);
+							for (final IRouteListener listener6 : getListeners()) {
+								listener6.error(e, AbstractTraceRoute.this);
+							}
+						}
+					}
+				} finally {
+					_semaphore.release();
 				}
 			});
 		} catch (final Exception e) {

@@ -61,7 +61,7 @@ public class CountryFlagManager {
 	}
 
 	/** cache */
-	private static final Map<String, ImageIcon> CACHE = new HashMap<String, ImageIcon>();
+	private static final Map<String, ImageIcon> CACHE = new HashMap<>();
 
 	/**
 	 * Get the image for the given route point

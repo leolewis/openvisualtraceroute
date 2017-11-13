@@ -24,8 +24,6 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,8 +37,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.ToolTipManager;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
@@ -180,7 +176,7 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 	}
 
 	/** Index to column */
-	private final Map<Integer, Column> _indexToColumn = new HashMap<Integer, Column>();
+	private final Map<Integer, Column> _indexToColumn = new HashMap<>();
 	{
 		int i = 0;
 		for (final Column column : Column.values()) {
@@ -252,21 +248,18 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 		_table.setAutoCreateRowSorter(true);
 		_table.getTableHeader().setReorderingAllowed(true);
 		// on selection change, notify the route to focus on the selection
-		_table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(final ListSelectionEvent e) {
-				if (!_focusAdjusting) {
-					try {
-						_focusAdjusting = true;
-						if (!e.getValueIsAdjusting() && _table.getSelectedRow() != -1) {
-							final int index = _table.convertRowIndexToModel(_table.getSelectedRow());
-							if (index >= 0 && index < _route.getRoute().size()) {
-								_route.focus(_route.getRoute().get(index), true);
-							}
+		_table.getSelectionModel().addListSelectionListener(e -> {
+			if (!_focusAdjusting) {
+				try {
+					_focusAdjusting = true;
+					if (!e.getValueIsAdjusting() && _table.getSelectedRow() != -1) {
+						final int index = _table.convertRowIndexToModel(_table.getSelectedRow());
+						if (index >= 0 && index < _route.getRoute().size()) {
+							_route.focus(_route.getRoute().get(index), true);
 						}
-					} finally {
-						_focusAdjusting = false;
 					}
+				} finally {
+					_focusAdjusting = false;
 				}
 			}
 		});
@@ -307,7 +300,7 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 	 */
 	@Override
 	public Map<String, String> save() {
-		final Map<String, String> widths = new HashMap<String, String>();
+		final Map<String, String> widths = new HashMap<>();
 		for (int colIndex = 0; colIndex < _table.getColumnCount(); colIndex++) {
 			final Column column = _indexToColumn.get(colIndex);
 			final int w = _table.getColumnModel().getColumn(colIndex).getPreferredWidth();
@@ -507,8 +500,8 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 		 *      java.lang.Object, boolean, boolean, int, int)
 		 */
 		@Override
-		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected,
-				final boolean hasFocus, final int row, final int column) {
+		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row,
+				final int column) {
 			final Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 			if (c instanceof JLabel) {
 				final JLabel label = (JLabel) c;
@@ -570,8 +563,7 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 		}
 
 		@Override
-		public Component getTableCellEditorComponent(final JTable table, final Object value, final boolean isSelected,
-				final int row, final int column) {
+		public Component getTableCellEditorComponent(final JTable table, final Object value, final boolean isSelected, final int row, final int column) {
 			final Component c = super.getTableCellEditorComponent(table, value, isSelected, row, column);
 			final JButton button = new JButton("?");
 			button.setMargin(new Insets(0, 0, 0, 0));
@@ -582,16 +574,13 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 				button.setBorder(null);
 			}
 			button.setEnabled(!_searching);
-			button.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(final ActionEvent e) {
-					final RoutePoint point = _route.getRoute().get(_table.convertRowIndexToModel(row));
-					WhoIsPanel.showWhoIsDialog(RouteTablePanel.this, _services, point);
-					if (table.isEditing()) {
-						table.getCellEditor().stopCellEditing();
-					}
-					_whois.clear();
+			button.addActionListener(e -> {
+				final RoutePoint point = _route.getRoute().get(_table.convertRowIndexToModel(row));
+				WhoIsPanel.showWhoIsDialog(RouteTablePanel.this, _services, point);
+				if (table.isEditing()) {
+					table.getCellEditor().stopCellEditing();
 				}
+				_whois.clear();
 			});
 			return button;
 		}

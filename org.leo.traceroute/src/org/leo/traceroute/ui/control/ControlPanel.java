@@ -27,7 +27,6 @@ import java.awt.Window;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -62,8 +61,6 @@ import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
@@ -160,24 +157,9 @@ public class ControlPanel extends AbstractPanel {
 		_whoisButton = new JToggleButton(Resources.getLabel("mode.whois"), Resources.getImageIcon("identity.png"));
 		_whoisButton.setToolTipText(Resources.getLabel("mode.whois.description"));
 		_whoisButton.setSelected(mode == Mode.WHOIS);
-		_tracerouteButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				setMode(Mode.TRACE_ROUTE, true);
-			}
-		});
-		_snifferButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				setMode(Mode.SNIFFER, true);
-			}
-		});
-		_whoisButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				setMode(Mode.WHOIS, true);
-			}
-		});
+		_tracerouteButton.addActionListener(e -> setMode(Mode.TRACE_ROUTE, true));
+		_snifferButton.addActionListener(e -> setMode(Mode.SNIFFER, true));
+		_whoisButton.addActionListener(e -> setMode(Mode.WHOIS, true));
 		final ButtonGroup group = new ButtonGroup();
 		group.add(_tracerouteButton);
 		group.add(_snifferButton);
@@ -189,12 +171,7 @@ public class ControlPanel extends AbstractPanel {
 
 		_switch2D3D = new JToggleButton(Resources.getLabel("2d.3d"), Resources.getImageIcon("cube.png"), is3d);
 		_switch2D3D.setToolTipText(Resources.getLabel("switch.2d.tooltip"));
-		_switch2D3D.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				_mainPanel.set3DMap(_switch2D3D.isSelected());
-			}
-		});
+		_switch2D3D.addActionListener(e -> _mainPanel.set3DMap(_switch2D3D.isSelected()));
 		_customControls = new JPanel();
 		_customControls.setLayout(new FlowLayout(FlowLayout.LEFT, 15, 0));
 		add(_tracerouteButton);
@@ -210,172 +187,152 @@ public class ControlPanel extends AbstractPanel {
 		otherControls.setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
 		final JButton screenshot = new JButton(Resources.getImageIcon("png.png"));
 		screenshot.setToolTipText(Resources.getLabel("screenshot"));
-		screenshot.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final JFileChooser chooser = new JFileChooser();
-				if (_saveDirectory != null) {
-					chooser.setCurrentDirectory(_saveDirectory);
+		screenshot.addActionListener(e -> {
+			final JFileChooser chooser = new JFileChooser();
+			if (_saveDirectory != null) {
+				chooser.setCurrentDirectory(_saveDirectory);
+			}
+			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			chooser.setFileFilter(new FileFilter() {
+				@Override
+				public String getDescription() {
+					return "PNG file";
 				}
-				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				chooser.setFileFilter(new FileFilter() {
+
+				@Override
+				public boolean accept(final File f) {
+					if (f.isDirectory()) {
+						return true;
+					}
+					return f.getName().toLowerCase().endsWith(".png");
+				}
+			});
+			final Window parent = SwingUtilities.getWindowAncestor(ControlPanel.this);
+			try {
+				final SwingWorker<BufferedImage, Void> worker = new SwingWorker<BufferedImage, Void>() {
 					@Override
-					public String getDescription() {
-						return "PNG file";
+					protected BufferedImage doInBackground() throws Exception {
+						return new Robot().createScreenCapture(new Rectangle(parent.getBounds()));
 					}
 
 					@Override
-					public boolean accept(final File f) {
-						if (f.isDirectory()) {
-							return true;
-						}
-						return f.getName().toLowerCase().endsWith(".png");
-					}
-				});
-				final Window parent = SwingUtilities.getWindowAncestor(ControlPanel.this);
-				try {
-					final SwingWorker<BufferedImage, Void> worker = new SwingWorker<BufferedImage, Void>() {
-						@Override
-						protected BufferedImage doInBackground() throws Exception {
-							return new Robot().createScreenCapture(new Rectangle(parent.getBounds()));
-						}
-
-						@Override
-						protected void done() {
-							try {
-								final BufferedImage image = get();
-								final int ret = chooser.showSaveDialog(parent);
-								if (ret == JFileChooser.APPROVE_OPTION) {
-									File file = chooser.getSelectedFile();
-									if (!file.getName().toLowerCase().endsWith(".png")) {
-										file = new File(file.getAbsolutePath() + ".png");
-									}
-									_saveDirectory = file.getParentFile();
-									ImageIO.write(image, "png", file);
-									final File f = file;
-									SwingUtilities.invokeLater(new Runnable() {
-										@Override
-										public void run() {
-											if (!Util.open(f)) {
-												JOptionPane.showMessageDialog(parent, Resources.getLabel("screenshot.success", f.getAbsolutePath()), "",
-														JOptionPane.INFORMATION_MESSAGE);
-											}
-										}
-									});
+					protected void done() {
+						try {
+							final BufferedImage image = get();
+							final int ret = chooser.showSaveDialog(parent);
+							if (ret == JFileChooser.APPROVE_OPTION) {
+								File file = chooser.getSelectedFile();
+								if (!file.getName().toLowerCase().endsWith(".png")) {
+									file = new File(file.getAbsolutePath() + ".png");
 								}
-							} catch (final Exception ex) {
-								JOptionPane.showMessageDialog(parent, Resources.getLabel("screenshot.failed"), Resources.getLabel("error"), JOptionPane.ERROR_MESSAGE);
-								LOGGER.error(ex.getMessage(), e);
+								_saveDirectory = file.getParentFile();
+								ImageIO.write(image, "png", file);
+								final File f = file;
+								SwingUtilities.invokeLater(() -> {
+									if (!Util.open(f)) {
+										JOptionPane.showMessageDialog(parent, Resources.getLabel("screenshot.success", f.getAbsolutePath()), "",
+												JOptionPane.INFORMATION_MESSAGE);
+									}
+								});
 							}
+						} catch (final Exception ex) {
+							JOptionPane.showMessageDialog(parent, Resources.getLabel("screenshot.failed"), Resources.getLabel("error"), JOptionPane.ERROR_MESSAGE);
+							LOGGER.error(ex.getMessage(), e);
 						}
-					};
-					worker.execute();
+					}
+				};
+				worker.execute();
 
-				} catch (final Exception ex) {
-					JOptionPane.showMessageDialog(parent, Resources.getLabel("screenshot.failed"), Resources.getLabel("error"), JOptionPane.ERROR_MESSAGE);
-					LOGGER.error(ex.getMessage(), e);
-				}
+			} catch (final Exception ex) {
+				JOptionPane.showMessageDialog(parent, Resources.getLabel("screenshot.failed"), Resources.getLabel("error"), JOptionPane.ERROR_MESSAGE);
+				LOGGER.error(ex.getMessage(), e);
 			}
 		});
 		otherControls.add(screenshot);
 		_copyToClipboard = new JButton(Resources.getImageIcon("clipboard.png"));
 		_copyToClipboard.setToolTipText(Resources.getLabel("copy.clipboard.button"));
-		_copyToClipboard.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final String csv;
-				if (_mode == Mode.TRACE_ROUTE) {
-					csv = _route.toText();
-				} else if (_mode == Mode.SNIFFER) {
-					csv = _sniffer.toText();
-				} else {
-					csv = _whois.toText();
-				}
-				final StringSelection data = new StringSelection(csv);
-				final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-				clipboard.setContents(data, data);
-				JOptionPane.showMessageDialog(null, Resources.getLabel("copied.clipboard.message"), Resources.getLabel("copied.clipboard.message"),
-						JOptionPane.INFORMATION_MESSAGE);
+		_copyToClipboard.addActionListener(e -> {
+			final String csv;
+			if (_mode == Mode.TRACE_ROUTE) {
+				csv = _route.toText();
+			} else if (_mode == Mode.SNIFFER) {
+				csv = _sniffer.toText();
+			} else {
+				csv = _whois.toText();
 			}
+			final StringSelection data = new StringSelection(csv);
+			final Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+			clipboard.setContents(data, data);
+			JOptionPane.showMessageDialog(null, Resources.getLabel("copied.clipboard.message"), Resources.getLabel("copied.clipboard.message"),
+					JOptionPane.INFORMATION_MESSAGE);
 		});
 		otherControls.add(_copyToClipboard);
 		_exportToFile = new JButton(Resources.getImageIcon("export.png"));
 		_exportToFile.setToolTipText(Resources.getLabel("export.button"));
-		_exportToFile.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final String ext = _mode != Mode.WHOIS ? ".csv" : ".txt";
-				final JFileChooser chooser = new JFileChooser();
-				if (_saveDirectory != null) {
-					chooser.setCurrentDirectory(_saveDirectory);
+		_exportToFile.addActionListener(e -> {
+			final String ext = _mode != Mode.WHOIS ? ".csv" : ".txt";
+			final JFileChooser chooser = new JFileChooser();
+			if (_saveDirectory != null) {
+				chooser.setCurrentDirectory(_saveDirectory);
+			}
+			chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+			chooser.setFileFilter(new FileFilter() {
+				@Override
+				public String getDescription() {
+					return "CSV file";
 				}
-				chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				chooser.setFileFilter(new FileFilter() {
-					@Override
-					public String getDescription() {
-						return "CSV file";
-					}
 
-					@Override
-					public boolean accept(final File f) {
-						if (f.isDirectory()) {
-							return true;
-						}
-						return f.getName().toLowerCase().endsWith(ext);
+				@Override
+				public boolean accept(final File f) {
+					if (f.isDirectory()) {
+						return true;
 					}
-				});
-				final Window parent = SwingUtilities.getWindowAncestor(ControlPanel.this);
-				try {
-					final int ret = chooser.showSaveDialog(parent);
-					if (ret == JFileChooser.APPROVE_OPTION) {
-						File file = chooser.getSelectedFile();
-						if (!file.getName().toLowerCase().endsWith(ext)) {
-							file = new File(file.getAbsolutePath() + ext);
-						}
-						final String csv;
-						if (_mode == Mode.TRACE_ROUTE) {
-							csv = _route.toCSV();
-						} else if (_mode == Mode.SNIFFER) {
-							csv = _sniffer.toCSV();
-						} else {
-							csv = _whois.toText();
-						}
-						final File f = file;
-						FileOutputStream stream = null;
-						try {
-							stream = new FileOutputStream(f);
-							IOUtils.write(csv, stream);
-						} finally {
-							if (stream != null) {
-								stream.flush();
-								IOUtils.closeQuietly(stream);
-							}
-						}
-						_saveDirectory = f.getParentFile();
-						SwingUtilities.invokeLater(new Runnable() {
-							@Override
-							public void run() {
-								if (!Util.open(f)) {
-									JOptionPane.showMessageDialog(parent, Resources.getLabel("export.success", f.getAbsolutePath()), "", JOptionPane.INFORMATION_MESSAGE);
-								}
-							}
-						});
-					}
-				} catch (final Exception ex) {
-					JOptionPane.showMessageDialog(parent, Resources.getLabel("export.failed", ex.getMessage()), Resources.getLabel("error"), JOptionPane.ERROR_MESSAGE);
-					LOGGER.error(ex.getMessage(), e);
+					return f.getName().toLowerCase().endsWith(ext);
 				}
+			});
+			final Window parent = SwingUtilities.getWindowAncestor(ControlPanel.this);
+			try {
+				final int ret = chooser.showSaveDialog(parent);
+				if (ret == JFileChooser.APPROVE_OPTION) {
+					File file = chooser.getSelectedFile();
+					if (!file.getName().toLowerCase().endsWith(ext)) {
+						file = new File(file.getAbsolutePath() + ext);
+					}
+					final String csv;
+					if (_mode == Mode.TRACE_ROUTE) {
+						csv = _route.toCSV();
+					} else if (_mode == Mode.SNIFFER) {
+						csv = _sniffer.toCSV();
+					} else {
+						csv = _whois.toText();
+					}
+					final File f = file;
+					FileOutputStream stream = null;
+					try {
+						stream = new FileOutputStream(f);
+						IOUtils.write(csv, stream);
+					} finally {
+						if (stream != null) {
+							stream.flush();
+							IOUtils.closeQuietly(stream);
+						}
+					}
+					_saveDirectory = f.getParentFile();
+					SwingUtilities.invokeLater(() -> {
+						if (!Util.open(f)) {
+							JOptionPane.showMessageDialog(parent, Resources.getLabel("export.success", f.getAbsolutePath()), "", JOptionPane.INFORMATION_MESSAGE);
+						}
+					});
+				}
+			} catch (final Exception ex) {
+				JOptionPane.showMessageDialog(parent, Resources.getLabel("export.failed", ex.getMessage()), Resources.getLabel("error"), JOptionPane.ERROR_MESSAGE);
+				LOGGER.error(ex.getMessage(), e);
 			}
 		});
 		otherControls.add(_exportToFile);
 		_openConfigDialogButton = new JButton(Resources.getImageIcon("settings.png"));
 		_openConfigDialogButton.setToolTipText(Resources.getLabel("settings.tooltip"));
-		_openConfigDialogButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				new ConfigDialog(SwingUtilities.getWindowAncestor(ControlPanel.this), services).setVisible(true);
-			}
-		});
+		_openConfigDialogButton.addActionListener(e -> new ConfigDialog(SwingUtilities.getWindowAncestor(ControlPanel.this), services).setVisible(true));
 		otherControls.add(_openConfigDialogButton);
 
 		otherControls.add(ToolTip.INSTANCE.buildHelpButton(this, H));
@@ -403,12 +360,7 @@ public class ControlPanel extends AbstractPanel {
 	public void setNewVersionAvailable(final String content) {
 		final JButton showUpdateDialog = new JButton(Resources.getImageIcon("update.png"));
 		showUpdateDialog.setToolTipText(Resources.getLabel("new.version.title"));
-		showUpdateDialog.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				showUpdateDialog(content);
-			}
-		});
+		showUpdateDialog.addActionListener(e -> showUpdateDialog(content));
 		add(showUpdateDialog);
 	}
 
@@ -709,12 +661,7 @@ public class ControlPanel extends AbstractPanel {
 
 			_ipV4 = new JToggleButton("ip.v4", Resources.getImageIcon("host.png"), true);
 			_ipV4.setToolTipText(Resources.getLabel("resolve.hostname.tooltip"));
-			_ipV4.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(final ActionEvent e) {
-					_ipV4.setText(_ipV4.isSelected() ? "ip.v4" : "ip.v6");
-				}
-			});
+			_ipV4.addActionListener(e -> _ipV4.setText(_ipV4.isSelected() ? "ip.v4" : "ip.v6"));
 			_ipV4.setSelected(true);
 			_timeOut = new JSpinner();
 			_timeOut.setToolTipText(Resources.getLabel("timeout.tooltip"));
@@ -753,12 +700,7 @@ public class ControlPanel extends AbstractPanel {
 				}
 			});
 			// action of search/cancel trace route
-			_traceRouteButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(final ActionEvent arg0) {
-					traceroute();
-				}
-			});
+			_traceRouteButton.addActionListener(arg0 -> traceroute());
 
 			_traceRouteButton.setEnabled(false);
 			_autocomplete = new AutoCompleteComponent(_hostIpTextField, _services.getAutocomplete());
@@ -827,7 +769,7 @@ public class ControlPanel extends AbstractPanel {
 		/** Search textfield */
 		private final JTextField _hostIpTextField;
 
-		private final Map<Protocol, JCheckBox> _packets = new HashMap<Protocol, JCheckBox>();
+		private final Map<Protocol, JCheckBox> _packets = new HashMap<>();
 
 		private long _ts;
 
@@ -868,12 +810,7 @@ public class ControlPanel extends AbstractPanel {
 			add(_portTF);
 			_portTF.setEnabled(true);
 
-			_allPortCheck.addChangeListener(new ChangeListener() {
-				@Override
-				public void stateChanged(final ChangeEvent e) {
-					_portTF.setEnabled(!_allPortCheck.isSelected());
-				}
-			});
+			_allPortCheck.addChangeListener(e -> _portTF.setEnabled(!_allPortCheck.isSelected()));
 
 			_filterPacketLengthCheck = new JCheckBox(Resources.getLabel("filter.length"));
 			_filterPacketLengthCheck.setToolTipText(Resources.getLabel("filter.length.desc"));
@@ -885,12 +822,7 @@ public class ControlPanel extends AbstractPanel {
 			_filterLengthTF.setColumns(5);
 			add(_filterLengthTF);
 
-			_filterPacketLengthCheck.addChangeListener(new ChangeListener() {
-				@Override
-				public void stateChanged(final ChangeEvent e) {
-					_filterLengthTF.setEnabled(_filterPacketLengthCheck.isEnabled() && _filterPacketLengthCheck.isSelected());
-				}
-			});
+			_filterPacketLengthCheck.addChangeListener(e -> _filterLengthTF.setEnabled(_filterPacketLengthCheck.isEnabled() && _filterPacketLengthCheck.isSelected()));
 			_capturePeriod = new JFormattedTextField(new NumberFormatterFactory());
 			_capturePeriod.setText("0");
 			_capturePeriod.setColumns(5);
@@ -900,12 +832,7 @@ public class ControlPanel extends AbstractPanel {
 			_captureButton = new JButton(GO_IMG);
 			_captureButton.setToolTipText(Resources.getLabel("capture.packet.start"));
 			add(_captureButton);
-			_captureButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(final ActionEvent arg0) {
-					start();
-				}
-			});
+			_captureButton.addActionListener(arg0 -> start());
 		}
 
 		private void start() {
@@ -915,7 +842,7 @@ public class ControlPanel extends AbstractPanel {
 			}
 			_ts = ts;
 			if (!_running) {
-				final Set<Protocol> pt = new HashSet<Protocol>();
+				final Set<Protocol> pt = new HashSet<>();
 				for (final Entry<Protocol, JCheckBox> entry : _packets.entrySet()) {
 					if (entry.getValue().isSelected()) {
 						pt.add(entry.getKey());
@@ -1004,12 +931,7 @@ public class ControlPanel extends AbstractPanel {
 				}
 			});
 			// action of search/cancel trace route
-			_whoIsButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(final ActionEvent arg0) {
-					whois();
-				}
-			});
+			_whoIsButton.addActionListener(arg0 -> whois());
 
 			_whoIsButton.setEnabled(false);
 			_autocomplete = new AutoCompleteComponent(_hostIpTextField, _services.getAutocomplete());

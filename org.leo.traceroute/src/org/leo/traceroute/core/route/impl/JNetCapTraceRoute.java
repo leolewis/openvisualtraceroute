@@ -79,8 +79,7 @@ public class JNetCapTraceRoute extends AbstractTraceRoute<PcapIf> {
 	 * @throws TimeoutException
 	 */
 	@Override
-	protected void computeRoute(final String dest, final CancelMonitor monitor, final boolean resolveHostname, final int maxHops)
-			throws Exception {
+	protected void computeRoute(final String dest, final CancelMonitor monitor, final boolean resolveHostname, final int maxHops) throws Exception {
 		// use the device that we found previously
 		final StringBuilder err = new StringBuilder();
 		final Pcap captor = Pcap.openLive(_device.getName(), 65535, Pcap.MODE_NON_PROMISCUOUS, 100, err);
@@ -115,8 +114,7 @@ public class JNetCapTraceRoute extends AbstractTraceRoute<PcapIf> {
 
 				final Ip4 receivedIP = packet.getHeader(new Ip4());
 				final Icmp receivedIcmp = packet.getHeader(new Icmp());
-				if (receivedIcmp == null || receivedIcmp.type() == IcmpType.TIME_EXCEEDED_ID
-						|| receivedIcmp.type() == IcmpType.REDIRECT_ID) {
+				if (receivedIcmp == null || receivedIcmp.type() == IcmpType.TIME_EXCEEDED_ID || receivedIcmp.type() == IcmpType.REDIRECT_ID) {
 					// inc ttl
 					final Ip4 ip = sendPacket.getHeader(new Ip4());
 					ip.ttl(ip.ttl() + 1);

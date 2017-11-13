@@ -84,8 +84,7 @@ public class JpcapTraceRoute extends AbstractTraceRoute<NetworkInterface> {
 	 * @throws TimeoutException
 	 */
 	@Override
-	protected void computeRoute(final String dest, final CancelMonitor monitor, final boolean resolveHostname, final int maxHops)
-			throws Exception {
+	protected void computeRoute(final String dest, final CancelMonitor monitor, final boolean resolveHostname, final int maxHops) throws Exception {
 		try {
 			double timeOut = 1;
 			short hop = 0;
@@ -202,8 +201,7 @@ public class JpcapTraceRoute extends AbstractTraceRoute<NetworkInterface> {
 		packet.type = ICMPPacket.ICMP_ECHO;
 		packet.seq = 100;
 		packet.id = (short) RandomUtils.nextInt(0, 100);
-		packet.setIPv4Parameter(0, false, false, false, 0, false, false, false, 0, 0, 0, IPPacket.IPPROTO_ICMP, _deviceIp,
-				destIp);
+		packet.setIPv4Parameter(0, false, false, false, 0, false, false, false, 0, 0, 0, IPPacket.IPPROTO_ICMP, _deviceIp, destIp);
 		final String data = "ovtr";
 		packet.data = data.getBytes();
 		final EthernetPacket ether = new EthernetPacket();

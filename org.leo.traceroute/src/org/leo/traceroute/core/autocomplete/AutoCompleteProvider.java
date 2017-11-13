@@ -58,16 +58,11 @@ public class AutoCompleteProvider extends AbstractObject<Void> {
 	private static final int MAX = 20;
 
 	/** Prefix tries */
-	private RadixTree<Integer> _tree = new ConcurrentRadixTree<Integer>(new DefaultByteArrayNodeFactory());
+	private RadixTree<Integer> _tree = new ConcurrentRadixTree<>(new DefaultByteArrayNodeFactory());
 	/** For serialization */
 	private Map<String, Integer> _map;
 
-	private final Comparator<KeyValuePair<Integer>> _comp = new Comparator<KeyValuePair<Integer>>() {
-		@Override
-		public int compare(final KeyValuePair<Integer> o1, final KeyValuePair<Integer> o2) {
-			return (o2.getValue() == null ? 0 : o2.getValue()) - (o1.getValue() == null ? 0 : o1.getValue());
-		}
-	};
+	private final Comparator<KeyValuePair<Integer>> _comp = (o1, o2) -> (o2.getValue() == null ? 0 : o2.getValue()) - (o1.getValue() == null ? 0 : o1.getValue());
 
 	/**
 	 * @see org.leo.traceroute.core.AbstractObject#init(org.leo.traceroute.core.ServiceFactory)
@@ -92,7 +87,7 @@ public class AutoCompleteProvider extends AbstractObject<Void> {
 			}
 		}
 		if (_map == null) {
-			_map = new HashMap<String, Integer>();
+			_map = new HashMap<>();
 		} else {
 			for (final Entry<String, Integer> entry : _map.entrySet()) {
 				_tree.put(entry.getKey(), entry.getValue());
@@ -107,7 +102,7 @@ public class AutoCompleteProvider extends AbstractObject<Void> {
 	 * @return
 	 */
 	public List<KeyValuePair<Integer>> getFromHistory(final String prefix) {
-		final List<KeyValuePair<Integer>> res = new ArrayList<KeyValuePair<Integer>>();
+		final List<KeyValuePair<Integer>> res = new ArrayList<>();
 		final Iterable<KeyValuePair<Integer>> entries = _tree.getKeyValuePairsForKeysStartingWith(prefix);
 		for (final KeyValuePair<Integer> entry : entries) {
 			res.add(entry);
@@ -165,6 +160,6 @@ public class AutoCompleteProvider extends AbstractObject<Void> {
 	 */
 	public void clear() {
 		_map.clear();
-		_tree = new ConcurrentRadixTree<Integer>(new DefaultByteArrayNodeFactory());
+		_tree = new ConcurrentRadixTree<>(new DefaultByteArrayNodeFactory());
 	}
 }

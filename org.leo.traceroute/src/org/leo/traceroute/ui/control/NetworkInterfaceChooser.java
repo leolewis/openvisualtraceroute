@@ -20,6 +20,7 @@ package org.leo.traceroute.ui.control;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.image.ImageObserver;
 import java.util.List;
 
 import javax.swing.DefaultListCellRenderer;
@@ -66,11 +67,10 @@ public class NetworkInterfaceChooser extends AbstractPanel {
 		_mode = mode;
 		_deviceSelectionCombo = new JComboBox();
 		_deviceSelectionCombo.setToolTipText(Resources.getLabel("device.select.label"));
-		_deviceSelectionCombo.setPreferredSize(new Dimension(250, ControlPanel.HEIGHT));
+		_deviceSelectionCombo.setPreferredSize(new Dimension(250, ImageObserver.HEIGHT));
 		_deviceSelectionCombo.setRenderer(new DefaultListCellRenderer() {
 			@Override
-			public Component getListCellRendererComponent(final JList list, final Object value, final int index,
-					final boolean isSelected, final boolean cellHasFocus) {
+			public Component getListCellRendererComponent(final JList list, final Object value, final int index, final boolean isSelected, final boolean cellHasFocus) {
 				final JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 				label.setIcon(Resources.getImageIcon("network.png"));
 				if (value != null) {
@@ -85,13 +85,11 @@ public class NetworkInterfaceChooser extends AbstractPanel {
 		});
 		add(_deviceSelectionCombo, BorderLayout.CENTER);
 		final List<Pair<Integer, String>> devices = _services
-				.getNetwork(mode == Mode.SNIFFER ? ServiceFactory.SNIFFER_NETWORK_LIB : ServiceFactory.TRACEROUTE_NETWORK_LIB)
-				.getNetworkDevices();
+				.getNetwork(mode == Mode.SNIFFER ? ServiceFactory.SNIFFER_NETWORK_LIB : ServiceFactory.TRACEROUTE_NETWORK_LIB).getNetworkDevices();
 		for (final Pair<Integer, String> net : devices) {
 			_deviceSelectionCombo.addItem(net.getRight());
 		}
-		final int index = services
-				.getNetwork(mode == Mode.SNIFFER ? ServiceFactory.SNIFFER_NETWORK_LIB : ServiceFactory.TRACEROUTE_NETWORK_LIB)
+		final int index = services.getNetwork(mode == Mode.SNIFFER ? ServiceFactory.SNIFFER_NETWORK_LIB : ServiceFactory.TRACEROUTE_NETWORK_LIB)
 				.getCurrentNetworkInterfaceIndex();
 		if (_deviceSelectionCombo.getItemCount() > index) {
 			_deviceSelectionCombo.setSelectedIndex(index);
@@ -108,10 +106,7 @@ public class NetworkInterfaceChooser extends AbstractPanel {
 	public void applySelection() {
 		final int selection = _deviceSelectionCombo.getSelectedIndex();
 		if (selection != -1) {
-			_services
-					.getNetwork(
-							_mode == Mode.SNIFFER ? ServiceFactory.SNIFFER_NETWORK_LIB : ServiceFactory.TRACEROUTE_NETWORK_LIB)
-					.setCurrentNetworkDevice(selection);
+			_services.getNetwork(_mode == Mode.SNIFFER ? ServiceFactory.SNIFFER_NETWORK_LIB : ServiceFactory.TRACEROUTE_NETWORK_LIB).setCurrentNetworkDevice(selection);
 			if (_mode == Mode.TRACE_ROUTE) {
 				Env.INSTANCE.setTrInterfaceIndex(selection);
 			} else {

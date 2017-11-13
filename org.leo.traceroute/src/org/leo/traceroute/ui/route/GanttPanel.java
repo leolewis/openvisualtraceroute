@@ -24,8 +24,6 @@ import java.awt.Dimension;
 import java.awt.Paint;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.Date;
@@ -44,14 +42,11 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.LegendItem;
 import org.jfree.chart.LegendItemCollection;
-import org.jfree.chart.LegendItemSource;
 import org.jfree.chart.entity.CategoryItemEntity;
 import org.jfree.chart.entity.ChartEntity;
-import org.jfree.chart.labels.CategoryToolTipGenerator;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.renderer.category.GanttRenderer;
 import org.jfree.chart.title.LegendTitle;
-import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.gantt.Task;
 import org.jfree.data.gantt.TaskSeries;
 import org.jfree.data.gantt.TaskSeriesCollection;
@@ -173,16 +168,10 @@ public class GanttPanel extends AbstractRoutePanel {
 	private void init() {
 		_currentMode = DisplayMode.TIME;
 		_modeCombo = new JComboBox(DisplayMode.values());
-		_modeCombo.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				_currentMode = (DisplayMode) _modeCombo.getSelectedItem();
-			}
-		});
+		_modeCombo.addActionListener(e -> _currentMode = (DisplayMode) _modeCombo.getSelectedItem());
 		_modeCombo.setRenderer(new DefaultListCellRenderer() {
 			@Override
-			public Component getListCellRendererComponent(final JList list, final Object value, final int index,
-					final boolean isSelected, final boolean cellHasFocus) {
+			public Component getListCellRendererComponent(final JList list, final Object value, final int index, final boolean isSelected, final boolean cellHasFocus) {
 				final JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 				final DisplayMode mode = (DisplayMode) value;
 				if (mode != null) {
@@ -269,19 +258,16 @@ public class GanttPanel extends AbstractRoutePanel {
 		};
 		renderer.setShadowVisible(false);
 		plot.setRenderer(renderer);
-		renderer.setBaseToolTipGenerator(new CategoryToolTipGenerator() {
-			@Override
-			public String generateToolTip(final CategoryDataset dataset, final int row, final int col) {
-				final RoutePoint point = _route.getRoute().get(col);
-				final StringBuilder sb = new StringBuilder();
-				sb.append(point.getIp());
-				if (point.getHostname() != null && point.getHostname().length() > 0) {
-					sb.append(" (" + point.getHostname() + ")");
-				}
-				sb.append(" [ " + point.getTown() + ", " + point.getCountry() + "]");
-				sb.append(": " + point.getLatency() + "ms");
-				return sb.toString();
+		renderer.setBaseToolTipGenerator((dataset, row, col) -> {
+			final RoutePoint point = _route.getRoute().get(col);
+			final StringBuilder sb = new StringBuilder();
+			sb.append(point.getIp());
+			if (point.getHostname() != null && point.getHostname().length() > 0) {
+				sb.append(" (" + point.getHostname() + ")");
 			}
+			sb.append(" [ " + point.getTown() + ", " + point.getCountry() + "]");
+			sb.append(": " + point.getLatency() + "ms");
+			return sb.toString();
 		});
 		_chartPanel = new ChartPanel(_chart);
 		// chartPanel.addMouseWheelListener(new MouseWheelZoom(chartPanel));
@@ -326,22 +312,17 @@ public class GanttPanel extends AbstractRoutePanel {
 	 */
 	private void updateLegend() {
 		_chart.removeLegend();
-		final LegendTitle legend = new LegendTitle(new LegendItemSource() {
-			@Override
-			public LegendItemCollection getLegendItems() {
-				final LegendItemCollection collection = new LegendItemCollection();
-				if (_currentMode == DisplayMode.TIME) {
-					collection.add(new LegendItem(Legend.LATENCY.label, null, null, null, new Rectangle(30, 20),
-							Legend.LATENCY.color));
-					if (_dnsLookup && _services.isEmbeddedTRAvailable() && !Env.INSTANCE.isUseOSTraceroute()) {
-						collection
-								.add(new LegendItem(Legend.DNS.label, null, null, null, new Rectangle(30, 20), Legend.DNS.color));
-					}
-				} else {
-					collection.add(new LegendItem(Legend.DISTANCE.label, Legend.DISTANCE.color));
+		final LegendTitle legend = new LegendTitle(() -> {
+			final LegendItemCollection collection = new LegendItemCollection();
+			if (_currentMode == DisplayMode.TIME) {
+				collection.add(new LegendItem(Legend.LATENCY.label, null, null, null, new Rectangle(30, 20), Legend.LATENCY.color));
+				if (_dnsLookup && _services.isEmbeddedTRAvailable() && !Env.INSTANCE.isUseOSTraceroute()) {
+					collection.add(new LegendItem(Legend.DNS.label, null, null, null, new Rectangle(30, 20), Legend.DNS.color));
 				}
-				return collection;
+			} else {
+				collection.add(new LegendItem(Legend.DISTANCE.label, Legend.DISTANCE.color));
 			}
+			return collection;
 		});
 		legend.setPosition(RectangleEdge.BOTTOM);
 		_chart.addLegend(legend);
@@ -400,9 +381,8 @@ public class GanttPanel extends AbstractRoutePanel {
 			}
 		} else {
 			final long l = _length.getAndAdd(point.getDistanceToPrevious() + 1);
-			final Task location = new Task(point.getNumber() + ". " + point.getCountry() + "("
-					+ (point.getTown() != null ? point.getTown() : "?") + ")", new Date(l), new Date(l
-							+ point.getDistanceToPrevious()));
+			final Task location = new Task(point.getNumber() + ". " + point.getCountry() + "(" + (point.getTown() != null ? point.getTown() : "?") + ")", new Date(l),
+					new Date(l + point.getDistanceToPrevious()));
 			_pointsSeries.add(location);
 		}
 		_chartPanel.setPreferredSize(new Dimension(_chartPanel.getPreferredSize().width, _route.size() * 20));

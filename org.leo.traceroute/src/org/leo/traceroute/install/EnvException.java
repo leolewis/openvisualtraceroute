@@ -1,7 +1,7 @@
-/** 
+/**
  * Open Visual Trace Route
- * Copyright (c) 2010-2015 Leo Lewis. 
- * 
+ * Copyright (c) 2010-2015 Leo Lewis.
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -20,7 +20,7 @@ package org.leo.traceroute.install;
 
 /**
  * InstallException $Id: EnvException.java 146 2015-01-10 11:22:06Z leolewis $
- * 
+ *
  * @author Leo Lewis
  */
 public class EnvException extends Exception {

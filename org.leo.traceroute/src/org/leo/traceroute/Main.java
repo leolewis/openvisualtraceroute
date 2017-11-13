@@ -17,8 +17,6 @@
  */
 package org.leo.traceroute;
 
-import java.lang.Thread.UncaughtExceptionHandler;
-
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
@@ -56,16 +54,13 @@ public class Main {
 	public static void main(final String[] args) {
 		final long ts = System.currentTimeMillis();
 		LOGGER.info("Open Visual Traceroute " + Resources.getVersion() + "");
-		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-			@Override
-			public void uncaughtException(final Thread t, final Throwable e) {
-				final StackTraceElement elt = e.getStackTrace()[0];
-				if (!elt.getClassName().startsWith("org.jfree.")) {
-					LOGGER.error("Uncaught error", e);
-				}
-				// GlassPane.displayMessage(_mainPanel, Util.formatExcetpion(e),
-				// Resources.getImageIcon("error.png"));
+		Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
+			final StackTraceElement elt = e.getStackTrace()[0];
+			if (!elt.getClassName().startsWith("org.jfree.")) {
+				LOGGER.error("Uncaught error", e);
 			}
+			// GlassPane.displayMessage(_mainPanel, Util.formatExcetpion(e),
+			// Resources.getImageIcon("error.png"));
 		});
 
 		try {
@@ -78,23 +73,18 @@ public class Main {
 				}
 			} else {
 				try {
-					gov.nasa.worldwindx.applications.sar.OSXAdapter.setQuitHandler(null,
-							Main.class.getMethod("exit", (Class<?>[]) null));
+					gov.nasa.worldwindx.applications.sar.OSXAdapter.setQuitHandler(null, Main.class.getMethod("exit", (Class<?>[]) null));
 				} catch (final Exception e) {
 					LOGGER.warn("Failed to register CTRL+Q handler for MacOSX", e);
 				}
 			}
 			_instance = new TraceRouteFrame();
 
-			final SplashScreen splash = new SplashScreen(_instance, !Env.INSTANCE.isHideSplashScreen(),
-					Env.INSTANCE.getOs() != OS.mac ? 10 : 7);
+			final SplashScreen splash = new SplashScreen(_instance, !Env.INSTANCE.isHideSplashScreen(), Env.INSTANCE.getOs() != OS.mac ? 10 : 7);
 			splash.updateStartup("application.startup");
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					splash.setVisible(true);
-					splash.toFront();
-				}
+			SwingUtilities.invokeLater(() -> {
+				splash.setVisible(true);
+				splash.toFront();
 			});
 			final Thread shutdown = new Thread() {
 				@Override
@@ -126,8 +116,8 @@ public class Main {
 						LOGGER.info("Startup completed in {}ms", System.currentTimeMillis() - ts);
 					} catch (final Throwable e) {
 						LOGGER.error("Error while starting the application", e);
-						JOptionPane.showMessageDialog(null, Resources.getLabel("error.init", e.getMessage()),
-								Resources.getLabel("fatal.error"), JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null, Resources.getLabel("error.init", e.getMessage()), Resources.getLabel("fatal.error"),
+								JOptionPane.ERROR_MESSAGE);
 						System.exit(-1);
 					}
 				}
@@ -135,8 +125,7 @@ public class Main {
 		} catch (final EnvException e) {
 			// fatal
 			LOGGER.error("Error while starting the application", e);
-			JOptionPane.showMessageDialog(null, Resources.getLabel("error.init", e.getMessage()),
-					Resources.getLabel("fatal.error"), JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, Resources.getLabel("error.init", e.getMessage()), Resources.getLabel("fatal.error"), JOptionPane.ERROR_MESSAGE);
 			System.exit(-1);
 		}
 	}

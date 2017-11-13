@@ -1,7 +1,7 @@
-/** 
+/**
  * Open Visual Trace Route
- * Copyright (c) 2010-2015 Leo Lewis. 
- * 
+ * Copyright (c) 2010-2015 Leo Lewis.
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -32,7 +32,7 @@ public class CancelMonitor {
 
 	/**
 	 * Return the value of the field canceled
-	 * 
+	 *
 	 * @return the value of canceled
 	 */
 	public boolean isCanceled() {
@@ -41,7 +41,7 @@ public class CancelMonitor {
 
 	/**
 	 * Set the value of the field canceled
-	 * 
+	 *
 	 * @param canceled the new canceled to set
 	 */
 	public void setCanceled(final boolean canceled) {

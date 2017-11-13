@@ -42,8 +42,8 @@ public interface ITraceRoute extends IComponent {
 	 * @param useIpV4 true to use ipv4, false for ipv6
 	 * @param maxHops max number of hops
 	 */
-	void compute(final String dest, final CancelMonitor monitor, final boolean resolveHostname, final long timeOutMs,
-			final boolean useOsTraceroute, final boolean useIpV4, final int maxHops);
+	void compute(final String dest, final CancelMonitor monitor, final boolean resolveHostname, final long timeOutMs, final boolean useOsTraceroute,
+			final boolean useIpV4, final int maxHops);
 
 	/**
 	 * The computed route

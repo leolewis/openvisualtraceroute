@@ -21,8 +21,6 @@ package org.leo.traceroute.ui.whois;
 import java.awt.BorderLayout;
 import java.awt.Dialog.ModalityType;
 import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -31,6 +29,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import org.leo.traceroute.core.ServiceFactory;
@@ -62,12 +62,12 @@ public class WhoIsPanel extends AbstractPanel {
 		super(factory);
 		final JPanel top = new JPanel();
 		top.setLayout(new WrapLayout(FlowLayout.LEFT, 2, 0));
-		_label = new JLabel("", JLabel.LEFT);
+		_label = new JLabel("", SwingConstants.LEFT);
 		top.add(_label);
 		add(top, BorderLayout.NORTH);
 		_textArea = new JTextArea("", 30, 70);
 		_textArea.setEditable(false);
-		final JScrollPane scroll = new JScrollPane(_textArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		final JScrollPane scroll = new JScrollPane(_textArea, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		add(scroll, BorderLayout.CENTER);
 		_whois.addListener(this);
 	}
@@ -95,12 +95,9 @@ public class WhoIsPanel extends AbstractPanel {
 	 */
 	@Override
 	public void whoIsResult(final String result) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				_textArea.setText(result);
-				_textArea.setCaretPosition(0);
-			}
+		SwingUtilities.invokeLater(() -> {
+			_textArea.setText(result);
+			_textArea.setCaretPosition(0);
 		});
 	}
 
@@ -109,12 +106,9 @@ public class WhoIsPanel extends AbstractPanel {
 	 */
 	@Override
 	public void error(final Exception error, final Object origin) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				_textArea.setText(Resources.getLabel("no.whois.data"));
-				_textArea.setCaretPosition(0);
-			}
+		SwingUtilities.invokeLater(() -> {
+			_textArea.setText(Resources.getLabel("no.whois.data"));
+			_textArea.setCaretPosition(0);
 		});
 	}
 
@@ -146,12 +140,7 @@ public class WhoIsPanel extends AbstractPanel {
 		dialog.getContentPane().add(panel, BorderLayout.CENTER);
 		final JPanel bottom = new JPanel();
 		final JButton close = new JButton(Resources.getLabel("close.button"));
-		close.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				dialog.dispose();
-			}
-		});
+		close.addActionListener(e -> dialog.dispose());
 		bottom.add(close);
 		dialog.getContentPane().add(bottom, BorderLayout.SOUTH);
 		services.getWhois().whoIs(point.getIp());

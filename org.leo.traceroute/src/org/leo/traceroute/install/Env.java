@@ -272,8 +272,8 @@ public enum Env {
 	private String _downloadUrl;
 	private String _facebookUrl;
 
-	private final Set<IMapConfigListener> _showLabelsListener = new HashSet<IMapConfigListener>();
-	private final Set<IConfigProvider> _configProvider = new HashSet<IConfigProvider>();
+	private final Set<IMapConfigListener> _showLabelsListener = new HashSet<>();
+	private final Set<IConfigProvider> _configProvider = new HashSet<>();
 
 	/**
 	 * Install the native lib folder into the path
@@ -285,6 +285,8 @@ public enum Env {
 		LOGGER.info("Java run-time version: " + System.getProperty("java.version"));
 		LOGGER.info(gov.nasa.worldwind.Version.getVersion());
 		LOGGER.info(System.getProperty("java.library.path"));
+		System.setProperty("awt.useSystemAAFontSettings", "on");
+		System.setProperty("swing.aatext", "true");
 		System.setProperty("java.net.useSystemProxies", "true");
 		final Proxy proxy = getProxy();
 		if (proxy != null) {
@@ -1008,7 +1010,7 @@ public enum Env {
 	public void registerConfigProvider(final IConfigProvider provider) {
 		_configProvider.add(provider);
 		final String name = provider.name();
-		final Map<String, String> m = new HashMap<String, String>();
+		final Map<String, String> m = new HashMap<>();
 		for (final Entry<Object, Object> entry : _conf.entrySet()) {
 			if (entry.getKey().toString().startsWith(name)) {
 				m.put(entry.getKey().toString().replace(name + ".", ""), entry.getValue().toString());

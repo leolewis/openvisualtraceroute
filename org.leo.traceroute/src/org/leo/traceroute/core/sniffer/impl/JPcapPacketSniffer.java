@@ -47,8 +47,7 @@ import jpcap.packet.Packet;
  * @author Leo Lewis
  */
 @Deprecated
-public class JPcapPacketSniffer extends AbstractSniffer
-		implements PacketReceiver, IComponent, INetworkInterfaceListener<NetworkInterface> {
+public class JPcapPacketSniffer extends AbstractSniffer implements PacketReceiver, IComponent, INetworkInterfaceListener<NetworkInterface> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JPcapPacketSniffer.class);
 	private static final int RESET = 500;
@@ -79,23 +78,15 @@ public class JPcapPacketSniffer extends AbstractSniffer
 		if (_services != null) {
 			((INetworkService<NetworkInterface>) _services.getJpcapNetwork()).addListener(this);
 		}
-		final Thread t = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				while (true) {
-					if (_capturing && _reinitCapture.getAndSet(false)) {
-						LOGGER.info("Reinit capture");
-						_threadPool.execute(new Runnable() {
-							@Override
-							public void run() {
-								doStartCapture();
-							}
-						});
-					} else {
-						try {
-							Thread.sleep(100);
-						} catch (final InterruptedException e) {
-						}
+		final Thread t = new Thread(() -> {
+			while (true) {
+				if (_capturing && _reinitCapture.getAndSet(false)) {
+					LOGGER.info("Reinit capture");
+					_threadPool.execute(() -> doStartCapture());
+				} else {
+					try {
+						Thread.sleep(100);
+					} catch (final InterruptedException e) {
 					}
 				}
 			}
@@ -138,8 +129,7 @@ public class JPcapPacketSniffer extends AbstractSniffer
 				if (_localAddresses.contains(dest)) {
 					point = _services.getGeo().populateGeoDataForLocalIp(new JPcapPacketPoint(), dest.getHostAddress());
 				} else {
-					point = _services.getGeo().populateGeoDataForIP(new JPcapPacketPoint(), dest.getHostAddress(),
-							dest.getHostName());
+					point = _services.getGeo().populateGeoDataForIP(new JPcapPacketPoint(), dest.getHostAddress(), dest.getHostName());
 				}
 				if (point != null) {
 					point.setProtocol(protocol);
@@ -180,46 +170,43 @@ public class JPcapPacketSniffer extends AbstractSniffer
 	 * @param port
 	 */
 	@Override
-	public void startCapture(final Set<Protocol> protocols, final String port, final boolean filterLenghtPackets,
-			final int length, final String host, final int captureTimeSeconds) {
+	public void startCapture(final Set<Protocol> protocols, final String port, final boolean filterLenghtPackets, final int length, final String host,
+			final int captureTimeSeconds) {
 		_focusedPoint = null;
 		_count.set(0);
 		_capture.clear();
 		_packetLenghtFilter = length;
 		_captureProtocols = protocols;
 		_filterLenghtPackets = filterLenghtPackets;
-		_threadPool.execute(new Runnable() {
-			@Override
-			public void run() {
-				for (final IPacketListener listener : getListeners()) {
-					listener.startCapture();
-				}
-				_capturing = true;
-				String filter = "";
-				boolean first = true;
-				for (final Protocol prot : _captureProtocols) {
-					if (!first) {
-						filter += " or ";
-					} else {
-						first = false;
-					}
-					if (prot == Protocol.ICMP) {
-						filter += prot.name().toLowerCase() + " ";
-					} else {
-						filter += prot.name().toLowerCase() + (port != null ? " dst port " + port : "");
-					}
-				}
-				// bug on jpcap side for UDP filter
-				if (_captureProtocols.contains(Protocol.UDP) && !_captureProtocols.contains(Protocol.TCP)) {
-					filter += " or " + Protocol.TCP.name().toLowerCase() + (port != null ? " dst port " + port : "");
-				}
-				if (StringUtils.isNotEmpty(host)) {
-					filter += " " + host;
-				}
-				LOGGER.info("Capture filter : " + filter);
-				_filter = filter;
-				doStartCapture();
+		_threadPool.execute(() -> {
+			for (final IPacketListener listener : getListeners()) {
+				listener.startCapture();
 			}
+			_capturing = true;
+			String filter = "";
+			boolean first = true;
+			for (final Protocol prot : _captureProtocols) {
+				if (!first) {
+					filter += " or ";
+				} else {
+					first = false;
+				}
+				if (prot == Protocol.ICMP) {
+					filter += prot.name().toLowerCase() + " ";
+				} else {
+					filter += prot.name().toLowerCase() + (port != null ? " dst port " + port : "");
+				}
+			}
+			// bug on jpcap side for UDP filter
+			if (_captureProtocols.contains(Protocol.UDP) && !_captureProtocols.contains(Protocol.TCP)) {
+				filter += " or " + Protocol.TCP.name().toLowerCase() + (port != null ? " dst port " + port : "");
+			}
+			if (StringUtils.isNotEmpty(host)) {
+				filter += " " + host;
+			}
+			LOGGER.info("Capture filter : " + filter);
+			_filter = filter;
+			doStartCapture();
 		});
 	}
 

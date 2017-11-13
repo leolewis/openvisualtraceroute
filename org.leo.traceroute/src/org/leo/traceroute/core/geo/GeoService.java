@@ -21,7 +21,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -73,9 +72,9 @@ public class GeoService implements IComponent {
 	private boolean _deleteDbOnClose;
 
 	/** DNS loc records */
-	private final Map<String, Location> _locRecords = new HashMap<String, Location>();
+	private final Map<String, Location> _locRecords = new HashMap<>();
 	/** DNS loc records (raw)*/
-	private final List<LocRecord> _rawLocRecords = new ArrayList<LocRecord>();
+	private final List<LocRecord> _rawLocRecords = new ArrayList<>();
 
 	/**
 	 * @see org.leo.traceroute.core.IComponent#init(org.leo.traceroute.core.ServiceFactory)
@@ -128,7 +127,7 @@ public class GeoService implements IComponent {
 		services.updateStartup("init.public.ip", retry == 0);
 		final String ip = Util.getPublicIp();
 		try {
-			_publicIp = Pair.of(ip, Inet4Address.getByName(ip));
+			_publicIp = Pair.of(ip, InetAddress.getByName(ip));
 			computePublicIpGeoLocation();
 		} catch (final UnknownHostException e) {
 			_publicIp = Pair.of(ip, null);

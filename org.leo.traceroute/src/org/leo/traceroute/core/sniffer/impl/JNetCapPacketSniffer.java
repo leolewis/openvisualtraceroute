@@ -145,51 +145,43 @@ public class JNetCapPacketSniffer extends AbstractSniffer implements PcapPacketH
 		_filterLenghtPackets = filterLenghtPackets;
 		_length = length;
 		if (captureTimeSeconds > 0) {
-			_scheduleStop = _schedule.schedule(new Runnable() {
-				@Override
-				public void run() {
-					endCapture();
-				}
-			}, captureTimeSeconds, TimeUnit.SECONDS);
+			_scheduleStop = _schedule.schedule(() -> endCapture(), captureTimeSeconds, TimeUnit.SECONDS);
 		}
-		_threadPool.execute(new Runnable() {
-			@Override
-			public void run() {
-				for (final IPacketListener listener : getListeners()) {
-					listener.startCapture();
-				}
-				_capturing = true;
-				String filter = "";
-				String previous = "";
-				for (final Protocol prot : _captureProtocols) {
-					String s = "";
-					if (prot == Protocol.ICMP) {
-						s += prot.name().toLowerCase();
-					} else {
-						s += convertPortToFilter(prot.name().toLowerCase(), port);
-					}
-					if (!previous.isEmpty() && !s.isEmpty()) {
-						s = " or " + s;
-					}
-					if (filter.isEmpty() && !s.isEmpty()) {
-						filter = "(";
-					}
-					filter += s;
-					previous = s;
-				}
-				if (!filter.isEmpty()) {
-					filter += ")";
-				}
-				if (filterLenghtPackets) {
-					if (!filter.isEmpty()) {
-						filter += " and";
-					}
-					filter += " greater " + length;
-				}
-				LOGGER.info("Capture filter : " + filter);
-				_filter = filter;
-				doStartCapture();
+		_threadPool.execute(() -> {
+			for (final IPacketListener listener : getListeners()) {
+				listener.startCapture();
 			}
+			_capturing = true;
+			String filter = "";
+			String previous = "";
+			for (final Protocol prot : _captureProtocols) {
+				String s = "";
+				if (prot == Protocol.ICMP) {
+					s += prot.name().toLowerCase();
+				} else {
+					s += convertPortToFilter(prot.name().toLowerCase(), port);
+				}
+				if (!previous.isEmpty() && !s.isEmpty()) {
+					s = " or " + s;
+				}
+				if (filter.isEmpty() && !s.isEmpty()) {
+					filter = "(";
+				}
+				filter += s;
+				previous = s;
+			}
+			if (!filter.isEmpty()) {
+				filter += ")";
+			}
+			if (filterLenghtPackets) {
+				if (!filter.isEmpty()) {
+					filter += " and";
+				}
+				filter += " greater " + length;
+			}
+			LOGGER.info("Capture filter : " + filter);
+			_filter = filter;
+			doStartCapture();
 		});
 	}
 

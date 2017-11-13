@@ -174,9 +174,7 @@ public class StatusPanel extends AbstractPanel {
 	 */
 	@Override
 	public void packetAdded(final AbstractPacketPoint point) {
-		showMessage(
-				Resources.getLabel("capture.running") + ": "
-						+ Resources.getLabel("capture.packet.count", _sniffer.getCapture().size()), true);
+		showMessage(Resources.getLabel("capture.running") + ": " + Resources.getLabel("capture.packet.count", _sniffer.getCapture().size()), true);
 	}
 
 	/**

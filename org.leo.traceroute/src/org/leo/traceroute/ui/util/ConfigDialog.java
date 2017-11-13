@@ -25,8 +25,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +49,7 @@ import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang3.StringUtils;
@@ -104,12 +103,9 @@ public class ConfigDialog extends JDialog {
 		licensePanel.add(new JLabel(Resources.getLabel("appli.title", Resources.getVersion())));
 		licensePanel.add(LicenseDialog.createHeaderPanel(true, owner));
 		final JButton logs = new JButton(Resources.getLabel("show.log"), Resources.getImageIcon("log.png"));
-		logs.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final LogWindow window = new LogWindow(ConfigDialog.this);
-				window.setVisible(true);
-			}
+		logs.addActionListener(e -> {
+			final LogWindow window = new LogWindow(ConfigDialog.this);
+			window.setVisible(true);
 		});
 		licensePanel.add(logs);
 
@@ -160,51 +156,43 @@ public class ConfigDialog extends JDialog {
 		showSplash.setPreferredSize(new Dimension(100, ControlPanel.H));
 		showSplash.setToolTipText(Resources.getLabel("show.splashscreen"));
 		showSplash.setText((Resources.getLabel(showSplash.isSelected() ? "yes" : "no")));
-		showSplash.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				showSplash.setText((Resources.getLabel(showSplash.isSelected() ? "yes" : "no")));
-			}
-		});
+		showSplash.addActionListener(e -> showSplash.setText((Resources.getLabel(showSplash.isSelected() ? "yes" : "no"))));
 		splash.add(showSplash);
 
 		final JPanel font = new JPanel();
 		font.setLayout(new FlowLayout(FlowLayout.LEFT, HGAP, VGAP));
 		font.add(new JLabel(Resources.getLabel("ui.font")));
-		final AtomicReference<Font> currentFont = new AtomicReference<Font>(Env.INSTANCE.getFont());
+		final AtomicReference<Font> currentFont = new AtomicReference<>(Env.INSTANCE.getFont());
 		final JButton changeFont = new JButton(currentFont.get().getFamily() + " (" + currentFont.get().getSize() + ") "
 				+ (currentFont.get().isBold() ? "BOLD" : currentFont.get().isItalic() ? "ITALIC" : "PLAIN"));
 		changeFont.setToolTipText(Resources.getLabel("ui.changefont"));
-		changeFont.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				@SuppressWarnings("serial")
-				final JFontChooser fontChooser = new JFontChooser(FONT_SIZE) {
-					@Override
-					protected String[] getFontFamilies() {
-						final String[] names = super.getFontFamilies();
-						final List<String> filter = new ArrayList<String>();
-						for (final String n : names) {
-							final Font f = new Font(n, Font.PLAIN, 10);
-							final String japanese = Resources.getLabel("language.japanese");
-							final String french = Resources.getLabel("language.french");
-							if (f.canDisplayUpTo(japanese) == -1 && f.canDisplayUpTo(french) == -1) {
-								filter.add(n);
-							}
+		changeFont.addActionListener(e -> {
+			@SuppressWarnings("serial")
+			final JFontChooser fontChooser = new JFontChooser(FONT_SIZE) {
+				@Override
+				protected String[] getFontFamilies() {
+					final String[] names = super.getFontFamilies();
+					final List<String> filter = new ArrayList<>();
+					for (final String n : names) {
+						final Font f = new Font(n, Font.PLAIN, 10);
+						final String japanese = Resources.getLabel("language.japanese");
+						final String french = Resources.getLabel("language.french");
+						if (f.canDisplayUpTo(japanese) == -1 && f.canDisplayUpTo(french) == -1) {
+							filter.add(n);
 						}
-						return filter.toArray(new String[filter.size()]);
 					}
-				};
-				fontChooser.setSelectedFont(currentFont.get());
-				final int result = fontChooser.showDialog(ConfigDialog.this);
-				if (result == JFontChooser.OK_OPTION) {
-					final Font newF = fontChooser.getSelectedFont();
-					changeFont.setText(newF.getFamily() + " (" + Math.max(8, Math.min(20, newF.getSize())) + ") "
-							+ (newF.isPlain() ? "PLAIN" : newF.isBold() ? "BOLD" : newF.isItalic() ? "ITALIC" : "ITALIC BOLD"));
-					currentFont.set(newF);
-					SwingUtilities4.applyFont(ConfigDialog.this, newF);
-					SwingUtilities4.packAndCenter(ConfigDialog.this);
+					return filter.toArray(new String[filter.size()]);
 				}
+			};
+			fontChooser.setSelectedFont(currentFont.get());
+			final int result = fontChooser.showDialog(ConfigDialog.this);
+			if (result == JFontChooser.OK_OPTION) {
+				final Font newF = fontChooser.getSelectedFont();
+				changeFont.setText(newF.getFamily() + " (" + Math.max(8, Math.min(20, newF.getSize())) + ") "
+						+ (newF.isPlain() ? "PLAIN" : newF.isBold() ? "BOLD" : newF.isItalic() ? "ITALIC" : "ITALIC BOLD"));
+				currentFont.set(newF);
+				SwingUtilities4.applyFont(ConfigDialog.this, newF);
+				SwingUtilities4.packAndCenter(ConfigDialog.this);
 			}
 		});
 		font.add(changeFont);
@@ -216,12 +204,9 @@ public class ConfigDialog extends JDialog {
 		final JButton updateGeoIp = new JButton(Resources.getImageIcon("update2.png"));
 		updateGeoIp.setPreferredSize(new Dimension(60, ControlPanel.H));
 		updateGeoIp.setToolTipText(Resources.getLabel("update.geoip"));
-		updateGeoIp.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				services.getGeo().deleteGeoIpDbOnExit();
-				JOptionPane.showMessageDialog(ConfigDialog.this, Resources.getLabel("update.geoip.completed"));
-			}
+		updateGeoIp.addActionListener(e -> {
+			services.getGeo().deleteGeoIpDbOnExit();
+			JOptionPane.showMessageDialog(ConfigDialog.this, Resources.getLabel("update.geoip.completed"));
 		});
 		geoip.add(updateGeoIp);
 		generalPanel.add(geoip);
@@ -232,12 +217,7 @@ public class ConfigDialog extends JDialog {
 		final JButton openDns = new JButton(Resources.getImageIcon("map.png"));
 		openDns.setPreferredSize(new Dimension(60, ControlPanel.H));
 		openDns.setToolTipText(Resources.getLabel("see.dnsloc"));
-		openDns.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				new LocRecordsView(owner, services);
-			}
-		});
+		openDns.addActionListener(e -> new LocRecordsView(owner, services));
 		dnsloc.add(openDns);
 		generalPanel.add(dnsloc);
 
@@ -263,12 +243,9 @@ public class ConfigDialog extends JDialog {
 		useOSTraceroute.setPreferredSize(new Dimension(100, ControlPanel.H));
 		useOSTraceroute.setToolTipText(Resources.getLabel("use.os.traceroute.tooltip"));
 		useOSTraceroute.setSelected(false);
-		useOSTraceroute.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				trInterfaceChooser.setEnabled(!useOSTraceroute.isSelected());
-				useOSTraceroute.setText((Resources.getLabel(useOSTraceroute.isSelected() ? "yes" : "no")));
-			}
+		useOSTraceroute.addActionListener(e -> {
+			trInterfaceChooser.setEnabled(!useOSTraceroute.isSelected());
+			useOSTraceroute.setText((Resources.getLabel(useOSTraceroute.isSelected() ? "yes" : "no")));
 		});
 		if (!services.isEmbeddedTRAvailable()) {
 			useOSTraceroute.setSelected(true);
@@ -315,12 +292,9 @@ public class ConfigDialog extends JDialog {
 		final JButton clearHistoryTraceroute = new JButton(Resources.getImageIcon("clear.png"));
 		clearHistoryTraceroute.setPreferredSize(new Dimension(60, ControlPanel.H));
 		clearHistoryTraceroute.setToolTipText(Resources.getLabel("history.clear"));
-		clearHistoryTraceroute.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				services.getAutocomplete().clear();
-				JOptionPane.showMessageDialog(ConfigDialog.this, Resources.getLabel("history.clear.confirmation"));
-			}
+		clearHistoryTraceroute.addActionListener(e -> {
+			services.getAutocomplete().clear();
+			JOptionPane.showMessageDialog(ConfigDialog.this, Resources.getLabel("history.clear.confirmation"));
 		});
 		trPanel4.add(clearHistoryTraceroute);
 		trPanel.add(trPanel4);
@@ -331,19 +305,14 @@ public class ConfigDialog extends JDialog {
 		final JToggleButton history = new JToggleButton(Resources.getImageIcon("history.png"), !Env.INSTANCE.isDisableHistory());
 		history.setPreferredSize(new Dimension(130, ControlPanel.H));
 		history.setToolTipText(Resources.getLabel("history.tooltip"));
-		history.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				history.setText((Resources.getLabel(history.isSelected() ? "enabled" : "disabled")));
-			}
-		});
+		history.addActionListener(e -> history.setText((Resources.getLabel(history.isSelected() ? "enabled" : "disabled"))));
 		history.setText((Resources.getLabel(!Env.INSTANCE.isDisableHistory() ? "enabled" : "disabled")));
 		trPanel5.add(history);
 		trPanel.add(trPanel5);
 
 		final JPanel trPanel6 = new JPanel();
 		trPanel6.setLayout(new FlowLayout(FlowLayout.LEFT, HGAP, VGAP));
-		trPanel6.add(new JLabel(Resources.getLabel("replay.time"), Resources.getImageIcon("play.png"), JLabel.CENTER));
+		trPanel6.add(new JLabel(Resources.getLabel("replay.time"), Resources.getImageIcon("play.png"), SwingConstants.CENTER));
 		final JSpinner replayTime = new JSpinner();
 		replayTime.setToolTipText(Resources.getLabel("replay.time.tooltip"));
 		replayTime.setPreferredSize(new Dimension(50, ControlPanel.H));
@@ -378,7 +347,7 @@ public class ConfigDialog extends JDialog {
 		final JPanel mapPanel1 = new JPanel();
 
 		mapPanel1.setLayout(new FlowLayout(FlowLayout.LEFT, HGAP, VGAP));
-		mapPanel1.add(new JLabel(Resources.getLabel("animation.time"), Resources.getImageIcon("pin.png"), JLabel.CENTER));
+		mapPanel1.add(new JLabel(Resources.getLabel("animation.time"), Resources.getImageIcon("pin.png"), SwingConstants.CENTER));
 		final JSpinner animationTime = new JSpinner();
 		animationTime.setToolTipText(Resources.getLabel("animation.time.tooltip"));
 		animationTime.setPreferredSize(new Dimension(50, ControlPanel.H));
@@ -392,12 +361,7 @@ public class ConfigDialog extends JDialog {
 		final JToggleButton mapShowLabel = new JToggleButton(Resources.getImageIcon("history.png"), Env.INSTANCE.isMapShowLabel());
 		mapShowLabel.setPreferredSize(new Dimension(130, ControlPanel.H));
 		mapShowLabel.setToolTipText(Resources.getLabel("map.show.label"));
-		mapShowLabel.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				mapShowLabel.setText((Resources.getLabel(mapShowLabel.isSelected() ? "yes" : "no")));
-			}
-		});
+		mapShowLabel.addActionListener(e -> mapShowLabel.setText((Resources.getLabel(mapShowLabel.isSelected() ? "yes" : "no"))));
 		mapShowLabel.setText((Resources.getLabel(Env.INSTANCE.isMapShowLabel() ? "yes" : "no")));
 		mapPanel2.add(mapShowLabel);
 		mapPanel.add(mapPanel2);
@@ -473,81 +437,69 @@ public class ConfigDialog extends JDialog {
 		setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 
 		// button panel
-		final Runnable dispose = new Runnable() {
-			@Override
-			public void run() {
-				trInterfaceChooser.dispose();
-				snifferInterfaceChooser.dispose();
-				ConfigDialog.this.dispose();
-			}
+		final Runnable dispose = () -> {
+			trInterfaceChooser.dispose();
+			snifferInterfaceChooser.dispose();
+			ConfigDialog.this.dispose();
 		};
 		final JButton ok = new JButton(Resources.getLabel("ok.button"));
-		ok.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				boolean error = false;
-				final StringBuffer message = new StringBuffer();
-				boolean cancelled = false;
-				try {
-					final Language appliLanguage = (Language) languageCombo.getSelectedItem();
-					if (Env.INSTANCE.getAppliLanguage() != appliLanguage) {
-						final int select = JOptionPane.showConfirmDialog(ConfigDialog.this, Resources.getLabel("restart.appli.required"), "",
-								JOptionPane.OK_CANCEL_OPTION);
-						if (select == JOptionPane.OK_OPTION) {
-							Env.INSTANCE.setAppliLanguage(appliLanguage);
-						} else {
-							languageCombo.setSelectedItem(Env.INSTANCE.getAppliLanguage());
-							cancelled = true;
-						}
+		ok.addActionListener(e -> {
+			boolean error = false;
+			final StringBuffer message = new StringBuffer();
+			boolean cancelled = false;
+			try {
+				final Language appliLanguage = (Language) languageCombo.getSelectedItem();
+				if (Env.INSTANCE.getAppliLanguage() != appliLanguage) {
+					final int select = JOptionPane.showConfirmDialog(ConfigDialog.this, Resources.getLabel("restart.appli.required"), "", JOptionPane.OK_CANCEL_OPTION);
+					if (select == JOptionPane.OK_OPTION) {
+						Env.INSTANCE.setAppliLanguage(appliLanguage);
+					} else {
+						languageCombo.setSelectedItem(Env.INSTANCE.getAppliLanguage());
+						cancelled = true;
 					}
-				} catch (final Exception exp) {
-					error = true;
-					message.append(exp.getLocalizedMessage() + "\n");
-					exp.printStackTrace();
 				}
-				if (!error) {
-					if (!cancelled) {
-						if (services.isEmbeddedTRAvailable()) {
-							trInterfaceChooser.applySelection();
-						}
-						if (services.isSnifferAvailable()) {
-							snifferInterfaceChooser.applySelection();
-						}
-						Env.INSTANCE.setProxyHost(host.getText());
-						Env.INSTANCE.setProxyPort(port.getText());
-						if (!StringUtils.isEmpty(user.getText())) {
-							Env.INSTANCE.setProxyAuth(user.getText(), new String(password.getPassword()));
-						} else {
-							Env.INSTANCE.setProxyAuth(null, null);
-						}
-						Env.INSTANCE.setUseOSTraceroute(useOSTraceroute.isSelected());
-						Env.INSTANCE.setTrMaxHop((Integer) maxHops.getValue());
-						Env.INSTANCE.setDisableHistory(!history.isSelected());
-						Env.INSTANCE.setHideSplashScreen(!showSplash.isSelected());
-						Env.INSTANCE.setMapShowLabel(mapShowLabel.isSelected());
-						if (Env.INSTANCE.isDisableHistory()) {
-							services.getAutocomplete().clear();
-						}
-						Env.INSTANCE.setAnimationSpeed((int) (Float.parseFloat(animationTime.getValue().toString()) * 1000));
-						Env.INSTANCE.setReplaySpeed((int) (Float.parseFloat(replayTime.getValue().toString()) * 1000));
-						Env.INSTANCE.setUIFont(SwingUtilities.getWindowAncestor(ConfigDialog.this), currentFont.get());
-						Env.INSTANCE.setMapLineThickness((int) (Float.parseFloat(mapLineThickness.getValue().toString())));
-						dispose.run();
+			} catch (final Exception exp) {
+				error = true;
+				message.append(exp.getLocalizedMessage() + "\n");
+				exp.printStackTrace();
+			}
+			if (!error) {
+				if (!cancelled) {
+					if (services.isEmbeddedTRAvailable()) {
+						trInterfaceChooser.applySelection();
 					}
-				} else {
-					// some errors, display them
-					JOptionPane.showMessageDialog(ConfigDialog.this, message.toString(), Resources.getLabel("error.label"), JOptionPane.ERROR_MESSAGE);
+					if (services.isSnifferAvailable()) {
+						snifferInterfaceChooser.applySelection();
+					}
+					Env.INSTANCE.setProxyHost(host.getText());
+					Env.INSTANCE.setProxyPort(port.getText());
+					if (!StringUtils.isEmpty(user.getText())) {
+						Env.INSTANCE.setProxyAuth(user.getText(), new String(password.getPassword()));
+					} else {
+						Env.INSTANCE.setProxyAuth(null, null);
+					}
+					Env.INSTANCE.setUseOSTraceroute(useOSTraceroute.isSelected());
+					Env.INSTANCE.setTrMaxHop((Integer) maxHops.getValue());
+					Env.INSTANCE.setDisableHistory(!history.isSelected());
+					Env.INSTANCE.setHideSplashScreen(!showSplash.isSelected());
+					Env.INSTANCE.setMapShowLabel(mapShowLabel.isSelected());
+					if (Env.INSTANCE.isDisableHistory()) {
+						services.getAutocomplete().clear();
+					}
+					Env.INSTANCE.setAnimationSpeed((int) (Float.parseFloat(animationTime.getValue().toString()) * 1000));
+					Env.INSTANCE.setReplaySpeed((int) (Float.parseFloat(replayTime.getValue().toString()) * 1000));
+					Env.INSTANCE.setUIFont(SwingUtilities.getWindowAncestor(ConfigDialog.this), currentFont.get());
+					Env.INSTANCE.setMapLineThickness((int) (Float.parseFloat(mapLineThickness.getValue().toString())));
+					dispose.run();
 				}
+			} else {
+				// some errors, display them
+				JOptionPane.showMessageDialog(ConfigDialog.this, message.toString(), Resources.getLabel("error.label"), JOptionPane.ERROR_MESSAGE);
 			}
 		});
 
 		final JButton cancel = new JButton(Resources.getLabel("cancel.button"));
-		cancel.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				dispose.run();
-			}
-		});
+		cancel.addActionListener(e -> dispose.run());
 
 		final JPanel buttonPanel = new JPanel();
 		buttonPanel.add(ok);
@@ -555,11 +507,6 @@ public class ConfigDialog extends JDialog {
 		main.add(buttonPanel);
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
 		SwingUtilities4.setUp(this);
-		getRootPane().registerKeyboardAction(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				dispose.run();
-			}
-		}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+		getRootPane().registerKeyboardAction(e -> dispose.run(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 	}
 }

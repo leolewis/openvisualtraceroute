@@ -18,6 +18,7 @@
 package org.leo.traceroute.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Frame;
 import java.awt.HeadlessException;
 
 import javax.swing.JFrame;
@@ -69,12 +70,12 @@ public class TraceRouteFrame extends JFrame {
 		_mainPanel.afterShow();
 
 		if (Env.INSTANCE.isFullScreen()) {
-			setExtendedState(JFrame.MAXIMIZED_BOTH);
+			setExtendedState(Frame.MAXIMIZED_BOTH);
 		}
 	}
 
 	public void close() {
-		Env.INSTANCE.setFullScreen(getExtendedState() == JFrame.MAXIMIZED_BOTH);
+		Env.INSTANCE.setFullScreen(getExtendedState() == Frame.MAXIMIZED_BOTH);
 		if (_mainPanel != null) {
 			_mainPanel.dispose();
 		}

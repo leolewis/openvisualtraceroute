@@ -59,7 +59,6 @@ import gov.nasa.worldwind.View;
 import gov.nasa.worldwind.WorldWind;
 import gov.nasa.worldwind.avlist.AVKey;
 import gov.nasa.worldwind.event.SelectEvent;
-import gov.nasa.worldwind.event.SelectListener;
 import gov.nasa.worldwind.geom.Angle;
 import gov.nasa.worldwind.geom.Position;
 import gov.nasa.worldwind.layers.RenderableLayer;
@@ -111,16 +110,16 @@ public class WWJPanel extends AbstractGeoPanel {
 	private RenderableLayer _renderableLayer;
 
 	/** Current route path */
-	private final List<Path> _lines = new ArrayList<Path>();
+	private final List<Path> _lines = new ArrayList<>();
 
 	/** Map between point and label */
-	private final Map<GeoPoint, LabeledPath> _pointToLabel = new HashMap<GeoPoint, LabeledPath>();
+	private final Map<GeoPoint, LabeledPath> _pointToLabel = new HashMap<>();
 	/** Map between label and point */
-	private final Map<ScreenAnnotation, List<GeoPoint>> _annotationToPoint = new HashMap<ScreenAnnotation, List<GeoPoint>>();
+	private final Map<ScreenAnnotation, List<GeoPoint>> _annotationToPoint = new HashMap<>();
 
 	/** To avoid duplicated labels */
-	private final Map<String, Pair<LabeledPath, ScreenAnnotation>> _toAvoidDuplicatedLabels = new HashMap<String, Pair<LabeledPath, ScreenAnnotation>>();
-	private final Map<String, Pair<Path, MutableInt>> _packetDestCoordToPath = new HashMap<String, Pair<Path, MutableInt>>();
+	private final Map<String, Pair<LabeledPath, ScreenAnnotation>> _toAvoidDuplicatedLabels = new HashMap<>();
+	private final Map<String, Pair<Path, MutableInt>> _packetDestCoordToPath = new HashMap<>();
 
 	/**  */
 	private Pair<LabeledPath, GeoPoint> _lastSelection;
@@ -173,70 +172,64 @@ public class WWJPanel extends AbstractGeoPanel {
 			} else {
 				removeAll();
 			}
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					_controller.getWWd().getView().setPitch(Angle.fromDegrees(15));
-					final WWPanel wwpanel = _controller.getWWPanel();
-					add(_container, BorderLayout.NORTH);
-					add(wwpanel.getJPanel(), BorderLayout.CENTER);
-					final ToolBar toolBar = _controller.getToolBar();
-					if (toolBar != null) {
-						add(toolBar.getJToolBar(), BorderLayout.PAGE_START);
-					}
-					// StatusPanel statusPanel = controller.getStatusPanel();
-					// if (statusPanel != null) {
-					// add(statusPanel.getJPanel(), BorderLayout.PAGE_END);
-					// }
-					// add(new FlatWorldPanel(_controller.getWWd()),
-					// BorderLayout.PAGE_END);
-					final LayerPath path = new LayerPath("Trace Route");
-					_controller.getLayerManager().addLayer(_renderableLayer, path);
-					_controller.getLayerManager().getNode(path).setSelected(true);
-					_controller.getLayerManager().selectLayer(_renderableLayer, true);
-					_controller.getWWd().addSelectListener(new SelectListener() {
-						@Override
-						public void selected(final SelectEvent event) {
-							if (event.getEventAction().equals(SelectEvent.LEFT_CLICK) && event.hasObjects() && event.getTopObject() instanceof ScreenAnnotation) {
-								final ScreenAnnotation sa = (ScreenAnnotation) event.getTopObject();
-								final List<GeoPoint> points = _annotationToPoint.get(sa);
-								if (_lastSelection != null && _lastSelection.getLeft().getAnnotation() == sa) {
-									// if same selection, rotate point
-									_selectionIndex = (_selectionIndex + 1) % (points.size());
-								} else {
-									_selectionIndex = 0;
-								}
-								if (points == null) {
-									focus(null);
-								} else {
-									focus(points.get(_selectionIndex));
-								}
-							}
-						}
-					});
-					_controller.getWWd().getInputHandler().addMouseListener(new MouseAdapter() {
-						@Override
-						public void mouseClicked(final MouseEvent e) {
-							final Position currentPosition = _controller.getWWd().getCurrentPosition();
-							if (currentPosition != null) {
-								onMousePosition(currentPosition.getLatitude().getDegrees(), currentPosition.getLongitude().getDegrees());
-							}
-						}
-
-						@Override
-						public void mouseDragged(final MouseEvent e) {
-							final Position currentPosition = _controller.getWWd().getCurrentPosition();
-							if (currentPosition != null && _lastSelection != null) {
-								final LabeledPath path = _lastSelection.getKey();
-								path.getAnnotation().setScreenPoint(e.getLocationOnScreen());
-							}
-						}
-
-					});
-					_controller.getWWPanel().getJPanel().invalidate();
-					invalidate();
-					revalidate();
+			SwingUtilities.invokeLater(() -> {
+				_controller.getWWd().getView().setPitch(Angle.fromDegrees(15));
+				final WWPanel wwpanel = _controller.getWWPanel();
+				add(_container, BorderLayout.NORTH);
+				add(wwpanel.getJPanel(), BorderLayout.CENTER);
+				final ToolBar toolBar = _controller.getToolBar();
+				if (toolBar != null) {
+					add(toolBar.getJToolBar(), BorderLayout.PAGE_START);
 				}
+				// StatusPanel statusPanel = controller.getStatusPanel();
+				// if (statusPanel != null) {
+				// add(statusPanel.getJPanel(), BorderLayout.PAGE_END);
+				// }
+				// add(new FlatWorldPanel(_controller.getWWd()),
+				// BorderLayout.PAGE_END);
+				final LayerPath path = new LayerPath("Trace Route");
+				_controller.getLayerManager().addLayer(_renderableLayer, path);
+				_controller.getLayerManager().getNode(path).setSelected(true);
+				_controller.getLayerManager().selectLayer(_renderableLayer, true);
+				_controller.getWWd().addSelectListener(event -> {
+					if (event.getEventAction().equals(SelectEvent.LEFT_CLICK) && event.hasObjects() && event.getTopObject() instanceof ScreenAnnotation) {
+						final ScreenAnnotation sa = (ScreenAnnotation) event.getTopObject();
+						final List<GeoPoint> points = _annotationToPoint.get(sa);
+						if (_lastSelection != null && _lastSelection.getLeft().getAnnotation() == sa) {
+							// if same selection, rotate point
+							_selectionIndex = (_selectionIndex + 1) % (points.size());
+						} else {
+							_selectionIndex = 0;
+						}
+						if (points == null) {
+							focus(null);
+						} else {
+							focus(points.get(_selectionIndex));
+						}
+					}
+				});
+				_controller.getWWd().getInputHandler().addMouseListener(new MouseAdapter() {
+					@Override
+					public void mouseClicked(final MouseEvent e) {
+						final Position currentPosition = _controller.getWWd().getCurrentPosition();
+						if (currentPosition != null) {
+							onMousePosition(currentPosition.getLatitude().getDegrees(), currentPosition.getLongitude().getDegrees());
+						}
+					}
+
+					@Override
+					public void mouseDragged(final MouseEvent e) {
+						final Position currentPosition = _controller.getWWd().getCurrentPosition();
+						if (currentPosition != null && _lastSelection != null) {
+							final LabeledPath path = _lastSelection.getKey();
+							path.getAnnotation().setScreenPoint(e.getLocationOnScreen());
+						}
+					}
+
+				});
+				_controller.getWWPanel().getJPanel().invalidate();
+				invalidate();
+				revalidate();
 			});
 		} catch (final Exception e) {
 			LOGGER.error(e.getLocalizedMessage(), e);
@@ -250,21 +243,18 @@ public class WWJPanel extends AbstractGeoPanel {
 	@Override
 	public void afterShow(final Mode mode) {
 		super.afterShow(mode);
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				_container.invalidate();
-				_container.revalidate();
-				final GeoPoint localGeo = _services.getGeo().getLocalIpGeoLocation();
-				final Position p = new Position(Angle.fromDegrees(localGeo.getLat()), Angle.fromDegrees(localGeo.getLon()), 2000);
-				((OrbitView) _controller.getWWd().getView()).setCenterPosition(p);
-				if (mode == Mode.TRACE_ROUTE) {
-					_route.renotifyRoute();
-				} else if (mode == Mode.SNIFFER) {
-					_sniffer.renotifyPackets();
-				} else {
-					_whois.renotifyWhoIs();
-				}
+		SwingUtilities.invokeLater(() -> {
+			_container.invalidate();
+			_container.revalidate();
+			final GeoPoint localGeo = _services.getGeo().getLocalIpGeoLocation();
+			final Position p = new Position(Angle.fromDegrees(localGeo.getLat()), Angle.fromDegrees(localGeo.getLon()), 2000);
+			((OrbitView) _controller.getWWd().getView()).setCenterPosition(p);
+			if (mode == Mode.TRACE_ROUTE) {
+				_route.renotifyRoute();
+			} else if (mode == Mode.SNIFFER) {
+				_sniffer.renotifyPackets();
+			} else {
+				_whois.renotifyWhoIs();
 			}
 		});
 
@@ -317,7 +307,7 @@ public class WWJPanel extends AbstractGeoPanel {
 				final Color color = ColorUtil.INSTANCE.getColorForNumOfPoints(num.intValue());
 				path.getAttributes().setOutlineMaterial(new Material(color));
 				path.getAttributes().setInteriorMaterial(new Material(new Color(color.getRed(), color.getGreen(), color.getBlue(), 50), 50));
-				final List<Position> copy = new ArrayList<Position>();
+				final List<Position> copy = new ArrayList<>();
 				for (final Position p : path.getPositions()) {
 					copy.add(new Position(p, normalizeElevation(num.intValue(), 5e3)));
 				}
@@ -335,7 +325,7 @@ public class WWJPanel extends AbstractGeoPanel {
 		_pointToLabel.put(point, labelAndAnnotation.getLeft());
 		List<GeoPoint> points = _annotationToPoint.get(labelAndAnnotation.getRight());
 		if (points == null) {
-			points = new ArrayList<GeoPoint>();
+			points = new ArrayList<>();
 			_annotationToPoint.put(labelAndAnnotation.getRight(), points);
 		}
 		points.add(point);

@@ -28,8 +28,6 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -67,8 +65,8 @@ public class GlassPane extends JPanel {
 	 *            the ok/cancel button). If <code>null</code>, no OK button
 	 *            will be shown
 	 */
-	private GlassPane(final JRootPane rootPane, final String label, final ImageIcon image, final Dimension dim,
-			final CancelMonitor cancelMonitor, final ConfirmMonitor confirmMonitor) {
+	private GlassPane(final JRootPane rootPane, final String label, final ImageIcon image, final Dimension dim, final CancelMonitor cancelMonitor,
+			final ConfirmMonitor confirmMonitor) {
 		super(new GridBagLayout());
 
 		// setOpaque(false);
@@ -88,48 +86,37 @@ public class GlassPane extends JPanel {
 		jlabel.setOpaque(false);
 		// if okmonitor null, no OK button
 		if (confirmMonitor == null) {
-			final JButton cancel = new JButton(cancelMonitor == null ? Resources.getLabel("ok.button")
-					: Resources.getLabel("cancel.button"));
-			cancel.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(final ActionEvent e) {
-					if (cancelMonitor != null) {
-						cancelMonitor.setCanceled(true);
-					}
-					rootPane.setEnabled(true);
-					rootPane.getGlassPane().setVisible(false);
+			final JButton cancel = new JButton(cancelMonitor == null ? Resources.getLabel("ok.button") : Resources.getLabel("cancel.button"));
+			cancel.addActionListener(e -> {
+				if (cancelMonitor != null) {
+					cancelMonitor.setCanceled(true);
 				}
+				rootPane.setEnabled(true);
+				rootPane.getGlassPane().setVisible(false);
 			});
 			main.add(cancel, BorderLayout.SOUTH);
 		} else {
 			// both OK and cancel button
 			final JButton ok = new JButton(confirmMonitor.getConfirmLabel());
-			ok.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(final ActionEvent e) {
-					confirmMonitor.setOk(true);
-					confirmMonitor.setSet(true);
-					rootPane.setEnabled(true);
-					rootPane.getGlassPane().setVisible(false);
-				}
+			ok.addActionListener(e -> {
+				confirmMonitor.setOk(true);
+				confirmMonitor.setSet(true);
+				rootPane.setEnabled(true);
+				rootPane.getGlassPane().setVisible(false);
 			});
 			final JButton cancel = new JButton(confirmMonitor.getRefuseLabel());
-			cancel.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(final ActionEvent e) {
-					confirmMonitor.setOk(false);
-					confirmMonitor.setSet(true);
-					rootPane.setEnabled(true);
-					rootPane.getGlassPane().setVisible(false);
-				}
+			cancel.addActionListener(e -> {
+				confirmMonitor.setOk(false);
+				confirmMonitor.setSet(true);
+				rootPane.setEnabled(true);
+				rootPane.getGlassPane().setVisible(false);
 			});
 			final JPanel panel = new JPanel(new BorderLayout(10, 10));
 			panel.add(ok, BorderLayout.WEST);
 			panel.add(cancel, BorderLayout.EAST);
 			main.add(panel, BorderLayout.SOUTH);
 		}
-		add(main, new GridBagConstraints(0, 0, dim.width, dim.height, 0.0, 0.0, GridBagConstraints.CENTER,
-				GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+		add(main, new GridBagConstraints(0, 0, dim.width, dim.height, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
 	}
 
 	/**
@@ -153,22 +140,17 @@ public class GlassPane extends JPanel {
 	 * @param cancelMonitor cancel monitor (will be activated on click on the
 	 *            cancel button)
 	 */
-	public static void showGlassPane(final JPanel panel, final String label, final ImageIcon image,
-			final CancelMonitor cancelMonitor) {
+	public static void showGlassPane(final JPanel panel, final String label, final ImageIcon image, final CancelMonitor cancelMonitor) {
 
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				final JRootPane rootPane = SwingUtilities.getRootPane(panel);
-				final Component newGlassPane = new GlassPane(rootPane, label, image, rootPane.getPreferredSize(), cancelMonitor,
-						null);
-				rootPane.setGlassPane(newGlassPane);
-				newGlassPane.setVisible(true);
-				rootPane.setEnabled(false);
+		SwingUtilities.invokeLater(() -> {
+			final JRootPane rootPane = SwingUtilities.getRootPane(panel);
+			final Component newGlassPane = new GlassPane(rootPane, label, image, rootPane.getPreferredSize(), cancelMonitor, null);
+			rootPane.setGlassPane(newGlassPane);
+			newGlassPane.setVisible(true);
+			rootPane.setEnabled(false);
 
-				rootPane.invalidate();
-				rootPane.revalidate();
-			}
+			rootPane.invalidate();
+			rootPane.revalidate();
 		});
 	}
 
@@ -179,15 +161,12 @@ public class GlassPane extends JPanel {
 	 *            place
 	 */
 	public static void hideGlassPane(final JPanel panel) {
-		SwingUtilities4.invokeInEDT(new Runnable() {
-			@Override
-			public void run() {
-				final JRootPane rootPane = SwingUtilities.getRootPane(panel);
-				rootPane.setEnabled(true);
-				rootPane.getGlassPane().setVisible(false);
-				rootPane.invalidate();
-				rootPane.revalidate();
-			}
+		SwingUtilities4.invokeInEDT(() -> {
+			final JRootPane rootPane = SwingUtilities.getRootPane(panel);
+			rootPane.setEnabled(true);
+			rootPane.getGlassPane().setVisible(false);
+			rootPane.invalidate();
+			rootPane.revalidate();
 		});
 	}
 
@@ -223,19 +202,15 @@ public class GlassPane extends JPanel {
 	 * @param image image to display
 	 * @param okMonitor Ok/cancell monitor
 	 */
-	public static void displayQuestion(final JPanel panel, final String label, final ImageIcon image,
-			final ConfirmMonitor okMonitor) {
-		SwingUtilities4.invokeInEDT(new Runnable() {
-			@Override
-			public void run() {
-				final JRootPane rootPane = SwingUtilities.getRootPane(panel);
-				final Component newGlassPane = new GlassPane(rootPane, label, image, rootPane.getPreferredSize(), null, okMonitor);
-				rootPane.setGlassPane(newGlassPane);
-				newGlassPane.setVisible(true);
-				rootPane.setEnabled(false);
-				rootPane.invalidate();
-				rootPane.revalidate();
-			}
+	public static void displayQuestion(final JPanel panel, final String label, final ImageIcon image, final ConfirmMonitor okMonitor) {
+		SwingUtilities4.invokeInEDT(() -> {
+			final JRootPane rootPane = SwingUtilities.getRootPane(panel);
+			final Component newGlassPane = new GlassPane(rootPane, label, image, rootPane.getPreferredSize(), null, okMonitor);
+			rootPane.setGlassPane(newGlassPane);
+			newGlassPane.setVisible(true);
+			rootPane.setEnabled(false);
+			rootPane.invalidate();
+			rootPane.revalidate();
 		});
 	}
 }

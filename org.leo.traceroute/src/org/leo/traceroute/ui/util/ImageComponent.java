@@ -83,8 +83,7 @@ public class ImageComponent extends JComponent {
 				title += _text[0].charAt(i) + "   ";
 			}
 			final float factor = Env.INSTANCE.getOs() == OS.win ? 3f : 2.2f;
-			g2D.drawString(title, new Double(0.5 * (_img.getWidth(null) - title.length() * size / factor)).intValue(),
-					_img.getHeight(null) - 70 - (_text.length) * size);
+			g2D.drawString(title, new Double(0.5 * (_img.getWidth(null) - title.length() * size / factor)).intValue(), _img.getHeight(null) - 70 - (_text.length) * size);
 			for (int i = 1; i < _text.length; i++) {
 				size -= 2;
 				g2D.setFont(new Font("Arial", Font.PLAIN, size));

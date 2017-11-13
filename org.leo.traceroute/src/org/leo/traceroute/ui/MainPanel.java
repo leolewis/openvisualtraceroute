@@ -271,9 +271,7 @@ public class MainPanel extends JPanel {
 				_controlPanel.updateButtons();
 				try {
 					_services.updateStartup("init.check.update", true);
-					final String[] latestVersion = IOUtils
-							.toString(Util.followRedirectOpenConnection(Env.INSTANCE.getVersionUrl())).replace(" ", "")
-							.split("\\.");
+					final String[] latestVersion = IOUtils.toString(Util.followRedirectOpenConnection(Env.INSTANCE.getVersionUrl())).replace(" ", "").split("\\.");
 					final String[] currentVersion = Resources.getVersion().replace(" ", "").split("\\.");
 					final int[] latestDigits = new int[latestVersion.length];
 					final int[] currentDigits = new int[latestVersion.length];
@@ -281,9 +279,8 @@ public class MainPanel extends JPanel {
 						latestDigits[i] = Integer.parseInt(latestVersion[i]);
 						currentDigits[i] = Integer.parseInt(currentVersion[i]);
 					}
-					final boolean newVersionAvailable = (latestDigits[0] > currentDigits[0]
-							|| (latestDigits[0] == currentDigits[0] && latestDigits[1] > currentDigits[1]) || (latestDigits[0] == currentDigits[0]
-									&& latestDigits[1] == currentDigits[1] && latestDigits[2] > currentDigits[2]));
+					final boolean newVersionAvailable = (latestDigits[0] > currentDigits[0] || (latestDigits[0] == currentDigits[0] && latestDigits[1] > currentDigits[1])
+							|| (latestDigits[0] == currentDigits[0] && latestDigits[1] == currentDigits[1] && latestDigits[2] > currentDigits[2]));
 					if (newVersionAvailable) {
 						final String content = IOUtils.toString(Util.followRedirectOpenConnection(Env.INSTANCE.getWhatsnewUrl()));
 						_controlPanel.setNewVersionAvailable(content);
@@ -301,8 +298,7 @@ public class MainPanel extends JPanel {
 				} catch (final Exception e) {
 					LOGGER.error("Error while initializing the application", e);
 					_services.getSplash().dispose();
-					JOptionPane.showMessageDialog(null, Resources.getLabel("error.init", e.getMessage()),
-							Resources.getLabel("fatal.error"), JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, Resources.getLabel("error.init", e.getMessage()), Resources.getLabel("fatal.error"), JOptionPane.ERROR_MESSAGE);
 					System.exit(-1);
 				}
 				_services.updateStartup("init.completed", true);

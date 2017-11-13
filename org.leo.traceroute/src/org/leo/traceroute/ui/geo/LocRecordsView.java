@@ -21,8 +21,6 @@ package org.leo.traceroute.ui.geo;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -54,18 +52,15 @@ public class LocRecordsView extends JDialog {
 		text.setPreferredSize(new Dimension(800, 400));
 		getContentPane().add(text, BorderLayout.CENTER);
 		final JButton save = new JButton("Save");
-		save.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				final Pair<String, Exception> error = factory.getGeo().parseAndLoadDNSRecords(text.getText());
-				text.setText(factory.getGeo().getLocRecordsStr());
-				if (StringUtils.isNotEmpty(error.getKey())) {
-					JOptionPane.showMessageDialog(LocRecordsView.this, Resources.getLabel("dns.loc.warning", error.getKey()), Resources.getLabel("warning"),
-							JOptionPane.WARNING_MESSAGE);
-				} else {
-					JOptionPane.showMessageDialog(LocRecordsView.this, Resources.getLabel("dns.loc.updated"));
-					LocRecordsView.this.dispose();
-				}
+		save.addActionListener(e -> {
+			final Pair<String, Exception> error = factory.getGeo().parseAndLoadDNSRecords(text.getText());
+			text.setText(factory.getGeo().getLocRecordsStr());
+			if (StringUtils.isNotEmpty(error.getKey())) {
+				JOptionPane.showMessageDialog(LocRecordsView.this, Resources.getLabel("dns.loc.warning", error.getKey()), Resources.getLabel("warning"),
+						JOptionPane.WARNING_MESSAGE);
+			} else {
+				JOptionPane.showMessageDialog(LocRecordsView.this, Resources.getLabel("dns.loc.updated"));
+				LocRecordsView.this.dispose();
 			}
 		});
 		getContentPane().add(save, BorderLayout.SOUTH);

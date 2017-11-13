@@ -1,7 +1,7 @@
-/** 
+/**
  * Open Visual Trace Route
- * Copyright (c) 2010-2015 Leo Lewis. 
- * 
+ * Copyright (c) 2010-2015 Leo Lewis.
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -22,7 +22,7 @@ import java.io.IOException;
 
 /**
  * RouteException $Id: RouteException.java 146 2015-01-10 11:22:06Z leolewis $
- * 
+ *
  * @author Leo Lewis
  */
 public class RouteException extends IOException {
@@ -32,7 +32,7 @@ public class RouteException extends IOException {
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param mes message
 	 */
 	public RouteException(final String mes) {
@@ -41,7 +41,7 @@ public class RouteException extends IOException {
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param mes message
 	 * @param e exception
 	 */

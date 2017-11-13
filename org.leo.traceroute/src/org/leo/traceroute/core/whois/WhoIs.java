@@ -79,12 +79,7 @@ public class WhoIs extends AbstractObject<IWhoIsListener> {
 	public void whoIs(final String ipOrHost) {
 		try {
 			_cancel = false;
-			_executor.execute(new Runnable() {
-				@Override
-				public void run() {
-					doRun(ipOrHost, "whois");
-				}
-			});
+			_executor.execute(() -> doRun(ipOrHost, "whois"));
 		} catch (final Exception e) {
 			_whois = null;
 			_point = null;
@@ -160,8 +155,7 @@ public class WhoIs extends AbstractObject<IWhoIsListener> {
 				}
 			}
 		} catch (final Exception e) {
-			if (Env.INSTANCE.getOs() == OS.linux
-					&& e.getMessage().contains("Cannot run program \"" + cmd + "\": error=2, No such file or directory")) {
+			if (Env.INSTANCE.getOs() == OS.linux && e.getMessage().contains("Cannot run program \"" + cmd + "\": error=2, No such file or directory")) {
 				doRun(ipOrHost, "jwhois");
 				return;
 			}

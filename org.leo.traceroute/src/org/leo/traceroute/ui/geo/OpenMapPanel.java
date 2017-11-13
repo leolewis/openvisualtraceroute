@@ -137,12 +137,7 @@ public class OpenMapPanel extends AbstractGeoPanel {
 				_omGraphicList.add(shape);
 			}
 			if (repaint) {
-				SwingUtilities4.invokeInEDT(new Runnable() {
-					@Override
-					public void run() {
-						TraceRouteLayer.this.doPrepare();
-					}
-				});
+				SwingUtilities4.invokeInEDT(() -> TraceRouteLayer.this.doPrepare());
 			}
 		}
 
@@ -151,12 +146,7 @@ public class OpenMapPanel extends AbstractGeoPanel {
 				;
 			}
 			if (repaint) {
-				SwingUtilities4.invokeInEDT(new Runnable() {
-					@Override
-					public void run() {
-						TraceRouteLayer.this.doPrepare();
-					}
-				});
+				SwingUtilities4.invokeInEDT(() -> TraceRouteLayer.this.doPrepare());
 			}
 		}
 
@@ -183,14 +173,14 @@ public class OpenMapPanel extends AbstractGeoPanel {
 
 	private Pair<OMText, Image> _previousPoint;
 	private Pair<OMText, Image> _selectedPoint;
-	private final Map<OMText, List<GeoPoint>> _omLabelToPoint = new HashMap<OMText, List<GeoPoint>>();
-	private final Map<Image, List<GeoPoint>> _omImageToPoint = new HashMap<Image, List<GeoPoint>>();
-	private final Map<GeoPoint, Pair<OMText, Image>> _pointToOMPoint = new HashMap<GeoPoint, Pair<OMText, Image>>();
-	private final Map<String, Pair<OMText, Image>> _toAvoidDuplicatedLabels = new HashMap<String, Pair<OMText, Image>>();
+	private final Map<OMText, List<GeoPoint>> _omLabelToPoint = new HashMap<>();
+	private final Map<Image, List<GeoPoint>> _omImageToPoint = new HashMap<>();
+	private final Map<GeoPoint, Pair<OMText, Image>> _pointToOMPoint = new HashMap<>();
+	private final Map<String, Pair<OMText, Image>> _toAvoidDuplicatedLabels = new HashMap<>();
 	private Pair<OMText, Image> _sourcePoint;
 	private final MapBean _mapBean;
 	private final Theme _theme = Theme.NORMAL;
-	private final Map<String, Pair<OMLine, MutableInt>> _packetDestCoordToPath = new HashMap<String, Pair<OMLine, MutableInt>>();
+	private final Map<String, Pair<OMLine, MutableInt>> _packetDestCoordToPath = new HashMap<>();
 	private int _selectionIndex;
 
 	/**
@@ -240,8 +230,8 @@ public class OpenMapPanel extends AbstractGeoPanel {
 		mapHandler.add(graticule);
 		mapHandler.add(shapeLayer);
 		mapHandler.add(_layer);
-		_mapBean.setProjection(new Orthographic(new LatLonPoint.Double(MapBean.DEFAULT_CENTER_LAT, MapBean.DEFAULT_CENTER_LON),
-				50000000f, MapBean.DEFAULT_WIDTH, MapBean.DEFAULT_HEIGHT));
+		_mapBean.setProjection(new Orthographic(new LatLonPoint.Double(MapBean.DEFAULT_CENTER_LAT, MapBean.DEFAULT_CENTER_LON), 50000000f, MapBean.DEFAULT_WIDTH,
+				MapBean.DEFAULT_HEIGHT));
 
 		_mapBean.addMouseListener(new MouseAdapter() {
 			@Override
@@ -258,8 +248,7 @@ public class OpenMapPanel extends AbstractGeoPanel {
 					points = _omImageToPoint.get(omGraphic);
 				}
 				if (text != null || img != null) {
-					if (_selectedPoint != null && ((text != null && _selectedPoint.getLeft() == text)
-							|| (img != null && _selectedPoint.getRight() == img))) {
+					if (_selectedPoint != null && ((text != null && _selectedPoint.getLeft() == text) || (img != null && _selectedPoint.getRight() == img))) {
 						_selectionIndex = (_selectionIndex + 1) % (points.size());
 					} else {
 						_selectionIndex = 0;
@@ -282,18 +271,15 @@ public class OpenMapPanel extends AbstractGeoPanel {
 	@Override
 	public void afterShow(final Mode mode) {
 		super.afterShow(mode);
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				final GeoPoint localGeo = _services.getGeo().getLocalIpGeoLocation();
-				_mapBean.setCenter(new LatLonPoint.Double(localGeo.getLat(), localGeo.getLon()));
-				if (mode == Mode.TRACE_ROUTE) {
-					_route.renotifyRoute();
-				} else if (mode == Mode.SNIFFER) {
-					_sniffer.renotifyPackets();
-				} else {
-					_whois.renotifyWhoIs();
-				}
+		SwingUtilities.invokeLater(() -> {
+			final GeoPoint localGeo = _services.getGeo().getLocalIpGeoLocation();
+			_mapBean.setCenter(new LatLonPoint.Double(localGeo.getLat(), localGeo.getLon()));
+			if (mode == Mode.TRACE_ROUTE) {
+				_route.renotifyRoute();
+			} else if (mode == Mode.SNIFFER) {
+				_sniffer.renotifyPackets();
+			} else {
+				_whois.renotifyWhoIs();
 			}
 		});
 	}
@@ -313,12 +299,7 @@ public class OpenMapPanel extends AbstractGeoPanel {
 		_sourcePoint = _toAvoidDuplicatedLabels.get(localGeo.getCoordKey());
 		_sourcePoint.getLeft().setLinePaint(SOURCE_COLOR);
 		_sourcePoint.getLeft().setMattingPaint(SOURCE_COLOR);
-		SwingUtilities4.invokeInEDT(new Runnable() {
-			@Override
-			public void run() {
-				_mapBean.repaint();
-			}
-		});
+		SwingUtilities4.invokeInEDT(() -> _mapBean.repaint());
 	}
 
 	@Override
@@ -360,8 +341,8 @@ public class OpenMapPanel extends AbstractGeoPanel {
 		if (previous != null) {
 			final Pair<OMLine, MutableInt> pair = _packetDestCoordToPath.get(coordKey);
 			if (pair == null) {
-				final OMLine line = new OMLine(previous.getRight().getLat(), previous.getRight().getLon(), point.getLat(),
-						point.getLon(), OMGraphic.LINETYPE_GREATCIRCLE);
+				final OMLine line = new OMLine(previous.getRight().getLat(), previous.getRight().getLon(), point.getLat(), point.getLon(),
+						OMGraphicConstants.LINETYPE_GREATCIRCLE);
 				if (point instanceof RoutePoint) {
 					line.setLinePaint(((RoutePoint) point).getColor());
 				} else {
@@ -384,7 +365,7 @@ public class OpenMapPanel extends AbstractGeoPanel {
 		}
 		List<GeoPoint> l = _omLabelToPoint.get(omPoint.getLeft());
 		if (l == null) {
-			l = new ArrayList<GeoPoint>();
+			l = new ArrayList<>();
 			_omLabelToPoint.put(omPoint.getLeft(), l);
 			_omImageToPoint.put(omPoint.getRight(), l);
 		}
@@ -453,12 +434,7 @@ public class OpenMapPanel extends AbstractGeoPanel {
 				}
 			}
 		}
-		SwingUtilities4.invokeInEDT(new Runnable() {
-			@Override
-			public void run() {
-				_layer.doPrepare();
-			}
-		});
+		SwingUtilities4.invokeInEDT(() -> _layer.doPrepare());
 	}
 
 	/**
@@ -473,11 +449,6 @@ public class OpenMapPanel extends AbstractGeoPanel {
 				line.setStroke(new BasicStroke(thickness));
 			}
 		}
-		SwingUtilities4.invokeInEDT(new Runnable() {
-			@Override
-			public void run() {
-				_layer.doPrepare();
-			}
-		});
+		SwingUtilities4.invokeInEDT(() -> _layer.doPrepare());
 	}
 }

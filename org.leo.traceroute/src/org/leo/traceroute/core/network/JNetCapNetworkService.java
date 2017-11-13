@@ -43,8 +43,8 @@ public class JNetCapNetworkService extends AbstractObject<INetworkInterfaceListe
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(JNetCapNetworkService.class);
 
-	private final List<PcapIf> _devices = new ArrayList<PcapIf>();
-	private final Map<PcapIf, byte[]> _gatewayMac = new HashMap<PcapIf, byte[]>();
+	private final List<PcapIf> _devices = new ArrayList<>();
+	private final Map<PcapIf, byte[]> _gatewayMac = new HashMap<>();
 
 	private int _index;
 
@@ -72,7 +72,7 @@ public class JNetCapNetworkService extends AbstractObject<INetworkInterfaceListe
 				if (r == Pcap.NOT_OK || _devices.isEmpty()) {
 					throw new IOException(sb.toString());
 				}
-				for (final PcapIf net : new ArrayList<PcapIf>(_devices)) {
+				for (final PcapIf net : new ArrayList<>(_devices)) {
 					if (net.getAddresses().isEmpty()) {
 						_devices.remove(net);
 					} else {
@@ -92,7 +92,7 @@ public class JNetCapNetworkService extends AbstractObject<INetworkInterfaceListe
 	 */
 	@Override
 	public List<Pair<Integer, String>> getNetworkDevices() {
-		final List<Pair<Integer, String>> list = new ArrayList<Pair<Integer, String>>();
+		final List<Pair<Integer, String>> list = new ArrayList<>();
 		int i = 0;
 		for (final PcapIf net : _devices) {
 			final String text = net.getDescription() == null || net.getDescription().trim().length() == 0 ? net.getName()

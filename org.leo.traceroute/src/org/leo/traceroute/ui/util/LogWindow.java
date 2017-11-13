@@ -21,8 +21,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -34,6 +32,7 @@ import javax.swing.JDialog;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
@@ -99,8 +98,7 @@ public class LogWindow extends JDialog {
 		super(parent, "Log", ModalityType.DOCUMENT_MODAL);
 		final LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
 		for (final ch.qos.logback.classic.Logger logger : context.getLoggerList()) {
-			for (final Iterator<ch.qos.logback.core.Appender<ILoggingEvent>> index = logger.iteratorForAppenders(); index
-					.hasNext();) {
+			for (final Iterator<ch.qos.logback.core.Appender<ILoggingEvent>> index = logger.iteratorForAppenders(); index.hasNext();) {
 				final ch.qos.logback.core.Appender<ILoggingEvent> appender = index.next();
 				if (appender instanceof Appender) {
 					_appender = (Appender) appender;
@@ -124,27 +122,18 @@ public class LogWindow extends JDialog {
 		} catch (final FileNotFoundException e1) {
 			appendFormatted("Failed to open file " + Env.LOG_FILE.getAbsolutePath());
 		}
-		final JScrollPane scroll = new JScrollPane(_logs, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		final JScrollPane scroll = new JScrollPane(_logs, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scroll.setPreferredSize(new Dimension(800, 600));
 		getContentPane().add(scroll, BorderLayout.CENTER);
 		final JButton close = new JButton(Resources.getLabel("close.button"));
-		close.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				LogWindow.this.dispose();
-			}
-		});
+		close.addActionListener(e -> LogWindow.this.dispose());
 		getContentPane().add(close, BorderLayout.SOUTH);
 		SwingUtilities4.setUp(this);
-		getRootPane().registerKeyboardAction(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				_appender.display = null;
-				dispose();
-				if (parent != null) {
-					parent.toFront();
-				}
+		getRootPane().registerKeyboardAction(e -> {
+			_appender.display = null;
+			dispose();
+			if (parent != null) {
+				parent.toFront();
 			}
 		}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 	}

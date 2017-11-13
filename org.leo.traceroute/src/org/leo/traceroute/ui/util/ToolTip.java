@@ -27,8 +27,6 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -64,7 +62,7 @@ public enum ToolTip {
 	private void showToolTips(final Component component) {
 		_component = component;
 		location = _component.getLocationOnScreen();
-		_components = new ArrayList<JComponent>();
+		_components = new ArrayList<>();
 		searchTooltip(_component);
 		showToolTips();
 	}
@@ -72,12 +70,7 @@ public enum ToolTip {
 	public JButton buildHelpButton(final Component component, final int h) {
 		final JButton helpButton = new JButton(Resources.getImageIcon("help.png"));
 		helpButton.setToolTipText(Resources.getLabel("help.tooltip"));
-		helpButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				showToolTips(component);
-			}
-		});
+		helpButton.addActionListener(e -> showToolTips(component));
 		return helpButton;
 	}
 
@@ -86,8 +79,7 @@ public enum ToolTip {
 			final JComponent c = (JComponent) component;
 			final String tooltip = c.getToolTipText();
 			if (StringUtils.isNoneEmpty(tooltip)) {
-				if (c.getWidth() >= 20
-						&& (c instanceof JToggleButton || c.getClass() == JButton.class || c instanceof JTextField)) {
+				if (c.getWidth() >= 20 && (c instanceof JToggleButton || c.getClass() == JButton.class || c instanceof JTextField)) {
 					_components.add(c);
 				}
 			}
@@ -102,7 +94,7 @@ public enum ToolTip {
 	}
 
 	private void showToolTips() {
-		_dialogs = new ArrayList<JDialog>();
+		_dialogs = new ArrayList<>();
 		int num = 0;
 		final Window w = SwingUtilities.getWindowAncestor(_component);
 
@@ -141,8 +133,7 @@ public enum ToolTip {
 		final Color color = color(num);
 		final JDialog description = new JDialog(w, ModalityType.MODELESS);
 		description.setUndecorated(true);
-		final JLabel label = new AntialisingJLabel("<html><font size=5>&nbsp;" + string(num) + "&nbsp;"
-				+ component.getToolTipText() + "&nbsp;</font></html>");
+		final JLabel label = new AntialisingJLabel("<html><font size=5>&nbsp;" + string(num) + "&nbsp;" + component.getToolTipText() + "&nbsp;</font></html>");
 		label.setBackground(color);
 		description.getContentPane().setBackground(color);
 		description.getContentPane().add(label);
@@ -155,8 +146,7 @@ public enum ToolTip {
 		description.setVisible(true);
 		final JDialog number = new JDialog(w, ModalityType.MODELESS);
 		number.setUndecorated(true);
-		final JLabel labelNumber = new AntialisingJLabel("<html><b><font size=5>&nbsp;" + string(num)
-				+ "&nbsp;</font></b></html>");
+		final JLabel labelNumber = new AntialisingJLabel("<html><b><font size=5>&nbsp;" + string(num) + "&nbsp;</font></b></html>");
 		labelNumber.setBackground(color);
 		number.getContentPane().add(labelNumber);
 		number.getContentPane().setBackground(color);

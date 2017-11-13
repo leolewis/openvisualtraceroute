@@ -19,8 +19,6 @@
 package org.leo.traceroute.ui.geo;
 
 import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -62,12 +60,9 @@ public class LocPanel extends AbstractPanel {
 		_geo = new JLabel("                     ");
 		add(_geo);
 		_add = new JButton(Resources.getLabel("add"));
-		_add.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				factory.getGeo().addLocRecord(_host.getText(), _lat, _lon);
-				JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(LocPanel.this), Resources.getLabel("dns.loc.updated"));
-			}
+		_add.addActionListener(e -> {
+			factory.getGeo().addLocRecord(_host.getText(), _lat, _lon);
+			JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(LocPanel.this), Resources.getLabel("dns.loc.updated"));
 		});
 		add(_add);
 	}
@@ -80,7 +75,8 @@ public class LocPanel extends AbstractPanel {
 
 	public void setHost(final GeoPoint point) {
 		_host.setText(point != null
-				? (StringUtils.isEmpty(point.getHostname()) || point.getHostname().equals(DNSLookupService.UNKNOWN_HOST)) ? point.getIp() : point.getHostname() : null);
+				? (StringUtils.isEmpty(point.getHostname()) || point.getHostname().equals(DNSLookupService.UNKNOWN_HOST)) ? point.getIp() : point.getHostname()
+				: null);
 		if (point != null) {
 			setPoint(point.getLat(), point.getLon());
 		}

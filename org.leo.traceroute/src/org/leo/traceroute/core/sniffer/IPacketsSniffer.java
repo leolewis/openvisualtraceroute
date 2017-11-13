@@ -40,8 +40,7 @@ public interface IPacketsSniffer extends IComponent {
 	 * @param host
 	 * @param captureTimeSeconds
 	 */
-	void startCapture(final Set<Protocol> protocols, final String port, final boolean filterLenghtPackets, final int length,
-			String host, int captureTimeSeconds);
+	void startCapture(final Set<Protocol> protocols, final String port, final boolean filterLenghtPackets, final int length, String host, int captureTimeSeconds);
 
 	/**
 	 * End capture

@@ -28,7 +28,6 @@ import org.leo.traceroute.core.route.impl.JNetCapTraceRoute;
 import org.leo.traceroute.core.route.impl.JpcapTraceRoute;
 import org.leo.traceroute.core.sniffer.IPacketsSniffer;
 import org.leo.traceroute.core.sniffer.impl.JNetCapPacketSniffer;
-import org.leo.traceroute.core.sniffer.impl.JPcapPacketSniffer;
 import org.leo.traceroute.core.whois.WhoIs;
 import org.leo.traceroute.install.Env;
 import org.leo.traceroute.ui.util.SplashScreen;
@@ -64,9 +63,8 @@ public class ServiceFactory {
 
 	private final SplashScreen _splash;
 
-	public ServiceFactory(final ITraceRoute traceroute, final IPacketsSniffer sniffer, final INetworkService<?> jnetcapNetwork,
-			final INetworkService<?> jpcapNetwork, final DNSLookupService dnsLookup, final GeoService geo,
-			final AutoCompleteProvider autoComplete, final WhoIs whois) {
+	public ServiceFactory(final ITraceRoute traceroute, final IPacketsSniffer sniffer, final INetworkService<?> jnetcapNetwork, final INetworkService<?> jpcapNetwork,
+			final DNSLookupService dnsLookup, final GeoService geo, final AutoCompleteProvider autoComplete, final WhoIs whois) {
 		super();
 		_traceroute = traceroute;
 		_sniffer = sniffer;
@@ -96,7 +94,7 @@ public class ServiceFactory {
 		if (SNIFFER_NETWORK_LIB == NetworkLibrary.JNETPCAP) {
 			_sniffer = new JNetCapPacketSniffer();
 		} else {
-			_sniffer = new JPcapPacketSniffer();
+			throw new IllegalArgumentException(SNIFFER_NETWORK_LIB.name());
 		}
 		_dnsLookup = new DNSLookupService();
 		_geo = new GeoService();

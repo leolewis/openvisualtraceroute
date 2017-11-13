@@ -20,8 +20,6 @@ package org.leo.traceroute.ui;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
 import javax.swing.JButton;
@@ -32,6 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
 
 import org.leo.traceroute.install.Env;
 import org.leo.traceroute.resources.Resources;
@@ -58,8 +57,7 @@ public class LicenseDialog extends JDialog {
 		final JTextArea license = new JTextArea(30, 50);
 		license.setEditable(false);
 		// read the license file and add its content to the JTextArea
-		for (final String line : Util.readUTF8File(Resources.class.getResourceAsStream("/" + Resources.RESOURCE_PATH
-				+ "/License.txt"))) {
+		for (final String line : Util.readUTF8File(Resources.class.getResourceAsStream("/" + Resources.RESOURCE_PATH + "/License.txt"))) {
 			license.append("   " + line + "\n");
 		}
 		// scroll to the top of the JTextArea
@@ -76,21 +74,11 @@ public class LicenseDialog extends JDialog {
 		center.add(new HyperlinkLabel(Resources.getLabel("donate.label"), Env.INSTANCE.getDonateUrl()));
 		donatePanel.add(center, BorderLayout.CENTER);
 		final JButton close = new JButton(Resources.getLabel("close.button"));
-		close.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				LicenseDialog.this.dispose();
-			}
-		});
+		close.addActionListener(e -> LicenseDialog.this.dispose());
 		donatePanel.add(close, BorderLayout.SOUTH);
 		getContentPane().add(donatePanel, BorderLayout.SOUTH);
 		SwingUtilities4.setUp(this);
-		getRootPane().registerKeyboardAction(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				dispose();
-			}
-		}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
+		getRootPane().registerKeyboardAction(e -> dispose(), KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 	}
 
 	/**
@@ -102,17 +90,13 @@ public class LicenseDialog extends JDialog {
 	public static JComponent createHeaderPanel(final boolean boutonLicense, final Window parent) {
 		if (boutonLicense) {
 			final JButton license = new JButton(Resources.getLabel("license.label"), Resources.getImageIcon("route.png"));
-			license.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(final ActionEvent e) {
-					final LicenseDialog dialog = new LicenseDialog(parent);
-					dialog.setVisible(true);
-				}
+			license.addActionListener(e -> {
+				final LicenseDialog dialog = new LicenseDialog(parent);
+				dialog.setVisible(true);
 			});
 			return license;
 		} else {
-			return new JLabel(Resources.getLabel("appli.title", Resources.getVersion()), Resources.getImageIcon("route.png"),
-					JLabel.CENTER);
+			return new JLabel(Resources.getLabel("appli.title", Resources.getVersion()), Resources.getImageIcon("route.png"), SwingConstants.CENTER);
 		}
 	}
 

@@ -23,6 +23,7 @@ import java.awt.Dimension;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
@@ -60,7 +61,7 @@ public class PacketDetailPanel extends AbstractSnifferPanel {
 				return getUI().getPreferredSize(this).width <= getParent().getSize().width;
 			}
 		};
-		final JScrollPane scroll = new JScrollPane(_details, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		final JScrollPane scroll = new JScrollPane(_details, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		add(scroll, BorderLayout.CENTER);
 	}
 
@@ -97,31 +98,28 @@ public class PacketDetailPanel extends AbstractSnifferPanel {
 	}
 
 	private void showPacket(final AbstractPacketPoint point) {
-		SwingUtilities4.invokeInEDT(new Runnable() {
-			@Override
-			public void run() {
-				final String[] lines = point.getPayload().split("\n");
-				int max = 0;
-				for (final String line : lines) {
-					max = Math.max(max, line.length());
-				}
-				max += 5;
-				for (final String line : lines) {
-					final Color color = colorForLine(line);
-					final StyleContext sc = StyleContext.getDefaultStyleContext();
-					AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, Color.BLACK);
-
-					aset = sc.addAttribute(aset, StyleConstants.FontFamily, "Lucida Console");
-					aset = sc.addAttribute(aset, StyleConstants.Alignment, StyleConstants.ALIGN_JUSTIFIED);
-					aset = sc.addAttribute(aset, StyleConstants.Bold, false);
-					aset = sc.addAttribute(aset, StyleConstants.Background, color);
-					final int len = _details.getDocument().getLength();
-					_details.setCaretPosition(len);
-					_details.setCharacterAttributes(aset, false);
-					_details.replaceSelection(line + StringUtils.repeat(" ", max - line.length()) + "\n");
-				}
-				_details.setCaretPosition(0);
+		SwingUtilities4.invokeInEDT(() -> {
+			final String[] lines = point.getPayload().split("\n");
+			int max = 0;
+			for (final String line1 : lines) {
+				max = Math.max(max, line1.length());
 			}
+			max += 5;
+			for (final String line2 : lines) {
+				final Color color = colorForLine(line2);
+				final StyleContext sc = StyleContext.getDefaultStyleContext();
+				AttributeSet aset = sc.addAttribute(SimpleAttributeSet.EMPTY, StyleConstants.Foreground, Color.BLACK);
+
+				aset = sc.addAttribute(aset, StyleConstants.FontFamily, "Lucida Console");
+				aset = sc.addAttribute(aset, StyleConstants.Alignment, StyleConstants.ALIGN_JUSTIFIED);
+				aset = sc.addAttribute(aset, StyleConstants.Bold, false);
+				aset = sc.addAttribute(aset, StyleConstants.Background, color);
+				final int len = _details.getDocument().getLength();
+				_details.setCaretPosition(len);
+				_details.setCharacterAttributes(aset, false);
+				_details.replaceSelection(line2 + StringUtils.repeat(" ", max - line2.length()) + "\n");
+			}
+			_details.setCaretPosition(0);
 		});
 	}
 

@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 /**
  * AbstractListener $Id: AbstractObject.java 241 2016-02-20 21:23:52Z leolewis $
@@ -34,13 +33,10 @@ import java.util.concurrent.ThreadFactory;
 public abstract class AbstractObject<T> implements IDisposable {
 
 	/** Threads pool */
-	protected ExecutorService _threadPool = Executors.newFixedThreadPool(5, new ThreadFactory() {
-		@Override
-		public Thread newThread(final Runnable r) {
-			final Thread t = new Thread(r);
-			t.setDaemon(true);
-			return t;
-		}
+	protected ExecutorService _threadPool = Executors.newFixedThreadPool(5, r -> {
+		final Thread t = new Thread(r);
+		t.setDaemon(true);
+		return t;
 	});
 
 	protected ServiceFactory _factory;
@@ -54,7 +50,7 @@ public abstract class AbstractObject<T> implements IDisposable {
 	}
 
 	/** Set of listeners */
-	private final Set<T> _listeners = new HashSet<T>();
+	private final Set<T> _listeners = new HashSet<>();
 
 	/**
 	 * Add listener
@@ -77,7 +73,7 @@ public abstract class AbstractObject<T> implements IDisposable {
 	 * @return the value of listeners
 	 */
 	public Set<T> getListeners() {
-		return new HashSet<T>(_listeners);
+		return new HashSet<>(_listeners);
 	}
 
 	/**

@@ -55,9 +55,7 @@ public class SplashScreen extends JDialog {
 		final String version = Resources.getVersion();
 		if (showImage) {
 			final Image image = Resources.getImageIcon("splashscreen.jpg").getImage();
-			getContentPane()
-					.add(new ImageComponent(image, new String[] { "Open Visual Traceroute",
-							version + "                   Leo Lewis" }), BorderLayout.CENTER);
+			getContentPane().add(new ImageComponent(image, new String[] { "Open Visual Traceroute", version + "                   Leo Lewis" }), BorderLayout.CENTER);
 		}
 		_progress = new JProgressBar(1, startupStepsCount);
 		_progress.setIndeterminate(false);
@@ -75,14 +73,11 @@ public class SplashScreen extends JDialog {
 	}
 
 	public void updateStartup(final String labelKey, final boolean incStep) {
-		SwingUtilities4.invokeInEDT(new Runnable() {
-			@Override
-			public void run() {
-				if (incStep) {
-					_progress.setValue(_step.incrementAndGet());
-				}
-				_progress.setString(Resources.getLabel(labelKey));
+		SwingUtilities4.invokeInEDT(() -> {
+			if (incStep) {
+				_progress.setValue(_step.incrementAndGet());
 			}
+			_progress.setString(Resources.getLabel(labelKey));
 		});
 	}
 

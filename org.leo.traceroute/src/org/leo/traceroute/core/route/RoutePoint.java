@@ -68,7 +68,7 @@ public class RoutePoint extends GeoPoint {
 	 * @param latency the new latency to set
 	 */
 	public void setLatency(final int latency) {
-		this._latency = latency;
+		_latency = latency;
 		// elevation proportional to the latency
 		setElevation(latency);
 		setColor(ColorUtil.INSTANCE.getColorForLatency(latency));
@@ -107,7 +107,7 @@ public class RoutePoint extends GeoPoint {
 	 * @param dnsLookUpTime the new dnsLookUpTime to set
 	 */
 	public void setDnsLookUpTime(final long dnsLookUpTime) {
-		this._dnsLookUpTime = dnsLookUpTime;
+		_dnsLookUpTime = dnsLookUpTime;
 	}
 
 	/**

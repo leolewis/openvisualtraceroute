@@ -33,11 +33,15 @@ public abstract class AbstractPacketPoint extends GeoPoint {
 	private static final String ENCODING = "Accept-Encoding: ";
 
 	public enum Protocol {
-		TCP, UDP, ICMP, OTHER
+		TCP,
+		UDP,
+		ICMP,
+		OTHER
 	}
 
 	enum Encoding {
-		PLAIN, GZIP;
+		PLAIN,
+		GZIP;
 	}
 
 	private static ThreadLocal<SimpleDateFormat> THREAD_LOCAL = new ThreadLocal<SimpleDateFormat>() {

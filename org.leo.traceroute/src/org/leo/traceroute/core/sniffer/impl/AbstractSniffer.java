@@ -48,10 +48,10 @@ public abstract class AbstractSniffer extends AbstractObject<IPacketListener> im
 	protected volatile boolean _filterLenghtPackets;
 	protected volatile int _length;
 	/** Captured packets */
-	protected final List<AbstractPacketPoint> _capture = new ArrayList<AbstractPacketPoint>();
+	protected final List<AbstractPacketPoint> _capture = new ArrayList<>();
 	protected AbstractPacketPoint _focusedPoint;
 	protected Set<Protocol> _captureProtocols;
-	protected final Set<String> _localAddresses = new HashSet<String>();
+	protected final Set<String> _localAddresses = new HashSet<>();
 	protected String _filter;
 	/** Services */
 	protected ServiceFactory _services;

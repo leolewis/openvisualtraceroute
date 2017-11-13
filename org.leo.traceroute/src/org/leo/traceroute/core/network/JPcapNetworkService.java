@@ -25,10 +25,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.leo.traceroute.core.AbstractObject;
@@ -49,8 +50,7 @@ import jpcap.packet.Packet;
  * </pre>
  * @author Leo Lewis
  */
-public class JPcapNetworkService extends AbstractObject<INetworkInterfaceListener<NetworkInterface>>
-		implements INetworkService<NetworkInterface> {
+public class JPcapNetworkService extends AbstractObject<INetworkInterfaceListener<NetworkInterface>> implements INetworkService<NetworkInterface> {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ServiceFactory.class);
 
@@ -59,11 +59,11 @@ public class JPcapNetworkService extends AbstractObject<INetworkInterfaceListene
 	private final static String TEST_URL = "www.google.com";
 
 	/** Network devices */
-	private final List<NetworkInterface> _devices = new ArrayList<NetworkInterface>();
+	private final List<NetworkInterface> _devices = new ArrayList<>();
 	/** Selected Network device */
 	private int _index;
 	/** Default gateway mac adress */
-	private final Map<NetworkInterface, byte[]> _gatewayMac = new HashMap<NetworkInterface, byte[]>();
+	private final Map<NetworkInterface, byte[]> _gatewayMac = new HashMap<>();
 
 	/**
 	 * Constructor
@@ -88,55 +88,53 @@ public class JPcapNetworkService extends AbstractObject<INetworkInterfaceListene
 			ExecutorService executor = null;
 			try {
 				final NetworkInterface[] netInterfaces = JpcapCaptor.getDeviceList();
-				executor = Executors.newFixedThreadPool(netInterfaces.length);
-				final List<Future<Pair<NetworkInterface, byte[]>>> futures = new ArrayList<Future<Pair<NetworkInterface, byte[]>>>();
+				executor = Executors.newFixedThreadPool(1);
+				final List<Pair<String, Future<Pair<NetworkInterface, byte[]>>>> futures = new ArrayList<>();
 				for (int i = 0; i < netInterfaces.length; i++) {
 					final int fi = i;
-					futures.add(executor.submit(new Callable<Pair<NetworkInterface, byte[]>>() {
-						@Override
-						public Pair<NetworkInterface, byte[]> call() throws Exception {
-							final NetworkInterface netInterface = netInterfaces[fi];
-							if (!ETHERNET.equals(netInterface.datalink_description)) {
-								return null;
-							}
-							LOGGER.info("Try using device " + netInterface.name + " " + netInterface.description);
-							final JpcapCaptor captor = JpcapCaptor.openDevice(netInterface, 65535, false, 100);
-							// obtain MAC address of the default gateway
-							captor.setFilter("tcp and dst host " + pingAddr.getHostAddress(), true);
-							byte[] getwayMac = null;
-							int retry = 0;
-							while (getwayMac == null) {
-								new URL("http://" + TEST_URL).openStream().close();
-								final Packet ping = captor.getPacket();
-								if (ping == null) {
-									if (retry++ >= 3) {
-										break;
-									}
-								} else if (!Arrays.equals(((EthernetPacket) ping.datalink).dst_mac, netInterface.mac_address)) {
-									getwayMac = ((EthernetPacket) ping.datalink).dst_mac;
+					futures.add(Pair.of(netInterfaces[fi].name, executor.submit(() -> {
+						final NetworkInterface netInterface = netInterfaces[fi];
+						if (!ETHERNET.equals(netInterface.datalink_description)) {
+							return null;
+						}
+						LOGGER.info("Try using device " + netInterface.name + " " + netInterface.description);
+						final JpcapCaptor captor = JpcapCaptor.openDevice(netInterface, 65535, false, 1000);
+						// obtain MAC address of the default gateway
+						captor.setFilter("tcp and dst host " + pingAddr.getHostAddress(), true);
+						byte[] getwayMac = null;
+						int retry = 0;
+						while (getwayMac == null) {
+							new URL("http://" + TEST_URL).openStream().close();
+							final Packet ping = captor.getPacket();
+							if (ping == null) {
+								if (retry++ >= 3) {
+									break;
 								}
+							} else if (!Arrays.equals(((EthernetPacket) ping.datalink).dst_mac, netInterface.mac_address)) {
+								getwayMac = ((EthernetPacket) ping.datalink).dst_mac;
 							}
-							return Pair.of(netInterface, getwayMac);
 						}
-					}));
-
+						return Pair.of(netInterface, getwayMac);
+					})));
+				}
+				LOGGER.info("int " + netInterfaces.length);
+				for (final Pair<String, Future<Pair<NetworkInterface, byte[]>>> f : futures) {
 					try {
-						for (final Future<Pair<NetworkInterface, byte[]>> f : futures) {
-							final Pair<NetworkInterface, byte[]> res = f.get();
-							if (res == null) {
-								continue;
-							}
-							final byte[] getwayMac = res.getRight();
-							final NetworkInterface netInterface = res.getLeft();
-							// a mac adress for the default gateway
-							if (getwayMac != null && !_devices.contains(netInterface)) {
-								// interface is good to use
-								_devices.add(netInterface);
-								_gatewayMac.put(netInterface, getwayMac);
-							}
+						final Pair<NetworkInterface, byte[]> res = f.getValue().get(2000, TimeUnit.MILLISECONDS);
+						if (res == null) {
+							continue;
 						}
-					} catch (final Throwable t) {
+						final byte[] getwayMac = res.getRight();
+						final NetworkInterface netInterface = res.getLeft();
+						// a mac address for the default gateway
+						if (getwayMac != null && !_devices.contains(netInterface)) {
+							// interface is good to use
+							_devices.add(netInterface);
+							_gatewayMac.put(netInterface, getwayMac);
+						}
+					} catch (final TimeoutException e) {
 						// device is not usable
+						LOGGER.warn("Device timed out " + f.getKey());
 					}
 				}
 			} catch (final Throwable ex) {
@@ -147,6 +145,7 @@ public class JPcapNetworkService extends AbstractObject<INetworkInterfaceListene
 				}
 			}
 		}
+
 	}
 
 	/**
@@ -156,11 +155,10 @@ public class JPcapNetworkService extends AbstractObject<INetworkInterfaceListene
 	 */
 	@Override
 	public List<Pair<Integer, String>> getNetworkDevices() {
-		final List<Pair<Integer, String>> list = new ArrayList<Pair<Integer, String>>();
+		final List<Pair<Integer, String>> list = new ArrayList<>();
 		for (int i = 0; i < _devices.size(); i++) {
 			final NetworkInterface net = _devices.get(i);
-			final String text = net.description == null || net.description.trim().length() == 0 ? net.name
-					: (net.description + " (" + net.name + ")");
+			final String text = net.description == null || net.description.trim().length() == 0 ? net.name : (net.description + " (" + net.name + ")");
 			list.add(Pair.of(i, text));
 		}
 		return list;

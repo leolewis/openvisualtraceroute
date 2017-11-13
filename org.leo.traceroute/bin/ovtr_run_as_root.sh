@@ -7,6 +7,8 @@ if [ -e $LIBPCAP08 ]; then
   LIBPCAP1=`ldconfig -p | grep libpcap.so.1 | head -1 | awk {'print $4'}`
   if [ `uname -m` == "x86_64" ]; then
     LINK="/usr/lib64/libpcap.so.0.8"
+  elif [ `uname -m` == "armv7l" ]; then
+    LINK="/usr/lib/arm-linux-gnueabihf/libpcap.so.0.8" ## $(ldconfig -p | grep libpcap.so | head -1 | awk {'print $4'}) ## "/usr/lib/arm-linux-gnueabihf/libpcap.so.0.8"
   else 
     LINK="/usr/lib/libpcap.so.0.8"
   fi

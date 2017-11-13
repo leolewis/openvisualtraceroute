@@ -85,8 +85,7 @@ public class JPcapPacketPoint extends AbstractPacketPoint {
 		final StringBuilder sb = new StringBuilder();
 		final EthernetPacket ethernet = (EthernetPacket) p.datalink;
 		sb.append("=====================================\n");
-		sb.append("= " + getProtocol() + " Packet [Src IP=" + p.src_ip.getHostAddress() + " Dest IP="
-				+ p.dst_ip.getHostAddress() + "]\n");
+		sb.append("= " + getProtocol() + " Packet [Src IP=" + p.src_ip.getHostAddress() + " Dest IP=" + p.dst_ip.getHostAddress() + "]\n");
 		sb.append("= Data length :" + getDataLength() + " bytes\n");
 		//		sb.append("= Priority :" + (int) p.priority + "\n");
 		sb.append("= Src mac :" + ethernet.getSourceAddress() + "\n");

@@ -43,10 +43,13 @@ Wish list :
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Release Note 
 1.7.0
-- DNS loc records feature
-- Upgrade world wind
-- Use system proxy when available, allow to specify user and password
-- Upgrade required Java version to 1.8
+- Feature: DNS loc records feature
+- Feature: Use system proxy when available, allow to specify user and password
+- Feature: Anti-aliasing fonts
+- Library: Upgrade world wind version
+- Library: Upgrade required Java version to 1.8
+- Fix    : Fix hanging network interface detection
+- Fix    : Increase geoip db download timeout to avoid issue on first startup
 
 1.6.5
 - Fix Fatal error IOException: Failed to download geoip database

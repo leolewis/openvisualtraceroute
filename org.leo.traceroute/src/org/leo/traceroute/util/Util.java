@@ -151,7 +151,7 @@ public final class Util {
 	 * @return list of String
 	 */
 	public static List<String> readUTF8File(final InputStream stream) {
-		final List<String> list = new ArrayList<String>();
+		final List<String> list = new ArrayList<>();
 		InputStreamReader isr = null;
 		BufferedReader br = null;
 		try {
@@ -401,8 +401,8 @@ public final class Util {
 
 	public static InputStream followRedirectOpenConnection(final String url) throws MalformedURLException, IOException {
 		HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-		connection.setConnectTimeout(100_000);
-		connection.setReadTimeout(100_000);
+		connection.setConnectTimeout(300_000);
+		connection.setReadTimeout(300_000);
 		connection.setInstanceFollowRedirects(true);
 		InputStream inputStream = connection.getInputStream();
 		int status = connection.getResponseCode();

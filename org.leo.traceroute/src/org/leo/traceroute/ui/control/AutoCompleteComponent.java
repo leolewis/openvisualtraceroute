@@ -19,20 +19,15 @@ package org.leo.traceroute.ui.control;
 
 import java.awt.AWTEvent;
 import java.awt.Toolkit;
-import java.awt.event.AWTEventListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.swing.JMenuItem;
@@ -88,7 +83,7 @@ public class AutoCompleteComponent implements IRouteListener, IWhoIsListener {
 
 	private ExecutorService _executor;
 
-	private final AtomicReference<Future<?>> _future = new AtomicReference<Future<?>>();
+	private final AtomicReference<Future<?>> _future = new AtomicReference<>();
 
 	private final AutoCompleteProvider _provider;
 
@@ -109,20 +104,12 @@ public class AutoCompleteComponent implements IRouteListener, IWhoIsListener {
 	 * Init the component
 	 */
 	protected void init() {
-		_executor = Executors.newFixedThreadPool(3, new ThreadFactory() {
-			@Override
-			public Thread newThread(final Runnable r) {
-				final Thread t = new Thread(r);
-				t.setDaemon(true);
-				t.setName("Autocomplete");
-				t.setUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-					@Override
-					public void uncaughtException(final Thread t, final Throwable e) {
-						LOGGER.error("Unexpected error", e);
-					}
-				});
-				return t;
-			}
+		_executor = Executors.newFixedThreadPool(3, r -> {
+			final Thread t = new Thread(r);
+			t.setDaemon(true);
+			t.setName("Autocomplete");
+			t.setUncaughtExceptionHandler((t1, e) -> LOGGER.error("Unexpected error", e));
+			return t;
 		});
 		_autocompleteInProgressItem = new JMenuItem();
 		_autocompleteInProgressItem.setIcon(Resources.getImageIcon("in_progress.gif"));
@@ -197,10 +184,8 @@ public class AutoCompleteComponent implements IRouteListener, IWhoIsListener {
 				// if not Up, Down nor Enter or UNDEFINED (used when selecting a
 				// kanji in the list of kanjis corresponding to the entered
 				// characters)
-				if (e.getKeyChar() != KeyEvent.VK_ENTER
-						&& e.getKeyChar() != KeyEvent.VK_ESCAPE
-						&& (key == KeyEvent.VK_UNDEFINED || (key != KeyEvent.VK_UP && key != KeyEvent.VK_KP_UP
-								&& key != KeyEvent.VK_DOWN && key != KeyEvent.VK_KP_DOWN && key != KeyEvent.VK_ENTER && key != KeyEvent.VK_ESCAPE))) {
+				if (e.getKeyChar() != KeyEvent.VK_ENTER && e.getKeyChar() != KeyEvent.VK_ESCAPE && (key == KeyEvent.VK_UNDEFINED || (key != KeyEvent.VK_UP
+						&& key != KeyEvent.VK_KP_UP && key != KeyEvent.VK_DOWN && key != KeyEvent.VK_KP_DOWN && key != KeyEvent.VK_ENTER && key != KeyEvent.VK_ESCAPE))) {
 					String search = null;
 					final String text = _autoCompleteTextField.getText();
 					boolean remove = false;
@@ -208,8 +193,7 @@ public class AutoCompleteComponent implements IRouteListener, IWhoIsListener {
 						remove = true;
 						// backspace char, need to remove the text before searching
 						if (text.length() > 1) {
-							if (_autoCompleteTextField.getSelectedText() != null
-									&& !"".equals(_autoCompleteTextField.getSelectedText())) {
+							if (_autoCompleteTextField.getSelectedText() != null && !"".equals(_autoCompleteTextField.getSelectedText())) {
 								search = text.substring(0, _autoCompleteTextField.getSelectionStart())
 										+ text.substring(_autoCompleteTextField.getSelectionEnd(), text.length());
 							} else if (_autoCompleteTextField.getCaretPosition() > 0) {
@@ -263,34 +247,27 @@ public class AutoCompleteComponent implements IRouteListener, IWhoIsListener {
 		// add global mouse click listener.
 		// the JPopupMenu hide on mouse click only if the target component take
 		// the focus which is not the case of the OGLPanel for example
-		Toolkit.getDefaultToolkit().addAWTEventListener(new AWTEventListener() {
-			@Override
-			public void eventDispatched(final AWTEvent event) {
-				final MouseEvent mouseEvent = (MouseEvent) event;
-				// click outside the popup, we hide the popup
-				if ((mouseEvent.getComponent().getParent() == null || mouseEvent.getComponent().getParent() != _popup)
-						&& mouseEvent.getClickCount() > 0) {
-					_popup.setVisible(false);
-				}
+		Toolkit.getDefaultToolkit().addAWTEventListener(event -> {
+			final MouseEvent mouseEvent = (MouseEvent) event;
+			// click outside the popup, we hide the popup
+			if ((mouseEvent.getComponent().getParent() == null || mouseEvent.getComponent().getParent() != _popup) && mouseEvent.getClickCount() > 0) {
+				_popup.setVisible(false);
 			}
 		}, AWTEvent.MOUSE_EVENT_MASK);
 	}
 
 	private void getAutoCompleteValues(final String search) {
-		final Future<?> f = _future.getAndSet(_executor.submit(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					final List<KeyValuePair<Integer>> values = _provider.getFromHistory(search);
-					final Future<?> current = _future.getAndSet(null);
-					if (current != null) {
-						// if null, been cancelled
-						asyncAutoComplete(values);
-					}
-				} catch (final Throwable e) {
-					LOGGER.error("Fail to get autocomplete", e);
-					JOptionPane.showMessageDialog(null, "failed " + Arrays.toString(ExceptionUtils.getStackFrames(e)));
+		final Future<?> f = _future.getAndSet(_executor.submit(() -> {
+			try {
+				final List<KeyValuePair<Integer>> values = _provider.getFromHistory(search);
+				final Future<?> current = _future.getAndSet(null);
+				if (current != null) {
+					// if null, been cancelled
+					asyncAutoComplete(values);
 				}
+			} catch (final Throwable e) {
+				LOGGER.error("Fail to get autocomplete", e);
+				JOptionPane.showMessageDialog(null, "failed " + Arrays.toString(ExceptionUtils.getStackFrames(e)));
 			}
 		}));
 		if (f != null) {
@@ -312,65 +289,57 @@ public class AutoCompleteComponent implements IRouteListener, IWhoIsListener {
 	}
 
 	public void asyncAutoComplete(final List<KeyValuePair<Integer>> autoCompleteFromIndex) {
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					_popup.removeAll();
-					// if null or empty, we hide the component
-					if (autoCompleteFromIndex == null || autoCompleteFromIndex.isEmpty()) {
-						_popup.setVisible(false);
-					} else {
-						for (int i = 0; i < autoCompleteFromIndex.size(); i++) {
-							final String value = autoCompleteFromIndex.get(i).getKey().toString();
-							final JMenuItem menuItem = new JMenuItem(value);
+		SwingUtilities.invokeLater(() -> {
+			try {
+				_popup.removeAll();
+				// if null or empty, we hide the component
+				if (autoCompleteFromIndex == null || autoCompleteFromIndex.isEmpty()) {
+					_popup.setVisible(false);
+				} else {
+					for (int i = 0; i < autoCompleteFromIndex.size(); i++) {
+						final String value = autoCompleteFromIndex.get(i).getKey().toString();
+						final JMenuItem menuItem = new JMenuItem(value);
 
-							menuItem.addActionListener(new ActionListener() {
-								@Override
-								public void actionPerformed(final ActionEvent e) {
+						menuItem.addActionListener(e -> searchWordsAndSetTextField(value));
+						menuItem.addKeyListener(new KeyAdapter() {
+							@Override
+							public void keyPressed(final KeyEvent e) {
+								if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 									searchWordsAndSetTextField(value);
 								}
-							});
-							menuItem.addKeyListener(new KeyAdapter() {
-								@Override
-								public void keyPressed(final KeyEvent e) {
-									if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-										searchWordsAndSetTextField(value);
-									}
-								}
-							});
-							// highlight/unhighlight manually the item on mouse
-							// entered/exited
-							// some JDK bug ?
-							menuItem.addMouseListener(new MouseAdapter() {
-								@Override
-								public void mouseEntered(final MouseEvent evt) {
-									menuItem.setBackground(UIManager.getColor("MenuItem.selectionBackground"));
-									menuItem.setForeground(UIManager.getColor("MenuItem.selectionForeground"));
-								}
+							}
+						});
+						// highlight/unhighlight manually the item on mouse
+						// entered/exited
+						// some JDK bug ?
+						menuItem.addMouseListener(new MouseAdapter() {
+							@Override
+							public void mouseEntered(final MouseEvent evt) {
+								menuItem.setBackground(UIManager.getColor("MenuItem.selectionBackground"));
+								menuItem.setForeground(UIManager.getColor("MenuItem.selectionForeground"));
+							}
 
-								@Override
-								public void mouseExited(final MouseEvent evt) {
-									menuItem.setBackground(UIManager.getColor("MenuItem.background"));
-									menuItem.setForeground(UIManager.getColor("MenuItem.foreground"));
-								}
-							});
-							_popup.add(menuItem);
-						}
-
-						if (!_popup.isVisible()) {
-							showPopup();
-						} else {
-							_popup.revalidate();
-						}
-						packPopup();
-
-						// give back the focus to the textfield
-						_autoCompleteTextField.requestFocus();
+							@Override
+							public void mouseExited(final MouseEvent evt) {
+								menuItem.setBackground(UIManager.getColor("MenuItem.background"));
+								menuItem.setForeground(UIManager.getColor("MenuItem.foreground"));
+							}
+						});
+						_popup.add(menuItem);
 					}
-				} catch (final Exception e) {
-					LOGGER.warn("Not a big deal error", e);
+
+					if (!_popup.isVisible()) {
+						showPopup();
+					} else {
+						_popup.revalidate();
+					}
+					packPopup();
+
+					// give back the focus to the textfield
+					_autoCompleteTextField.requestFocus();
 				}
+			} catch (final Exception e) {
+				LOGGER.warn("Not a big deal error", e);
 			}
 		});
 	}
@@ -380,14 +349,11 @@ public class AutoCompleteComponent implements IRouteListener, IWhoIsListener {
 		if (Env.INSTANCE.getOs() == OS.mac) {
 			// workaround for Mac, the textfield content got selected when showing the popup.
 			// force unselect, otherwise typing will replace the text field content which is selected
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						_autoCompleteTextField.setCaretPosition(_autoCompleteTextField.getCaretPosition());
-					} catch (final Exception e) {
-						LOGGER.warn("Not a big deal error", e);
-					}
+			SwingUtilities.invokeLater(() -> {
+				try {
+					_autoCompleteTextField.setCaretPosition(_autoCompleteTextField.getCaretPosition());
+				} catch (final Exception e) {
+					LOGGER.warn("Not a big deal error", e);
 				}
 			});
 		}

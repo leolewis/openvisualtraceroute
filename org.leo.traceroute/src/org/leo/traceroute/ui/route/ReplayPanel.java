@@ -17,8 +17,6 @@
  */
 package org.leo.traceroute.ui.route;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -76,39 +74,36 @@ public class ReplayPanel extends AbstractRoutePanel {
 		_replayButton = new JButton(Resources.getImageIcon("play.png"));
 		_replayButton.setToolTipText(Resources.getLabel("replay.tooltip"));
 		_replayButton.setEnabled(false);
-		_replayButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(final ActionEvent e) {
-				if (traceRoute.size() <= 1) {
-					return;
+		_replayButton.addActionListener(e -> {
+			if (traceRoute.size() <= 1) {
+				return;
+			}
+			if (_isReplaying) {
+				stopReplay(false, true);
+			} else {
+				_isReplaying = true;
+				if (_routeSelectedIndex >= traceRoute.size() - 1) {
+					_routeSelectedIndex = 0;
 				}
-				if (_isReplaying) {
-					stopReplay(false, true);
-				} else {
-					_isReplaying = true;
-					if (_routeSelectedIndex >= traceRoute.size() - 1) {
-						_routeSelectedIndex = 0;
-					}
-					_timer = new Timer();
-					_timer.schedule(new TimerTask() {
-						@Override
-						public void run() {
-							if (_routeSelectedIndex == UNSET) {
-								return;
-							}
-							if (traceRoute.getRoute().size() > _routeSelectedIndex) {
-								traceRoute.focus(traceRoute.getRoute().get(_routeSelectedIndex), true);
-								_routeSelectedIndex++;
-							}
-							if (_routeSelectedIndex >= traceRoute.size()) {
-								stopReplay(false, true);
-								_routeSelectedIndex = 0;
-							}
+				_timer = new Timer();
+				_timer.schedule(new TimerTask() {
+					@Override
+					public void run() {
+						if (_routeSelectedIndex == UNSET) {
+							return;
 						}
-					}, 0, Env.INSTANCE.getReplaySpeed());
-					_replayButton.setIcon(Resources.getImageIcon("pause.png"));
-					_statusPanel.showMessage(Resources.getLabel("replay.in.pogress"), true);
-				}
+						if (traceRoute.getRoute().size() > _routeSelectedIndex) {
+							traceRoute.focus(traceRoute.getRoute().get(_routeSelectedIndex), true);
+							_routeSelectedIndex++;
+						}
+						if (_routeSelectedIndex >= traceRoute.size()) {
+							stopReplay(false, true);
+							_routeSelectedIndex = 0;
+						}
+					}
+				}, 0, Env.INSTANCE.getReplaySpeed());
+				_replayButton.setIcon(Resources.getImageIcon("pause.png"));
+				_statusPanel.showMessage(Resources.getLabel("replay.in.pogress"), true);
 			}
 		});
 	}
