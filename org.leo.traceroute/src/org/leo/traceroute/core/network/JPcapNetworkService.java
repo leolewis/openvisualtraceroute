@@ -88,7 +88,7 @@ public class JPcapNetworkService extends AbstractObject<INetworkInterfaceListene
 			ExecutorService executor = null;
 			try {
 				final NetworkInterface[] netInterfaces = JpcapCaptor.getDeviceList();
-				executor = Executors.newFixedThreadPool(1);
+				executor = Executors.newFixedThreadPool(3);
 				final List<Pair<String, Future<Pair<NetworkInterface, byte[]>>>> futures = new ArrayList<>();
 				for (int i = 0; i < netInterfaces.length; i++) {
 					final int fi = i;
@@ -117,7 +117,6 @@ public class JPcapNetworkService extends AbstractObject<INetworkInterfaceListene
 						return Pair.of(netInterface, getwayMac);
 					})));
 				}
-				LOGGER.info("int " + netInterfaces.length);
 				for (final Pair<String, Future<Pair<NetworkInterface, byte[]>>> f : futures) {
 					try {
 						final Pair<NetworkInterface, byte[]> res = f.getValue().get(2000, TimeUnit.MILLISECONDS);

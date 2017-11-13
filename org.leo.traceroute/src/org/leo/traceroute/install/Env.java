@@ -499,7 +499,7 @@ public enum Env {
 			_useOSTraceroute = Boolean.parseBoolean(_conf.getProperty(USE_OS_TR, "false"));
 			_fullScreen = Boolean.parseBoolean(_conf.getProperty(FULL_SCREEN, "false"));
 			_is3dMap = Env.INSTANCE.isOpenGLAvailable() ? Boolean.parseBoolean(_conf.getProperty(IS_3D, "true")) : false;
-			_mode = Mode.valueOf(_conf.getProperty(MODE, Mode.TRACE_ROUTE.name()));
+			_mode = Mode.TRACE_ROUTE;// Mode.valueOf(_conf.getProperty(MODE, Mode.TRACE_ROUTE.name()));
 			_snifferInterfaceIndex = Integer.parseInt(_conf.getProperty(SNIFFER_INTERFACE, "-1"));
 			_trInterfaceIndex = Integer.parseInt(_conf.getProperty(TR_INTERFACE, "-1"));
 			//_tracerouteAnonymous = Boolean.parseBoolean(conf.getProperty(TRACEROUTE_ANONYMOUS, "false"));
