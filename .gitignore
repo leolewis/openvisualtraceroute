@@ -1,3 +1,4 @@
 org.leo.traceroute/tmp/*
 org.leo.traceroute/.svn/*
 org.leo.traceroute/product/*
+org.leo.traceroute/released/OpenVisualTraceroute.app/*
