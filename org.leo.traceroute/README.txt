@@ -23,8 +23,8 @@ OS/Arch notice :
 Tested on the following systems :
 - Windows 10 64 bits
 - Ubuntu 17.10 64 bits
-- Linux Mint 18 64 bits
-- OpenSUSE Leap 42.1
+- Linux Mint 18.2 MATE 64 bits
+- OpenSUSE Leap 42.3 64 bits KDE
 - MacOS X 10.10
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

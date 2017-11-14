@@ -512,7 +512,7 @@ public enum Env {
 			_mapShowLabel = Boolean.parseBoolean(_conf.getProperty(MAP_SHOW_LABEL, "true"));
 			_appX = _conf.containsKey(APP_X) ? Integer.parseInt(_conf.getProperty(APP_X)) : null;
 			_appY = _conf.containsKey(APP_Y) ? Integer.parseInt(_conf.getProperty(APP_Y)) : null;
-			final String fontName = _conf.getProperty(FONT_NAME, "Serif");
+			final String fontName = _conf.getProperty(FONT_NAME, "SansSerif");
 			final int fontSize = Integer.parseInt(_conf.getProperty(FONT_SIZE, "9"));
 			final int fontStyle = Integer.parseInt(_conf.getProperty(FONT_STYLE, String.valueOf(Font.PLAIN)));
 			_font = new Font(fontName, fontStyle, fontSize);
