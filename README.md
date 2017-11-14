@@ -40,12 +40,10 @@ Limitations, Known issues :
 Wish list : 
 - ipv6 support
 - traceroute server mode
-
---------------------------------------------
 - display active connections
 - export and import traceroute data
  
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------------------
 Release Note 
 1.7.0
 - Feature: DNS loc records feature
