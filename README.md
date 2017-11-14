@@ -5,7 +5,7 @@ Open source cross-platform (Windows/Linux/Mac) Java Visual Traceroute, packet sn
 ~~~~~~~ Open Visual Trace Route ~~~~~~~ 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Version 1.6.5
+Version 1.7.0
 I could successfully make this version on multiple systems, but my tests do not cover everything, so if you find a bug, a typo in some label feel free to post a bug report and/or fix
 - on Sourceforge http://sourceforge.net/projects/openvisualtrace/
 - or by email at leo.lewis.software@gmail.com
@@ -24,10 +24,10 @@ See http://visualtraceroute.net/installation
 --------------------------------------------
 OS/Arch notice :
 Tested on the following systems :
-- Windows 7, 8 64 bits
-- Ubuntu 14.04 64 bits
-- Linux Mint 18 64 bits
-- OpenSUSE Leap 42.1
+- Windows 10 64 bits
+- Ubuntu 17.10 64 bits
+- Linux Mint 18.2 MATE 64 bits
+- OpenSUSE Leap 42.3 64 bits KDE
 - MacOS X 10.10
 
 --------------------------------------------
@@ -38,14 +38,23 @@ Limitations, Known issues :
 
 --------------------------------------------
 Wish list : 
-- import a LOC records file
-- manual override geop ip data
 - ipv6 support
 - traceroute server mode
 
 --------------------------------------------
+- display active connections
+- export and import traceroute data
+ 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Release Note 
+1.7.0
+- Feature: DNS loc records feature
+- Feature: Use system proxy when available, allow to specify user and password
+- Feature: Anti-aliasing fonts
+- Library: Upgrade world wind version
+- Library: Upgrade required Java version to 1.8
+- Fix    : Fix hanging network interface detection
+- Fix    : Increase geoip db download timeout to avoid issue on first startup
 
 1.6.5
 - Fix Fatal error IOException: Failed to download geoip database
