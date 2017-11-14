@@ -20,12 +20,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  $Id: build.xml 290 2016-12-31 19:36:34Z leolewis $
 -->
 <project name="traceroute" basedir="." default="make_universal">
-	
+
 	<path id="ant.classpath">
 		<fileset dir="${basedir}/build/linux/" includes="*.jar" />
 		<fileset dir="${basedir}/build/mac/" includes="*.jar" />
 	</path>
-		
+
 	<taskdef resource="ant_deb_task.properties" classpathref="ant.classpath" />
 	<taskdef name="redline" classname="org.redline_rpm.ant.RedlineTask" classpath="${basedir}/build/linux/redline-1.2.2-jar-with-dependencies.jar" />
 
@@ -210,17 +210,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 		</exec>
 	</target>
 	<target name="package_mac">
-		<taskdef name="jarbundler" classname="net.sourceforge.jarbundler.JarBundler" classpathref="ant.classpath" />
-		<jarbundler dir="product" name="OpenVisualTraceroute" mainclass="org.leo.traceroute.Main" jvmversion="1.8+" version="${version}" icon="build/mac/icon.icns">
+		<taskdef name="jarbundler" classname="com.ultramixer.jarbundler.JarBundler" classpathref="ant.classpath" />
+		<jarbundler dir="product" name="OpenVisualTraceroute" mainclass="org.leo.traceroute.Main" 
+			jvmversion="1.8+" version="${version}" icon="build/mac/icon.icns" 
+			bundleid="org.leo.traceroute.Main" signature="ovtr" build="0" antialiasedtext="true" antialiasedgraphics="true"
+		    stubfile="build/mac/universalJavaApplicationStub" useJavaXKey="true">
 			<jarfileset dir="product">
 				<include name="resources/*.*" />
 				<include name="*.jar" />
-				<include name="*.exe" />
 				<include name="**/*.jar" />
+				<exclude name="*.exe" />
 				<exclude name="**/*windows*.jar" />
 				<exclude name="**/*linux*.jar" />
 				<exclude name="**/*.exe" />
 			</jarfileset>
+			<javaproperty name="apple.laf.useScreenMenuBar" value="true" />
+			<javaproperty name="apple.awt.brushMetal" value="true" />
+			<javaproperty name="apple.awt.showGrowBox" value="false" />
+			<javaproperty name="com.apple.mrj.application.apple.menu.about.name" value="OpenVisualTraceroute" />
+			<javaproperty name="apple.awt.textantialiasing" value="true" />
 		</jarbundler>
 	</target>
 	<target name="installer_mac">
@@ -249,19 +257,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 	<target name="installer_deb">
 
-		<desktopentry toFile="${basedir}/product/ovtr.desktop" name="Open Visual Traceroute" comment="Traceroute that displays route data in a map component." 
-			exec="/usr/share/${appli.name}/gksu_ovtr.sh" path="/usr/share/${appli.name}/" 
-			icon="/usr/share/${appli.name}/resources/icon.png" categories="Utility;" terminal="false" type="Application" />
+		<desktopentry toFile="${basedir}/product/ovtr.desktop" name="Open Visual Traceroute" comment="Traceroute that displays route data in a map component." exec="/usr/share/${appli.name}/gksu_ovtr.sh" path="/usr/share/${appli.name}/" icon="/usr/share/${appli.name}/resources/icon.png" categories="Utility;" terminal="false" type="Application" />
 
-		<deb todir="${basedir}/released/" package="ovtr" architecture="i386" section="utils" 
-			depends="gksu, traceroute, whois, openjdk-8-jre-headless | openjdk-8-jdk" version="${version.full}">
+		<deb todir="${basedir}/released/" package="ovtr" architecture="i386" section="utils" depends="gksu, traceroute, whois, openjdk-8-jre-headless | openjdk-8-jdk" version="${version.full}">
 			<version upstream="${version.full}" />
 			<maintainer name="Leo Lewis" email="leo.lewis.software@gmail.com" />
 			<description synopsis="OpenVisualTraceroute">
 		OpenVisualTraceroute
 			</description>
-			
-			<tarfileset dir="product/" prefix="usr/share/${appli.name}" filemode="755" >
+
+			<tarfileset dir="product/" prefix="usr/share/${appli.name}" filemode="755">
 				<include name="*.sh" />
 			</tarfileset>
 
@@ -279,15 +284,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 			</tarfileset>
 			<tarfileset file="${basedir}/product/ovtr.desktop" prefix="usr/share/applications" />
 		</deb>
-		<deb todir="${basedir}/released/" package="ovtr" architecture="amd64" section="utils" 
-			depends="gksu, traceroute, whois, openjdk-8-jre-headless | openjdk-8-jdk" version="${version.full}">
+		<deb todir="${basedir}/released/" package="ovtr" architecture="amd64" section="utils" depends="gksu, traceroute, whois, openjdk-8-jre-headless | openjdk-8-jdk" version="${version.full}">
 			<version upstream="${version.full}" />
 			<maintainer name="Leo Lewis" email="leo.lewis.software@gmail.com" />
 			<description synopsis="OpenVisualTraceroute">
 				OpenVisualTraceroute
 			</description>
-			
-			<tarfileset dir="product/" prefix="usr/share/${appli.name}" filemode="755" >
+
+			<tarfileset dir="product/" prefix="usr/share/${appli.name}" filemode="755">
 				<include name="*.sh" />
 			</tarfileset>
 
@@ -307,11 +311,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 		</deb>
 	</target>
 	<target name="installer_rpm">
-		
-		<desktopentry toFile="${basedir}/product/ovtr.desktop" name="Open Visual Traceroute" comment="Traceroute that displays route data in a map component." 
-			exec="/usr/share/${appli.name}/ovtr.sh" path="/usr/share/${appli.name}/" 
-			icon="/usr/share/${appli.name}/resources/icon.png" categories="Utility;" terminal="true" type="Application" />
-		
+
+		<desktopentry toFile="${basedir}/product/ovtr.desktop" name="Open Visual Traceroute" comment="Traceroute that displays route data in a map component." exec="/usr/share/${appli.name}/ovtr.sh" path="/usr/share/${appli.name}/" icon="/usr/share/${appli.name}/resources/icon.png" categories="Utility;" terminal="true" type="Application" />
+
 		<delete dir="${basedir}/product/rpm" />
 		<mkdir dir="${basedir}/product/rpm" />
 		<copy todir="${basedir}/product/rpm">
@@ -333,11 +335,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 			<rpmfileset prefix="/usr/share/applications" file="product/ovtr.desktop" />
 			<rpmfileset prefix="/usr/share/${appli.name}" file="product/rpm/*.txt" />
 			<rpmfileset prefix="/usr/share/${appli.name}" file="product/rpm/*.jar" />
-			<rpmfileset prefix="/usr/share/${appli.name}" file="product/rpm/*.sh" filemode="755"/>
+			<rpmfileset prefix="/usr/share/${appli.name}" file="product/rpm/*.sh" filemode="755" />
 			<rpmfileset prefix="/usr/share/${appli.name}/resources" file="product/rpm/resources/*.*" />
 			<rpmfileset prefix="/usr/share/${appli.name}/native/linux/x86" file="product/rpm/native/linux/x86/*.*" />
 			<rpmfileset prefix="/usr/share/${appli.name}/lib" file="product/rpm/lib/*.*" />
-			<depends name="java" version=">= 1.8"/>
+			<depends name="java" version=">= 1.8" />
 			<depends name="polkit" />
 			<depends name="jwhois" />
 			<depends name="traceroute" />
@@ -363,11 +365,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 			<rpmfileset prefix="/usr/share/applications" file="product/ovtr.desktop" />
 			<rpmfileset prefix="/usr/share/${appli.name}" file="product/rpm/*.txt" />
 			<rpmfileset prefix="/usr/share/${appli.name}" file="product/rpm/*.jar" />
-			<rpmfileset prefix="/usr/share/${appli.name}" file="product/rpm/*.sh" filemode="755"/>
+			<rpmfileset prefix="/usr/share/${appli.name}" file="product/rpm/*.sh" filemode="755" />
 			<rpmfileset prefix="/usr/share/${appli.name}/resources" file="product/rpm/resources/*.*" />
 			<rpmfileset prefix="/usr/share/${appli.name}/native/linux/x64" file="product/rpm/native/linux/x64/*.*" />
 			<rpmfileset prefix="/usr/share/${appli.name}/lib" file="product/rpm/lib/*.*" />
-			<depends name="java" version=">= 1.8"/>
+			<depends name="java" version=">= 1.8" />
 			<depends name="polkit" />
 			<depends name="jwhois" />
 			<depends name="traceroute" />

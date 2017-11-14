@@ -3,10 +3,10 @@ Main-Class: org.leo.traceroute.Main
 Bundle-ManifestVersion: 2
 Bundle-Name: Open Visual TraceRoute
 Bundle-SymbolicName: org.leo.traceroute;singleton:=true
-Bundle-Version: 1.6.3
+Bundle-Version: 1.7.0
 Bundle-Vendor: Leo Lewis
 Bundle-Localization: plugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Class-Path: .
   lib/jogl-all-natives-linux-i586.jar
