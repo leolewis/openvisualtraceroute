@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Open Visual Traceroute"
-#define MyAppVersion "1.6.6"
+#define MyAppVersion "1.7.0"
 #define MyAppPublisher "Leo Lewis"
 #define MyAppURL "https://sourceforge.net/projects/openvisualtrace/"
 #define MyAppExeName "ovtr.exe"
