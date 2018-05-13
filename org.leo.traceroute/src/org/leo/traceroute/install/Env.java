@@ -36,6 +36,7 @@ import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.URI;
+import java.security.cert.CertificateException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -53,6 +54,13 @@ import javax.media.opengl.GLContext;
 import javax.media.opengl.GLDrawable;
 import javax.media.opengl.GLDrawableFactory;
 import javax.media.opengl.GLProfile;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import javax.security.cert.X509Certificate;
 import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
@@ -516,6 +524,44 @@ public enum Env {
 			final int fontSize = Integer.parseInt(_conf.getProperty(FONT_SIZE, "9"));
 			final int fontStyle = Integer.parseInt(_conf.getProperty(FONT_STYLE, String.valueOf(Font.PLAIN)));
 			_font = new Font(fontName, fontStyle, fontSize);
+			if (!Boolean.parseBoolean(_conf.getProperty("strictSSL", "false"))) {
+				try {
+					final TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+						@Override
+						public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+							return null;
+						}
+
+						public void checkClientTrusted(final X509Certificate[] certs, final String authType) {
+						}
+
+						public void checkServerTrusted(final X509Certificate[] certs, final String authType) {
+						}
+
+						@Override
+						public void checkClientTrusted(final java.security.cert.X509Certificate[] chain, final String authType) throws CertificateException {
+						}
+
+						@Override
+						public void checkServerTrusted(final java.security.cert.X509Certificate[] chain, final String authType) throws CertificateException {
+						}
+					} };
+
+					final SSLContext sc = SSLContext.getInstance("SSL");
+					sc.init(null, trustAllCerts, new java.security.SecureRandom());
+					HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+					final HostnameVerifier allHostsValid = new HostnameVerifier() {
+						@Override
+						public boolean verify(final String hostname, final SSLSession session) {
+							return true;
+						}
+					};
+					HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+				} catch (final Exception e) {
+					LOGGER.error("Fail to set non strict SSL", e);
+				}
+			}
 		} finally {
 			IOUtils.closeQuietly(is);
 		}
