@@ -12,11 +12,10 @@ Class-Path: .
   lib/jogl-all-natives-linux-i586.jar
   lib/gluegen-rt-natives-linux-amd64.jar
   lib/gluegen-rt-natives-windows-amd64.jar
-  lib/jackson-databind-2.5.3.jar
   lib/httpcore-4.0.1.jar
   lib/worldwind.jar
   lib/jogl-all.jar
-  lib/maxmind-db-1.0.1.jar
+  lib/maxmind-db-1.2.2.jar
   lib/jogl-all-natives-windows-amd64.jar
   lib/logback-core-1.1.1.jar
   lib/jpcap.jar
@@ -27,11 +26,13 @@ Class-Path: .
   lib/jogl-all-natives-windows-i586.jar
   lib/concurrent-trees-2.3.0.jar
   lib/guava-18.0.jar
-  lib/jackson-annotations-2.5.0.jar
+  lib/jackson-databind-2.9.5.jar
+  lib/jackson-annotations-2.9.5.jar
+  lib/jackson-core-2.9.5.jar
   lib/jcommon-1.0.23.jar
   lib/commons-codec-1.3.jar
   lib/jfreechart-1.0.19.jar
-  lib/geoip-api-1.3.0.jar
+  lib/geoip2-2.12.0.jar
   lib/gluegen-rt-natives-windows-i586.jar
   lib/jnetpcap.jar
   lib/commons-logging-1.1.1.jar
@@ -50,6 +51,6 @@ Class-Path: .
   lib/jogl-all-natives-macosx-universal.jar
   lib/jetty-http-9.1.3.v20140225.jar
   lib/logback-classic-1.1.1.jar
-  lib/jackson-core-2.5.3.jar
   lib/jfontchooser-1.0.5.jar
+  lib/commons-compress-1.17.jar
   resources/

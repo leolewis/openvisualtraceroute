@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -42,8 +44,11 @@ import org.leo.traceroute.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.maxmind.geoip.Location;
-import com.maxmind.geoip.LookupService;
+import com.maxmind.db.Reader.FileMode;
+import com.maxmind.geoip2.DatabaseReader;
+import com.maxmind.geoip2.model.CityResponse;
+import com.maxmind.geoip2.record.City;
+import com.maxmind.geoip2.record.Country;
 
 /**
  * GeoService $Id: GeoService.java 272 2016-09-22 05:38:31Z leolewis $
@@ -62,7 +67,7 @@ public class GeoService implements IComponent {
 	private final static String UNKNOWN_LOCATION = "(Unknown)";
 
 	/** City lookup service */
-	protected LookupService _lookupService;
+	protected DatabaseReader _lookupService;
 
 	/** Public IP */
 	protected Pair<String, InetAddress> _publicIp;
@@ -72,9 +77,10 @@ public class GeoService implements IComponent {
 	private boolean _deleteDbOnClose;
 
 	/** DNS loc records */
-	private final Map<String, Location> _locRecords = new HashMap<>();
+	private final Map<String, CityResponse> _locRecords = new HashMap<>();
 	/** DNS loc records (raw)*/
 	private final List<LocRecord> _rawLocRecords = new ArrayList<>();
+	private final Map<String, LocRecord> _rawLocRecordsMap = new HashMap<>();
 
 	/**
 	 * @see org.leo.traceroute.core.IComponent#init(org.leo.traceroute.core.ServiceFactory)
@@ -86,6 +92,7 @@ public class GeoService implements IComponent {
 
 	private void doInit(final ServiceFactory services, int retry) throws IOException {
 		GZIPInputStream gzis = null;
+		TarArchiveInputStream tis = null;
 		FileOutputStream out = null;
 		try {
 			if (Env.GEO_DATA_FILE.exists() && (Env.GEO_DATA_FILE.lastModified() + TimeUnit.DAYS.toMillis(30)) < System.currentTimeMillis()) {
@@ -103,9 +110,18 @@ public class GeoService implements IComponent {
 				LOGGER.info("Downloading GeoIP database to " + Env.GEO_DATA_FILE.getAbsolutePath() + "...");
 				final byte[] buffer = new byte[1024];
 				gzis = new GZIPInputStream(Util.followRedirectOpenConnection(url));
+				tis = new TarArchiveInputStream(gzis);
+				TarArchiveEntry tarEntry = null;
+
+				// tarIn is a TarArchiveInputStream
+				while ((tarEntry = tis.getNextTarEntry()) != null) {
+					if (tarEntry.getName().endsWith(Env.GEO_DATA_FILE.getName())) {
+						break;
+					}
+				}
 				out = new FileOutputStream(Env.GEO_DATA_FILE);
 				int len;
-				while ((len = gzis.read(buffer)) > 0) {
+				while ((len = tis.read(buffer)) > 0) {
 					out.write(buffer, 0, len);
 				}
 				out.flush();
@@ -117,11 +133,12 @@ public class GeoService implements IComponent {
 			}
 		} finally {
 			IOUtils.closeQuietly(gzis);
+			IOUtils.closeQuietly(tis);
 			IOUtils.closeQuietly(out);
 		}
 		// init lookup service
 		services.updateStartup("init.geoip", retry == 0);
-		_lookupService = new LookupService(Env.GEO_DATA_FILE, LookupService.GEOIP_MEMORY_CACHE | LookupService.GEOIP_CHECK_CACHE);
+		_lookupService = new DatabaseReader.Builder(Env.GEO_DATA_FILE).fileMode(FileMode.MEMORY).build();
 
 		// public IP
 		services.updateStartup("init.public.ip", retry == 0);
@@ -168,7 +185,7 @@ public class GeoService implements IComponent {
 	}
 
 	public <P extends GeoPoint> P populateGeoDataForIP(final P point, final String ip, final String dns, final P pointIfUnknown) {
-		Location location = null;
+		CityResponse location = null;
 		try {
 			point.setIp(ip);
 			// check loc records
@@ -183,26 +200,26 @@ public class GeoService implements IComponent {
 			}
 			// nothing in the loc records, check with the geoip db
 			if (location == null) {
-				location = _lookupService.getLocation(ip);
+				location = _lookupService.city(InetAddress.getByName(ip));
 			}
 			if (location != null) {
-				final String city = location.city;
-				final String country = location.countryName;
-				float lat = location.latitude;
-				float lon = location.longitude;
-				if (city == null || "".equals(city)) {
+				final City city = location.getCity();
+				final Country country = location.getCountry();
+				float lat = location.getLocation().getLatitude().floatValue();
+				float lon = location.getLocation().getLongitude().floatValue();
+				if (city == null || city.getName() == null || "".equals(city.getName())) {
 					point.setTown(UNKNOWN_LOCATION);
 					if (pointIfUnknown != null && pointIfUnknown.getCountry().equals(country)) {
 						lat = pointIfUnknown.getLat();
 						lon = pointIfUnknown.getLon();
 					}
 				} else {
-					point.setTown(city);
+					point.setTown(city.getName());
 				}
-				if (country == null || "".equals(country)) {
+				if (country == null || country.getName() == null || "".equals(country.getName())) {
 					point.setCountry(UNKNOWN_LOCATION);
 				} else {
-					point.setCountry(country);
+					point.setCountry(country.getName());
 				}
 				if (lat == 0f && lon == 0f) {
 					point.setUnknownGeo(true);
@@ -210,7 +227,7 @@ public class GeoService implements IComponent {
 					point.setLat(lat);
 					point.setLon(lon);
 				}
-				point.setCountryIso(location.countryCode);
+				point.setCountryIso(location.getCountry().getIsoCode());
 				if (ip.equals("239.255.255.250")) {
 					point.setCountry("SSDP");
 					point.setTown("SSDP");
@@ -255,7 +272,11 @@ public class GeoService implements IComponent {
 	@Override
 	public void dispose() {
 		if (_lookupService != null) {
-			_lookupService.close();
+			try {
+				_lookupService.close();
+			} catch (final IOException e) {
+				LOGGER.warn("Failed to closed GeoIP db", e);
+			}
 		}
 		if (_deleteDbOnClose) {
 			LOGGER.info("Delete " + Env.GEO_DATA_FILE.getAbsolutePath() + " to force redownloading the file on next startup");
@@ -309,12 +330,14 @@ public class GeoService implements IComponent {
 
 	private void addLocRecord(final LocRecord record) {
 		if (record.isValid()) {
-			final Location old = _locRecords.put(record.getOwner(), record.getLocation());
+			final CityResponse old = _locRecords.put(record.getOwner(), record.getLocation());
 			if (old != null) {
-				_rawLocRecords.remove(old);
+				final LocRecord o = _rawLocRecordsMap.remove(record.getOwner());
+				_rawLocRecords.remove(o);
 			}
 		}
 		_rawLocRecords.add(record);
+		_rawLocRecordsMap.put(record.getOwner(), record);
 	}
 
 	/**

@@ -18,7 +18,13 @@
  */
 package org.leo.traceroute.core.geo;
 
-import com.maxmind.geoip.Location;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.maxmind.geoip2.model.CityResponse;
+import com.maxmind.geoip2.record.City;
+import com.maxmind.geoip2.record.Country;
+import com.maxmind.geoip2.record.Location;
 
 import gov.nasa.worldwind.geom.Angle;
 
@@ -34,7 +40,7 @@ public class LocRecord {
 	private static final String SPACE = " ";
 
 	private final String raw;
-	private Location location;
+	private CityResponse location;
 	private boolean valid;
 	private String owner;
 
@@ -137,12 +143,13 @@ public class LocRecord {
 		// caclulate location
 		final float lat = (north ? 1 : -1) * d1 + m1 / 60f + s1 / 3600f;
 		final float lon = (east ? 1 : -1) * d2 + m2 / 60f + s2 / 3600f;
-		location = new Location();
-		location.countryCode = LOC;
-		location.countryName = "Loc record";
-		location.city = location.countryName;
-		location.latitude = lat;
-		location.longitude = lon;
+
+		final Map<String, String> names = new HashMap<>();
+		names.put("name", "Loc record");
+		final City city = new City(null, null, null, names);
+		final Country country = new Country(null, 0, 0, LOC, names);
+		final Location loc = new Location(0, 0, (double) lat, (double) lon, null, null, null);
+		location = new CityResponse(city, null, country, loc, null, null, null, null, null, null);
 		valid = true;
 	}
 
@@ -159,11 +166,12 @@ public class LocRecord {
 				.append(SPACE);
 		sb.append("0m").append(SPACE).append("0m").append(SPACE).append("0m").append(SPACE).append("0m");
 		raw = sb.toString();
-		location = new Location();
-		location.countryCode = LOC;
-		location.countryName = "Loc record";
-		location.latitude = (float) lat;
-		location.longitude = (float) lon;
+		final Map<String, String> names = new HashMap<>();
+		names.put("name", "Loc record");
+		final City city = new City(null, null, null, names);
+		final Country country = new Country(null, 0, 0, LOC, names);
+		final Location loc = new Location(0, 0, lat, lon, null, null, null);
+		location = new CityResponse(city, null, country, loc, null, null, null, null, null, null);
 		valid = true;
 	}
 
@@ -179,7 +187,7 @@ public class LocRecord {
 	 * Return the value of the field location
 	 * @return the value of location
 	 */
-	public Location getLocation() {
+	public CityResponse getLocation() {
 		return location;
 	}
 

@@ -167,8 +167,8 @@ public enum Env {
 	public static final File OVTR_FOLDER = new File(System.getProperty("user.home") + Util.FILE_SEPARATOR + "ovtr");
 
 	/** Put it into the tmp folder (to be sure the user has access to it) */
-	public static final File GEO_DATA_FILE = new File(OVTR_FOLDER.getAbsolutePath() + Util.FILE_SEPARATOR + "GeoLiteCity.dat");
-	public static final File GEO_DATA_FILE_OLD = new File(OVTR_FOLDER.getAbsolutePath() + Util.FILE_SEPARATOR + "GeoLiteCity.dat.old");
+	public static final File GEO_DATA_FILE = new File(OVTR_FOLDER.getAbsolutePath() + Util.FILE_SEPARATOR + "GeoLite2-City.mmdb");
+	public static final File GEO_DATA_FILE_OLD = new File(OVTR_FOLDER.getAbsolutePath() + Util.FILE_SEPARATOR + "GeoLite2-City.mmdb.old");
 	public static final File HISTORY = new File(OVTR_FOLDER.getAbsolutePath() + Util.FILE_SEPARATOR + "ovtr.history");
 
 	/** Config file */
@@ -899,7 +899,7 @@ public enum Env {
 			if (ips != null) {
 				_ipResolvers = ips.split(",");
 			}
-			_geoIpLocation = prop.getProperty("geo.ip.location");
+			_geoIpLocation = prop.getProperty("geo.ip.location2");
 			_donateUrl = prop.getProperty("donate.url");
 			_versionUrl = prop.getProperty("version.url");
 			_whatsnewUrl = prop.getProperty("whats.new.url");
