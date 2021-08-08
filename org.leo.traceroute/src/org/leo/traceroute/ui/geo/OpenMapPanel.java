@@ -37,11 +37,11 @@ import javax.swing.SwingUtilities;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.tuple.Pair;
 import org.leo.traceroute.core.ServiceFactory;
+import org.leo.traceroute.core.ServiceFactory.Mode;
 import org.leo.traceroute.core.geo.GeoPoint;
 import org.leo.traceroute.core.route.RoutePoint;
 import org.leo.traceroute.install.Env;
 import org.leo.traceroute.resources.CountryFlagManager.Resolution;
-import org.leo.traceroute.ui.control.ControlPanel.Mode;
 import org.leo.traceroute.ui.util.ColorUtil;
 import org.leo.traceroute.ui.util.SwingUtilities4;
 
@@ -185,7 +185,6 @@ public class OpenMapPanel extends AbstractGeoPanel {
 
 	/**
 	 * Constructor
-	 * @param route
 	 */
 	public OpenMapPanel(final ServiceFactory serviceFactory) {
 		super(serviceFactory);
@@ -265,9 +264,6 @@ public class OpenMapPanel extends AbstractGeoPanel {
 
 	}
 
-	/**
-	 * @see org.leo.traceroute.ui.AbstractRoutePanel#afterShow()
-	 */
 	@Override
 	public void afterShow(final Mode mode) {
 		super.afterShow(mode);
@@ -284,9 +280,6 @@ public class OpenMapPanel extends AbstractGeoPanel {
 		});
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.sniffer.IPacketListener#startCapture(boolean)
-	 */
 	@Override
 	public void startCapture() {
 		_mode = Mode.SNIFFER;

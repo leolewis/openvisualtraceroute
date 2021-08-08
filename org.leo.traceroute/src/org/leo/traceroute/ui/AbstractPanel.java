@@ -23,6 +23,7 @@ import java.awt.Color;
 import javax.swing.JPanel;
 
 import org.leo.traceroute.core.ServiceFactory;
+import org.leo.traceroute.core.ServiceFactory.Mode;
 import org.leo.traceroute.core.geo.GeoPoint;
 import org.leo.traceroute.core.route.IRouteListener;
 import org.leo.traceroute.core.route.ITraceRoute;
@@ -33,7 +34,6 @@ import org.leo.traceroute.core.sniffer.IPacketsSniffer;
 import org.leo.traceroute.core.whois.IWhoIsListener;
 import org.leo.traceroute.core.whois.WhoIs;
 import org.leo.traceroute.resources.Resources;
-import org.leo.traceroute.ui.control.ControlPanel.Mode;
 
 /**
  * AbstractPanel $Id: AbstractPanel.java 204 2015-08-30 22:31:06Z leolewis $
@@ -62,7 +62,7 @@ public abstract class AbstractPanel extends JPanel implements IRouteListener, IP
 
 	/**
 	 * Constructor
-	 * @param route route
+	 * @param services route
 	 */
 	public AbstractPanel(final ServiceFactory services) {
 		super(new BorderLayout());

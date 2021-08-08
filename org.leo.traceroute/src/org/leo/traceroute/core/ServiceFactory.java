@@ -19,18 +19,16 @@ package org.leo.traceroute.core;
 
 import org.leo.traceroute.core.autocomplete.AutoCompleteProvider;
 import org.leo.traceroute.core.geo.GeoService;
-import org.leo.traceroute.core.network.DNSLookupService;
-import org.leo.traceroute.core.network.INetworkService;
-import org.leo.traceroute.core.network.JNetCapNetworkService;
-import org.leo.traceroute.core.network.JPcapNetworkService;
+import org.leo.traceroute.core.network.*;
 import org.leo.traceroute.core.route.ITraceRoute;
-import org.leo.traceroute.core.route.impl.JNetCapTraceRoute;
-import org.leo.traceroute.core.route.impl.JpcapTraceRoute;
+import org.leo.traceroute.core.route.impl.OSTraceRoute;
 import org.leo.traceroute.core.sniffer.IPacketsSniffer;
-import org.leo.traceroute.core.sniffer.impl.JNetCapPacketSniffer;
+import org.leo.traceroute.core.sniffer.impl.EmptyPacketsSniffer;
 import org.leo.traceroute.core.whois.WhoIs;
 import org.leo.traceroute.install.Env;
 import org.leo.traceroute.ui.util.SplashScreen;
+
+import java.util.Arrays;
 
 /**
  * ServiceFactory $Id: ServiceFactory.java 222 2016-01-09 19:19:33Z leolewis $
@@ -40,19 +38,16 @@ import org.leo.traceroute.ui.util.SplashScreen;
  */
 public class ServiceFactory {
 
-	public enum NetworkLibrary {
-		JPCAP,
-		JNETPCAP
+	public enum Mode {
+		TRACE_ROUTE,
+		SNIFFER,
+		WHOIS
 	}
-
-	public static final NetworkLibrary TRACEROUTE_NETWORK_LIB = NetworkLibrary.JPCAP;
-	public static final NetworkLibrary SNIFFER_NETWORK_LIB = NetworkLibrary.JNETPCAP;
 
 	private final ITraceRoute _traceroute;
 	private final IPacketsSniffer _sniffer;
 
-	private final INetworkService<?> _jpcapNetwork;
-	private final INetworkService<?> _jnetcapNetwork;
+	private final INetworkService<?> _networkService;
 
 	private final DNSLookupService _dnsLookup;
 	private final WhoIs _whois;
@@ -63,13 +58,12 @@ public class ServiceFactory {
 
 	private final SplashScreen _splash;
 
-	public ServiceFactory(final ITraceRoute traceroute, final IPacketsSniffer sniffer, final INetworkService<?> jnetcapNetwork, final INetworkService<?> jpcapNetwork,
+	public ServiceFactory(final ITraceRoute traceroute, final IPacketsSniffer sniffer, final INetworkService<?> networkService,
 			final DNSLookupService dnsLookup, final GeoService geo, final AutoCompleteProvider autoComplete, final WhoIs whois) {
 		super();
 		_traceroute = traceroute;
 		_sniffer = sniffer;
-		_jpcapNetwork = jpcapNetwork;
-		_jnetcapNetwork = jnetcapNetwork;
+		_networkService = networkService;
 		_dnsLookup = dnsLookup;
 		_geo = geo;
 		_autocomplete = autoComplete;
@@ -83,19 +77,10 @@ public class ServiceFactory {
 	public ServiceFactory(final SplashScreen splash) {
 		_splash = splash;
 
-		_jpcapNetwork = new JPcapNetworkService();
-		_jnetcapNetwork = new JNetCapNetworkService();
+		_networkService = new EmptyNetworkService();
 
-		if (TRACEROUTE_NETWORK_LIB == NetworkLibrary.JNETPCAP) {
-			_traceroute = new JNetCapTraceRoute();
-		} else {
-			_traceroute = new JpcapTraceRoute();
-		}
-		if (SNIFFER_NETWORK_LIB == NetworkLibrary.JNETPCAP) {
-			_sniffer = new JNetCapPacketSniffer();
-		} else {
-			throw new IllegalArgumentException(SNIFFER_NETWORK_LIB.name());
-		}
+		_traceroute = new OSTraceRoute();
+		_sniffer = new EmptyPacketsSniffer();
 		_dnsLookup = new DNSLookupService();
 		_geo = new GeoService();
 		_autocomplete = new AutoCompleteProvider();
@@ -105,22 +90,21 @@ public class ServiceFactory {
 	public void init() throws Exception {
 		_dnsLookup.init(this);
 		_geo.init(this);
-		_jpcapNetwork.init(this);
-		_jnetcapNetwork.init(this);
+		_networkService.init(this);
 		_traceroute.init(this);
 		_sniffer.init(this);
 		_autocomplete.init(this);
 		_whois.init(this);
-
-		_jpcapNetwork.notifyInterface();
-		_jnetcapNetwork.notifyInterface();
+		Arrays.asList(Mode.values()).forEach(m -> {
+			_networkService.notifyInterface(m);
+		});
 		if (!isEmbeddedTRAvailable()) {
 			Env.INSTANCE.setUseOSTraceroute(true);
 		} else {
-			getNetwork(ServiceFactory.TRACEROUTE_NETWORK_LIB).setCurrentNetworkDevice(Env.INSTANCE.getTrInterfaceIndex());
+			_networkService.setCurrentNetworkDevice(Mode.TRACE_ROUTE, Env.INSTANCE.getTrInterfaceIndex());
 		}
 		if (isSnifferAvailable()) {
-			getNetwork(ServiceFactory.SNIFFER_NETWORK_LIB).setCurrentNetworkDevice(Env.INSTANCE.getSnifferInterfaceIndex());
+			_networkService.setCurrentNetworkDevice(Mode.SNIFFER, Env.INSTANCE.getSnifferInterfaceIndex());
 		}
 	}
 
@@ -128,8 +112,7 @@ public class ServiceFactory {
 	 * Dispose services
 	 */
 	public void dispose() {
-		_jnetcapNetwork.dispose();
-		_jpcapNetwork.dispose();
+		_networkService.dispose();
 		_dnsLookup.dispose();
 		_geo.dispose();
 		_traceroute.dispose();
@@ -171,27 +154,10 @@ public class ServiceFactory {
 	}
 
 	/**
-	 * Return the value of the field jpcapNetwork
-	 * @return the value of jpcapNetwork
+	 * Return the value of the field networkService
 	 */
-	public INetworkService<?> getJpcapNetwork() {
-		return _jpcapNetwork;
-	}
-
-	/**
-	 * Return the value of the field jnetcapNetwork
-	 * @return the value of jnetcapNetwork
-	 */
-	public INetworkService<?> getJnetcapNetwork() {
-		return _jnetcapNetwork;
-	}
-
-	/**
-	 * @param networkLibrary
-	 * @return
-	 */
-	public INetworkService<?> getNetwork(final NetworkLibrary networkLibrary) {
-		return networkLibrary == NetworkLibrary.JNETPCAP ? _jnetcapNetwork : _jpcapNetwork;
+	public INetworkService<?> getNetworkService() {
+		return _networkService;
 	}
 
 	/**
@@ -199,7 +165,7 @@ public class ServiceFactory {
 	 * @return
 	 */
 	public boolean isSnifferAvailable() {
-		return !getNetwork(ServiceFactory.SNIFFER_NETWORK_LIB).getNetworkDevices().isEmpty();
+		return !_networkService.getNetworkDevices(Mode.SNIFFER).isEmpty();
 	}
 
 	/**
@@ -207,7 +173,7 @@ public class ServiceFactory {
 	 * @return
 	 */
 	public boolean isEmbeddedTRAvailable() {
-		return !getNetwork(ServiceFactory.TRACEROUTE_NETWORK_LIB).getNetworkDevices().isEmpty();
+		return !_networkService.getNetworkDevices(Mode.TRACE_ROUTE).isEmpty();
 	}
 
 	/**

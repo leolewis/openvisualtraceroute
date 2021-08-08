@@ -75,8 +75,8 @@ public class RouteTest extends TestCase {
 	 */
 	public void traceRoute(final String... dest) throws Exception {
 		final ServiceFactory services = new ServiceFactory(null);
-		final AtomicReference<CountDownLatch> cd = new AtomicReference<CountDownLatch>();
-		final AtomicReference<String> ip = new AtomicReference<String>();
+		final AtomicReference<CountDownLatch> cd = new AtomicReference<>();
+		final AtomicReference<String> ip = new AtomicReference<>();
 		services.init();
 		services.getTraceroute().addListener(new IRouteListener() {
 			int nb;
@@ -152,7 +152,7 @@ public class RouteTest extends TestCase {
 			monitor.setCanceled(false);
 			cd.set(new CountDownLatch(1));
 			ip.set(InetAddress.getByName(d).getHostAddress());
-			services.getTraceroute().compute(d, monitor, true, 0, false, true, 50);
+			services.getTraceroute().compute(d, monitor, true, 0, true, 50);
 			cd.get().await();
 		}
 

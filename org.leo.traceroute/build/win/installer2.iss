@@ -62,18 +62,18 @@ function PrepareToInstall(var NeedsRestart: Boolean): String;
 var
   ResultCode:   Integer;
 begin
-   ExtractTemporaryFile('winpcap-nmap-4.13.exe');
-   if Exec(ExpandConstant('{tmp}\winpcap-nmap-4.13.exe'), '/S', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+   ExtractTemporaryFile('Win10Pcap-v10.2-5002.msi');
+   if Exec(ExpandConstant('MsiExec.exe /i {tmp}/\Win10Pcap-v10.2-5002.msi ALLUSERS=1 /qn'), '/S', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
    begin
         if ResultCode = 1 then
         begin
-          msgbox('Failed to install WinPcap, the installer will close.', mbInformation, MB_OK);
+          msgbox('Failed to install Win10Pcap, the installer will close.', mbInformation, MB_OK);
           MainForm.Close;
           ExitProcess(0); 
         end
    end
    else begin
-      msgbox('Failed to install WinPcap, the installer will close.', mbInformation, MB_OK);
+      msgbox('Failed to install Win10Pcap, the installer will close.', mbInformation, MB_OK);
       MainForm.Close;
       ExitProcess(0);     
    end;

@@ -42,12 +42,13 @@ import javax.swing.SwingUtilities;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.tuple.Pair;
 import org.leo.traceroute.core.ServiceFactory;
+import org.leo.traceroute.core.ServiceFactory.Mode;
 import org.leo.traceroute.core.geo.GeoPoint;
 import org.leo.traceroute.core.route.RoutePoint;
+import org.leo.traceroute.core.sniffer.IPacketListener;
 import org.leo.traceroute.install.Env;
 import org.leo.traceroute.resources.CountryFlagManager.Resolution;
 import org.leo.traceroute.resources.Resources;
-import org.leo.traceroute.ui.control.ControlPanel.Mode;
 import org.leo.traceroute.ui.util.ColorUtil;
 import org.leo.traceroute.ui.util.GlassPane;
 import org.leo.traceroute.util.Util;
@@ -96,7 +97,7 @@ public class WWJPanel extends AbstractGeoPanel {
 			System.setProperty("com.apple.mrj.application.growbox.intrudes", "false");
 			System.setProperty("com.apple.mrj.application.apple.menu.about.name", Resources.getLabel("appli.title.short"));
 		} else if (Configuration.isWindowsOS()) {
-			System.setProperty("sun.awt.noerasebackground", "true");
+			//System.setProperty("sun.awt.noerasebackground", "true");
 		}
 	}
 
@@ -129,11 +130,12 @@ public class WWJPanel extends AbstractGeoPanel {
 	private Position _previousPos;
 
 	private int _selectionIndex;
+	private boolean _isInitialized;
 
 	/**
 	 * Constructor
 	 *
-	 * @param route
+	 * @param services
 	 */
 	public WWJPanel(final ServiceFactory services) {
 		super(services);
@@ -154,7 +156,7 @@ public class WWJPanel extends AbstractGeoPanel {
 						return new AppPanel() {
 							@Override
 							public boolean isInitialized() {
-								return true;
+								return _isInitialized;
 							}
 
 							@Override
@@ -172,78 +174,16 @@ public class WWJPanel extends AbstractGeoPanel {
 			} else {
 				removeAll();
 			}
-			SwingUtilities.invokeLater(() -> {
-				_controller.getWWd().getView().setPitch(Angle.fromDegrees(15));
-				final WWPanel wwpanel = _controller.getWWPanel();
-				add(_container, BorderLayout.NORTH);
-				add(wwpanel.getJPanel(), BorderLayout.CENTER);
-				final ToolBar toolBar = _controller.getToolBar();
-				if (toolBar != null) {
-					add(toolBar.getJToolBar(), BorderLayout.PAGE_START);
-				}
-				// StatusPanel statusPanel = controller.getStatusPanel();
-				// if (statusPanel != null) {
-				// add(statusPanel.getJPanel(), BorderLayout.PAGE_END);
-				// }
-				// add(new FlatWorldPanel(_controller.getWWd()),
-				// BorderLayout.PAGE_END);
-				final LayerPath path = new LayerPath("Trace Route");
-				_controller.getLayerManager().addLayer(_renderableLayer, path);
-				_controller.getLayerManager().getNode(path).setSelected(true);
-				_controller.getLayerManager().selectLayer(_renderableLayer, true);
-				_controller.getWWd().addSelectListener(event -> {
-					if (event.getEventAction().equals(SelectEvent.LEFT_CLICK) && event.hasObjects() && event.getTopObject() instanceof ScreenAnnotation) {
-						final ScreenAnnotation sa = (ScreenAnnotation) event.getTopObject();
-						final List<GeoPoint> points = _annotationToPoint.get(sa);
-						if (_lastSelection != null && _lastSelection.getLeft().getAnnotation() == sa) {
-							// if same selection, rotate point
-							_selectionIndex = (_selectionIndex + 1) % (points.size());
-						} else {
-							_selectionIndex = 0;
-						}
-						if (points == null) {
-							focus(null);
-						} else {
-							focus(points.get(_selectionIndex));
-						}
-					}
-				});
-				_controller.getWWd().getInputHandler().addMouseListener(new MouseAdapter() {
-					@Override
-					public void mouseClicked(final MouseEvent e) {
-						final Position currentPosition = _controller.getWWd().getCurrentPosition();
-						if (currentPosition != null) {
-							onMousePosition(currentPosition.getLatitude().getDegrees(), currentPosition.getLongitude().getDegrees());
-						}
-					}
-
-					@Override
-					public void mouseDragged(final MouseEvent e) {
-						final Position currentPosition = _controller.getWWd().getCurrentPosition();
-						if (currentPosition != null && _lastSelection != null) {
-							final LabeledPath path = _lastSelection.getKey();
-							path.getAnnotation().setScreenPoint(e.getLocationOnScreen());
-						}
-					}
-
-				});
-				_controller.getWWPanel().getJPanel().invalidate();
-				invalidate();
-				revalidate();
-			});
 		} catch (final Exception e) {
 			LOGGER.error(e.getLocalizedMessage(), e);
 			GlassPane.displayMessage(this, "Error while initializing the World Wind Component\n" + e.getMessage(), Resources.getImageIcon("error.png"));
 		}
 	}
 
-	/**
-	 * @see org.leo.traceroute.ui.AbstractRoutePanel#afterShow()
-	 */
 	@Override
 	public void afterShow(final Mode mode) {
-		super.afterShow(mode);
 		SwingUtilities.invokeLater(() -> {
+			init();
 			_container.invalidate();
 			_container.revalidate();
 			final GeoPoint localGeo = _services.getGeo().getLocalIpGeoLocation();
@@ -257,7 +197,67 @@ public class WWJPanel extends AbstractGeoPanel {
 				_whois.renotifyWhoIs();
 			}
 		});
+	}
 
+	private void init() {
+		_controller.getWWd().getView().setPitch(Angle.fromDegrees(15));
+		final WWPanel wwpanel = _controller.getWWPanel();
+		add(_container, BorderLayout.NORTH);
+		add(wwpanel.getJPanel(), BorderLayout.CENTER);
+		final ToolBar toolBar = _controller.getToolBar();
+		if (toolBar != null) {
+			add(toolBar.getJToolBar(), BorderLayout.PAGE_START);
+		}
+		// StatusPanel statusPanel = controller.getStatusPanel();
+		// if (statusPanel != null) {
+		// add(statusPanel.getJPanel(), BorderLayout.PAGE_END);
+		// }
+		// add(new FlatWorldPanel(_controller.getWWd()),
+		// BorderLayout.PAGE_END);
+		final LayerPath path = new LayerPath("Trace Route");
+		_controller.getLayerManager().addLayer(_renderableLayer, path);
+		_controller.getLayerManager().getNode(path).setSelected(true);
+		_controller.getLayerManager().selectLayer(_renderableLayer, true);
+		_controller.getWWd().addSelectListener(event -> {
+			if (event.getEventAction().equals(SelectEvent.LEFT_CLICK) && event.hasObjects() && event.getTopObject() instanceof ScreenAnnotation) {
+				final ScreenAnnotation sa = (ScreenAnnotation) event.getTopObject();
+				final List<GeoPoint> points = _annotationToPoint.get(sa);
+				if (_lastSelection != null && _lastSelection.getLeft().getAnnotation() == sa) {
+					// if same selection, rotate point
+					_selectionIndex = (_selectionIndex + 1) % (points.size());
+				} else {
+					_selectionIndex = 0;
+				}
+				if (points == null) {
+					focus(null);
+				} else {
+					focus(points.get(_selectionIndex));
+				}
+			}
+		});
+		_controller.getWWd().getInputHandler().addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(final MouseEvent e) {
+				final Position currentPosition = _controller.getWWd().getCurrentPosition();
+				if (currentPosition != null) {
+					onMousePosition(currentPosition.getLatitude().getDegrees(), currentPosition.getLongitude().getDegrees());
+				}
+			}
+
+			@Override
+			public void mouseDragged(final MouseEvent e) {
+				final Position currentPosition = _controller.getWWd().getCurrentPosition();
+				if (currentPosition != null && _lastSelection != null) {
+					final LabeledPath path = _lastSelection.getKey();
+					path.getAnnotation().setScreenPoint(e.getLocationOnScreen());
+				}
+			}
+
+		});
+		_isInitialized = true;
+		_controller.getWWPanel().getJPanel().invalidate();
+		invalidate();
+		revalidate();
 	}
 
 	private double normalizeElevation(final double arbitraryElevation, final double step) {
@@ -323,11 +323,7 @@ public class WWJPanel extends AbstractGeoPanel {
 		}
 
 		_pointToLabel.put(point, labelAndAnnotation.getLeft());
-		List<GeoPoint> points = _annotationToPoint.get(labelAndAnnotation.getRight());
-		if (points == null) {
-			points = new ArrayList<>();
-			_annotationToPoint.put(labelAndAnnotation.getRight(), points);
-		}
+		List<GeoPoint> points = _annotationToPoint.computeIfAbsent(labelAndAnnotation.getRight(), k -> new ArrayList<>());
 		points.add(point);
 		// redraw
 		_controller.redraw();
@@ -383,7 +379,7 @@ public class WWJPanel extends AbstractGeoPanel {
 	}
 
 	/**
-	 * @see org.leo.traceroute.ui.AbstractRoutePanel#dispose()
+	 * @see org.leo.traceroute.ui.AbstractPanel#dispose()
 	 */
 	public void dispose(final boolean destroy) {
 		super.dispose();
@@ -393,7 +389,7 @@ public class WWJPanel extends AbstractGeoPanel {
 	}
 
 	/**
-	 * @see org.leo.traceroute.core.sniffer.IPacketListener#startCapture(boolean)
+	 * @see IPacketListener#startCapture()
 	 */
 	@Override
 	public void startCapture() {
@@ -476,7 +472,7 @@ public class WWJPanel extends AbstractGeoPanel {
 	/**
 	 * Highlight the given annotation
 	 *
-	 * @param annotation
+	 * @param label
 	 * @param point
 	 */
 	private void highlightAnnotation(final LabeledPath label, final GeoPoint point) {

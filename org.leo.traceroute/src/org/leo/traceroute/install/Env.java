@@ -47,13 +47,6 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 
-import javax.media.opengl.DefaultGLCapabilitiesChooser;
-import javax.media.opengl.GL;
-import javax.media.opengl.GLCapabilities;
-import javax.media.opengl.GLContext;
-import javax.media.opengl.GLDrawable;
-import javax.media.opengl.GLDrawableFactory;
-import javax.media.opengl.GLProfile;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -65,18 +58,17 @@ import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
 
+import com.jogamp.opengl.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.leo.traceroute.core.ServiceFactory;
+import org.leo.traceroute.core.ServiceFactory.Mode;
 import org.leo.traceroute.resources.Resources;
-import org.leo.traceroute.ui.control.ControlPanel.Mode;
 import org.leo.traceroute.ui.geo.IMapConfigListener;
 import org.leo.traceroute.ui.util.SwingUtilities4;
 import org.leo.traceroute.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.jogamp.opengl.GLExtensions;
 
 import gov.nasa.worldwind.Configuration;
 import gov.nasa.worldwind.avlist.AVKey;
@@ -292,10 +284,11 @@ public enum Env {
 		// print some properties
 		LOGGER.info("Java run-time version: " + System.getProperty("java.version"));
 		LOGGER.info(gov.nasa.worldwind.Version.getVersion());
-		LOGGER.info(System.getProperty("java.library.path"));
+		LOGGER.info("Library Path " + System.getProperty("java.library.path"));
 		System.setProperty("awt.useSystemAAFontSettings", "on");
 		System.setProperty("swing.aatext", "true");
 		System.setProperty("java.net.useSystemProxies", "true");
+//		System.setProperty("jogl.windows.useWGLVersionOf5WGLGDIFuncSet", "true");
 		final Proxy proxy = getProxy();
 		if (proxy != null) {
 			final InetSocketAddress addr = (InetSocketAddress) proxy.address();
@@ -314,19 +307,19 @@ public enum Env {
 			}
 		}));
 		final Pair<OS, Arch> archOs = checkArchAndOs();
-		try {
-			final Field usrPathFiled = ClassLoader.class.getDeclaredField("usr_paths");
-			usrPathFiled.setAccessible(true);
-			final String[] usrPath = (String[]) usrPathFiled.get(null);
-			final String[] newUsrPath = new String[usrPath.length + 1];
-			System.arraycopy(usrPath, 0, newUsrPath, 0, usrPath.length);
-			newUsrPath[usrPath.length] = new File(NATIVE_FOLDER + Util.FILE_SEPARATOR + archOs.getLeft() + Util.FILE_SEPARATOR + archOs.getRight()).getAbsolutePath();
-			usrPathFiled.set(null, newUsrPath);
-		} catch (final Exception e) {
-			throw new EnvException(e);
-		}
 		_os = archOs.getLeft();
 		_arch = archOs.getRight();
+		if (_os == OS.win) {
+			String path;
+			if (_arch == Arch.x64) {
+				path = "x64";
+			} else {
+				path = "Win32";
+			}
+			path = System.getenv("ProgramFiles(X86)") + "/Win10Pcap/" + path + "/";
+			System.setProperty("org.pcap4j.core.pcapLibName", path + "wpcap.dll");
+			System.setProperty("org.pcap4j.core.packetLibName", path + "Packet.dll");
+		}
 		try {
 			loadConfig();
 		} catch (final Exception e) {
@@ -366,6 +359,7 @@ public enum Env {
 	 * @return true if we are good, false otherwise
 	 */
 	public boolean isOpenGLAvailable() {
+		_openGlAvailable = true;
 		if (_openGlAvailable == null) {
 			synchronized (this) {
 				if (_openGlAvailable == null) {
@@ -386,7 +380,9 @@ public enum Env {
 						// WWJ will need those to render the globe
 						_openGlAvailable = gl.isExtensionAvailable(GLExtensions.EXT_texture_compression_s3tc)
 								|| gl.isExtensionAvailable(GLExtensions.NV_texture_compression_vtc);
+						context.release();
 					} catch (final Throwable e) {
+						LOGGER.error("OpenGL", e);
 						_openGlAvailable = false;
 					}
 				}
@@ -1112,7 +1108,7 @@ public enum Env {
 
 	/**
 	 * Set the value of the field mapLineWidth
-	 * @param mapLineWidth the new mapLineWidth to set
+	 * @param mapLineThickness the new mapLineWidth to set
 	 */
 	public void setMapLineThickness(final int mapLineThickness) {
 		_mapLineThickness = mapLineThickness;

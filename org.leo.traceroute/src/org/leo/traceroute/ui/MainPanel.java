@@ -30,10 +30,10 @@ import javax.swing.ToolTipManager;
 
 import org.apache.commons.io.IOUtils;
 import org.leo.traceroute.core.ServiceFactory;
+import org.leo.traceroute.core.ServiceFactory.Mode;
 import org.leo.traceroute.install.Env;
 import org.leo.traceroute.resources.Resources;
 import org.leo.traceroute.ui.control.ControlPanel;
-import org.leo.traceroute.ui.control.ControlPanel.Mode;
 import org.leo.traceroute.ui.geo.OpenMapPanel;
 import org.leo.traceroute.ui.geo.WWJPanel;
 import org.leo.traceroute.ui.route.GanttPanel;
@@ -112,7 +112,8 @@ public class MainPanel extends JPanel {
 		if (!Env.INSTANCE.isOpenGLAvailable()) {
 			LOGGER.warn("No graphic card that supports required OpenGL features has been detected. The 3D map will be not be available");
 		}
-		ToolTipManager.sharedInstance().setInitialDelay(0);
+		ToolTipManager.sharedInstance().setEnabled(false);
+		ToolTipManager.sharedInstance().setInitialDelay(10);
 		// init panels
 		_statusPanel = new StatusPanel(_services);
 		_replayPanel = new ReplayPanel(_services, _statusPanel);

@@ -3,7 +3,7 @@
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
   <jar> 	</jar>
-  <outfile>D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\ovtr.exe</outfile>
+  <outfile>D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\win\ovtr.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
@@ -23,17 +23,17 @@
     <path></path>
     <bundledJre64Bit>false</bundledJre64Bit>
     <bundledJreAsFallback>false</bundledJreAsFallback>
-    <minVersion>1.8.0</minVersion>
-    <maxVersion>9.9.9</maxVersion>
+    <minVersion>11.0.0</minVersion>
+    <maxVersion>99.9.9</maxVersion>
     <jdkPreference>preferJre</jdkPreference>
     <runtimeBits>64/32</runtimeBits>
   </jre>
   <versionInfo>
-    <fileVersion>1.7.1.0</fileVersion>
+    <fileVersion>2.0.0.0</fileVersion>
     <txtFileVersion>1.0</txtFileVersion>
     <fileDescription>Open Visual Traceroute</fileDescription>
     <copyright>Leo Lewis</copyright>
-    <productVersion>1.7.1.0</productVersion>
+    <productVersion>2.0.0.0</productVersion>
     <txtProductVersion>1.0</txtProductVersion>
     <productName>Open Visual Traceroute</productName>
     <companyName>Leo Lewis</companyName>

@@ -21,6 +21,8 @@ import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.leo.traceroute.core.IComponent;
+import org.leo.traceroute.core.ServiceFactory;
+import org.leo.traceroute.core.ServiceFactory.Mode;
 
 /**
  * INetworkService $Id$
@@ -32,17 +34,17 @@ public interface INetworkService<T> extends IComponent {
 
 	String OS_DEFAULT = "OS Default";
 
-	List<Pair<Integer, String>> getNetworkDevices();
+	List<Pair<Integer, String>> getNetworkDevices(Mode mode);
 
-	void setCurrentNetworkDevice(final int deviceIndex);
+	void setCurrentNetworkDevice(final Mode mode, final int deviceIndex);
 
-	void notifyInterface();
+	void notifyInterface(Mode mode);
 
-	void addListener(INetworkInterfaceListener<T> listener);
+	void addListener(INetworkInterfaceListener<?> listener);
 
-	void removeListener(INetworkInterfaceListener<T> listener);
+	void removeListener(INetworkInterfaceListener<?> listener);
 
-	String getCurrentNetworkInterfaceName();
-
-	int getCurrentNetworkInterfaceIndex();
+	String getCurrentNetworkInterfaceName(Mode mode);
+	
+	int getCurrentNetworkInterfaceIndex(Mode mode);
 }

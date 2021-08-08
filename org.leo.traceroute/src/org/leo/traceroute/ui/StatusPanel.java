@@ -22,12 +22,12 @@ import java.awt.BorderLayout;
 import javax.swing.JProgressBar;
 
 import org.leo.traceroute.core.ServiceFactory;
+import org.leo.traceroute.core.ServiceFactory.Mode;
 import org.leo.traceroute.core.geo.GeoPoint;
 import org.leo.traceroute.core.route.RoutePoint;
 import org.leo.traceroute.core.sniffer.AbstractPacketPoint;
 import org.leo.traceroute.install.Env;
 import org.leo.traceroute.resources.Resources;
-import org.leo.traceroute.ui.control.ControlPanel.Mode;
 
 /**
  * RouteStatusPanel $Id: StatusPanel.java 290 2016-12-31 19:36:34Z leolewis $
@@ -47,8 +47,6 @@ public class StatusPanel extends AbstractPanel {
 
 	/**
 	 * Constructor
-	 *
-	 * @param route
 	 */
 	public StatusPanel(final ServiceFactory services) {
 		super(services);
@@ -65,33 +63,20 @@ public class StatusPanel extends AbstractPanel {
 		_progress.setToolTipText(Resources.getLabel("enter.route.value"));
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.RouteListener#newRoute(boolean)
-	 */
 	@Override
 	public void newRoute(final boolean dnsLookup) {
 		showMessage(Resources.getLabel("route.tracing"), true);
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.RouteListener#routePointAdded(org.leo.traceroute.core.RoutePoint)
-	 */
 	@Override
 	public void routePointAdded(final RoutePoint point) {
 
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.RouteListener#done(long)
-	 */
 	@Override
 	public void routeDone(final long tracerouteTime, final long lengthInKm) {
 		taskEnded(true, Resources.getLabel("route.tracing.done", tracerouteTime / 1000f, lengthInKm));
 	}
-
-	/**
-	 * @see org.leo.traceroute.core.RouteListener#error(java.io.IOException)
-	 */
 	@Override
 	public void error(final Exception exception, final Object origin) {
 		if (origin == _route) {
@@ -104,33 +89,20 @@ public class StatusPanel extends AbstractPanel {
 
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.RouteListener#cancelled()
-	 */
 	@Override
 	public void routeCancelled() {
 		taskEnded(false, Resources.getLabel("route.tracing.cancelled"));
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.route.IRouteListener#maxHops()
-	 */
 	@Override
 	public void maxHops() {
 		taskEnded(false, Resources.getLabel("route.tracing.maxhops"));
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.RouteListener#timeout()
-	 */
-	@Override
 	public void routeTimeout() {
 		taskEnded(false, Resources.getLabel("route.timeout"));
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.IRouteListener#focusRoute(org.leo.traceroute.core.RoutePoint, boolean, boolean)
-	 */
 	@Override
 	public void focusRoute(final RoutePoint point, final boolean isTracing, final boolean animation) {
 
@@ -161,33 +133,21 @@ public class StatusPanel extends AbstractPanel {
 		_progress.setToolTipText(message);
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.sniffer.IPacketListener#startCapture(boolean)
-	 */
 	@Override
 	public void startCapture() {
 		showMessage(Resources.getLabel("capture.running"), true);
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.sniffer.IPacketListener#packetAdded(org.leo.traceroute.core.sniffer.PacketPoint)
-	 */
 	@Override
 	public void packetAdded(final AbstractPacketPoint point) {
 		showMessage(Resources.getLabel("capture.running") + ": " + Resources.getLabel("capture.packet.count", _sniffer.getCapture().size()), true);
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.sniffer.IPacketListener#captureStopped()
-	 */
 	@Override
 	public void captureStopped() {
 		showMessage(Resources.getLabel("capture.stopped"), false);
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.sniffer.IPacketListener#focusPacket(org.leo.traceroute.core.sniffer.PacketPoint, boolean, boolean)
-	 */
 	@Override
 	public void focusPacket(final AbstractPacketPoint point, final boolean isCapturing, final boolean animation) {
 

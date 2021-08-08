@@ -54,12 +54,12 @@ import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang3.StringUtils;
 import org.leo.traceroute.core.ServiceFactory;
+import org.leo.traceroute.core.ServiceFactory.Mode;
 import org.leo.traceroute.install.Env;
 import org.leo.traceroute.install.Env.Language;
 import org.leo.traceroute.resources.Resources;
 import org.leo.traceroute.ui.LicenseDialog;
 import org.leo.traceroute.ui.control.ControlPanel;
-import org.leo.traceroute.ui.control.ControlPanel.Mode;
 import org.leo.traceroute.ui.control.NetworkInterfaceChooser;
 import org.leo.traceroute.ui.geo.LocRecordsView;
 

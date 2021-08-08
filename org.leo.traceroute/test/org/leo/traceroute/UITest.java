@@ -30,19 +30,21 @@ import javax.swing.JPanel;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.leo.traceroute.core.ServiceFactory;
+import org.leo.traceroute.core.ServiceFactory.Mode;
 import org.leo.traceroute.core.autocomplete.AutoCompleteProvider;
 import org.leo.traceroute.core.geo.GeoService;
 import org.leo.traceroute.core.network.DNSLookupService;
-import org.leo.traceroute.core.network.JNetCapNetworkService;
-import org.leo.traceroute.core.network.JPcapNetworkService;
+import org.leo.traceroute.core.network.EmptyNetworkService;
 import org.leo.traceroute.core.route.IRouteListener;
 import org.leo.traceroute.core.route.impl.AbstractTraceRoute;
-import org.leo.traceroute.core.sniffer.impl.JNetCapPacketSniffer;
+import org.leo.traceroute.core.route.impl.OSTraceRoute;
+import org.leo.traceroute.core.sniffer.impl.EmptyPacketsSniffer;
 import org.leo.traceroute.core.whois.WhoIs;
 import org.leo.traceroute.install.Env;
 import org.leo.traceroute.install.EnvException;
 import org.leo.traceroute.ui.AbstractPanel;
 import org.leo.traceroute.ui.geo.OpenMapPanel;
+import org.leo.traceroute.ui.geo.WWJPanel;
 import org.leo.traceroute.ui.route.GanttPanel;
 import org.leo.traceroute.ui.route.RouteTablePanel;
 import org.leo.traceroute.ui.task.CancelMonitor;
@@ -94,7 +96,7 @@ public class UITest {
 		final ServiceFactory services = new ServiceFactory(new AbstractTraceRoute() {
 			@Override
 			protected void computeRoute(final String formatedDest, final CancelMonitor monitor, final boolean resolveHostname,
-					final int maxHops) throws IOException {
+					final boolean ipV4, final int maxHops) throws IOException {
 				for (int i = 0; i < 100; i++) {
 					addPoint(Pair.of("118.236.194.140", "localhost"), 10, 10);
 				}
@@ -110,15 +112,11 @@ public class UITest {
 			public void removeListener(final IRouteListener listener) {
 				getListeners().remove(listener);
 			}
-		}, new JNetCapPacketSniffer() {
+		}, new EmptyPacketsSniffer() {
 			@Override
 			public void init(final ServiceFactory services) throws IOException {
 			}
-		}, new JNetCapNetworkService() {
-			@Override
-			public void init(final ServiceFactory services) throws IOException {
-			}
-		}, new JPcapNetworkService() {
+		}, new EmptyNetworkService() {
 			@Override
 			public void init(final ServiceFactory services) throws IOException {
 			}
@@ -132,7 +130,8 @@ public class UITest {
 		} catch (final Exception e) {
 			e.printStackTrace();
 		}
-		final AbstractPanel panel = /*bool ? new WWJPanel(null) : */new OpenMapPanel(services);
+		final AbstractPanel panel = bool ? new WWJPanel(services) : new OpenMapPanel(services);
+		panel.afterShow(Mode.TRACE_ROUTE);
 		final GanttPanel gant = new GanttPanel(services);
 		final RouteTablePanel table = new RouteTablePanel(services);
 		bool = !bool;
@@ -144,7 +143,7 @@ public class UITest {
 		sub.add(table, BorderLayout.EAST);
 		sub.invalidate();
 		sub.revalidate();
-		services.getTraceroute().compute("test", new CancelMonitor(), false, 10000, false, true, 50);
+		services.getTraceroute().compute("test", new CancelMonitor(), false, 10000, true, 50);
 		sub.repaint();
 	}
 }

@@ -29,6 +29,7 @@ import org.leo.traceroute.install.EnvException;
 import org.leo.traceroute.resources.Resources;
 import org.leo.traceroute.ui.TraceRouteFrame;
 import org.leo.traceroute.ui.util.SplashScreen;
+import org.leo.traceroute.ui.util.SwingUtilities4;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +68,7 @@ public class Main {
 			Env.INSTANCE.initEnv();
 			if (Env.INSTANCE.getOs() != OS.mac) {
 				try {
-					UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+					UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
 				} catch (final Exception e1) {
 					// ignore
 				}
@@ -82,16 +83,11 @@ public class Main {
 
 			final SplashScreen splash = new SplashScreen(_instance, !Env.INSTANCE.isHideSplashScreen(), Env.INSTANCE.getOs() != OS.mac ? 10 : 7);
 			splash.updateStartup("application.startup");
-			SwingUtilities.invokeLater(() -> {
-				splash.setVisible(true);
+			SwingUtilities4.invokeInEDT(() -> {
+				//splash.setVisible(true);
 				splash.toFront();
 			});
-			final Thread shutdown = new Thread() {
-				@Override
-				public void run() {
-					_instance.close();
-				}
-			};
+			final Thread shutdown = new Thread(() -> _instance.close());
 			shutdown.setName("Shutdown");
 			shutdown.setDaemon(true);
 			Runtime.getRuntime().addShutdownHook(shutdown);

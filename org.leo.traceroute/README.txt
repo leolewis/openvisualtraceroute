@@ -2,7 +2,7 @@
 ~~~~~~~ Open Visual Trace Route ~~~~~~~ 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Version 1.7.1
+Version 2.0.0
 I could successfully make this version on multiple systems, but my tests do not cover everything, so if you find a bug, a typo in some label feel free to post a bug report and/or fix
 - on Sourceforge http://sourceforge.net/projects/openvisualtrace/
 - or by email at leo.lewis.software@gmail.com
@@ -41,6 +41,13 @@ Wish list :
 - export and import traceroute data
  
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Release Note
+2.0.0
+This release
+- Library: Upgrade to worldwind 2.2.0
+- Library: upgrade to Java 11
+- Deprecate embedded trace route mode and sniffer mode
+
 Release Note 
 1.7.1
 - Library: Upgrade to geoip v2

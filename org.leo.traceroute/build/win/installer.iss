@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Open Visual Traceroute"
-#define MyAppVersion "1.7.1"
+#define MyAppVersion "2.0.0"
 #define MyAppPublisher "Leo Lewis"
 #define MyAppURL "https://sourceforge.net/projects/openvisualtrace/"
 #define MyAppExeName "ovtr.exe"
@@ -21,10 +21,10 @@ AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
-LicenseFile=D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\License.txt
+LicenseFile=D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\win\License.txt
 OutputDir=D:\workspace\git\openvisualtraceroute\org.leo.traceroute\released
-OutputBaseFilename=OpenVisualTraceroute1.7.1
-SetupIconFile=D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\resources\icon.ico
+OutputBaseFilename=OpenVisualTraceroute2.0.0
+SetupIconFile=D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\win\resources\icon.ico
 Compression=lzma
 SolidCompression=yes
 
@@ -36,12 +36,10 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]
-Source: "D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\ovtr.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\org.leo.traceroute.jar"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\workspace\git\openvisualtraceroute\org.leo.traceroute\build\win\WinPcap_4_1_3.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\lib\*"; DestDir: "{app}\lib"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\native\win\*"; DestDir: "{app}\native\win"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\resources\*"; DestDir: "{app}\resources"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\win\ovtr.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\win\org.leo.traceroute.jar"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\win\lib\*"; Excludes: "*linux*,*macosx*"; DestDir: "{app}\lib"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\win\resources\*"; DestDir: "{app}\resources"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
@@ -58,30 +56,3 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChang
 procedure ExitProcess(exitCode:integer);
   external 'ExitProcess@kernel32.dll stdcall';
 
-function PrepareToInstall(var NeedsRestart: Boolean): String;
-var
-  ResultCode:   Integer;
-begin
-   ExtractTemporaryFile('WinPcap_4_1_3.exe');
-   msgbox('Open Visual Traceroute requires WinPcap to run properly. If you have it already installed, we can cancel the installer. If not, be sure to check Automatically start the WinPcap driver at boot time.', mbInformation, MB_OK); 
-   if Exec(ExpandConstant('{tmp}\WinPcap_4_1_3.exe'), 'quit', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) then
-   begin
-   if ResultCode = 0 then
-      begin
-        msgbox('WinPcap installed successfully. Now installing Open Visual Traceroute.', mbInformation, MB_OK);
-      end
-      else begin
-        if ResultCode = 1 then
-        begin
-          msgbox('Failed to install WinPcap, the installer will close.', mbInformation, MB_OK);
-          MainForm.Close;
-          ExitProcess(0); 
-        end
-      end
-   end
-   else begin
-      msgbox('Failed to install WinPcap, the installer will close.', mbInformation, MB_OK);
-      MainForm.Close;
-      ExitProcess(0);     
-   end;
-end;

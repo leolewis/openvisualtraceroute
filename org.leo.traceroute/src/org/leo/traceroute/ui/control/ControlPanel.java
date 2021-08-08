@@ -67,10 +67,12 @@ import javax.swing.text.NumberFormatter;
 
 import org.apache.commons.io.IOUtils;
 import org.leo.traceroute.core.ServiceFactory;
+import org.leo.traceroute.core.ServiceFactory.Mode;
 import org.leo.traceroute.core.geo.GeoPoint;
 import org.leo.traceroute.core.route.RoutePoint;
 import org.leo.traceroute.core.sniffer.AbstractPacketPoint;
 import org.leo.traceroute.core.sniffer.AbstractPacketPoint.Protocol;
+import org.leo.traceroute.core.sniffer.IPacketListener;
 import org.leo.traceroute.install.Env;
 import org.leo.traceroute.resources.Resources;
 import org.leo.traceroute.ui.AbstractPanel;
@@ -100,12 +102,6 @@ public class ControlPanel extends AbstractPanel {
 
 	/**  */
 	private static final long serialVersionUID = 925469690303028997L;
-
-	public enum Mode {
-		TRACE_ROUTE,
-		SNIFFER,
-		WHOIS
-	}
 
 	/** H */
 	public static final int H = 32;
@@ -138,10 +134,6 @@ public class ControlPanel extends AbstractPanel {
 
 	/**
 	 * Constructor
-	 *
-	 * @param route
-	 * @param networkInterfaceChooser
-	 * @param replayPanel
 	 */
 	public ControlPanel(final ServiceFactory services, final MainPanel mainPanel, final ReplayPanel replayPanel, final boolean is3d, final Mode mode) {
 		super(services);
@@ -355,7 +347,7 @@ public class ControlPanel extends AbstractPanel {
 
 	/**
 	 * Notify the panel than a new version of the app is available
-	 * @param newVersionAvailable
+	 * @param content
 	 */
 	public void setNewVersionAvailable(final String content) {
 		final JButton showUpdateDialog = new JButton(Resources.getImageIcon("update.png"));
@@ -425,34 +417,22 @@ public class ControlPanel extends AbstractPanel {
 		_customControls.revalidate();
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.RouteListener#newRoute(boolean)
-	 */
 	@Override
 	public void newRoute(final boolean dnsLookup) {
 		setEnabled(false);
 		_running = true;
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.RouteListener#routePointAdded(org.leo.traceroute.core.RoutePoint)
-	 */
 	@Override
 	public void routePointAdded(final RoutePoint point) {
 
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.RouteListener#done(long)
-	 */
 	@Override
 	public void routeDone(final long tracerouteTime, final long lengthInKm) {
 		taskEnded();
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.RouteListener#error(java.io.IOException)
-	 */
 	@Override
 	public void error(final Exception exception, final Object origin) {
 		String message;
@@ -477,33 +457,21 @@ public class ControlPanel extends AbstractPanel {
 		GlassPane.displayMessage(this, message, Resources.getImageIcon("error.png"));
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.RouteListener#cancelled()
-	 */
 	@Override
 	public void routeCancelled() {
 		taskEnded();
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.RouteListener#timeout()
-	 */
 	@Override
 	public void routeTimeout() {
 		taskEnded();
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.route.IRouteListener#maxHops()
-	 */
 	@Override
 	public void maxHops() {
 		taskEnded();
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.IRouteListener#focusRoute(org.leo.traceroute.core.RoutePoint, boolean, boolean)
-	 */
 	@Override
 	public void focusRoute(final RoutePoint point, final boolean isTracing, final boolean animation) {
 
@@ -523,9 +491,6 @@ public class ControlPanel extends AbstractPanel {
 		return null;
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.sniffer.IPacketListener#captureStopped()
-	 */
 	@Override
 	public void captureStopped() {
 		taskEnded();
@@ -543,9 +508,6 @@ public class ControlPanel extends AbstractPanel {
 		return _tracerouteButton.isSelected() ? Mode.TRACE_ROUTE : (_snifferButton.isSelected() ? Mode.SNIFFER : Mode.WHOIS);
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.sniffer.IPacketListener#startCapture(boolean)
-	 */
 	@Override
 	public void startCapture() {
 		setEnabled(false);
@@ -572,25 +534,16 @@ public class ControlPanel extends AbstractPanel {
 		}
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.sniffer.IPacketListener#packetAdded(org.leo.traceroute.core.sniffer.PacketPoint)
-	 */
 	@Override
 	public void packetAdded(final AbstractPacketPoint point) {
 
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.sniffer.IPacketListener#focusPacket(org.leo.traceroute.core.sniffer.PacketPoint, boolean, boolean)
-	 */
 	@Override
 	public void focusPacket(final AbstractPacketPoint point, final boolean isCapturing, final boolean animation) {
 
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.whois.IWhoIsListener#startWhoIs(java.lang.String)
-	 */
 	@Override
 	public void startWhoIs(final String host) {
 		if (getCurrentMode() == Mode.WHOIS) {
@@ -599,16 +552,10 @@ public class ControlPanel extends AbstractPanel {
 		}
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.whois.IWhoIsListener#focusWhoIs(org.leo.traceroute.core.geo.GeoPoint)
-	 */
 	@Override
 	public void focusWhoIs(final GeoPoint point) {
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.whois.IWhoIsListener#whoIsResult(java.lang.String)
-	 */
 	@Override
 	public void whoIsResult(final String result) {
 		if (getCurrentMode() == Mode.WHOIS) {
@@ -725,8 +672,7 @@ public class ControlPanel extends AbstractPanel {
 				}
 				_monitor.setCanceled(false);
 				_running = true;
-				_route.compute(_hostIpTextField.getText(), _monitor, _resolveHostname.isSelected(), 1000 * Integer.parseInt(_timeOut.getValue().toString()),
-						Env.INSTANCE.isUseOSTraceroute(), _ipV4.isSelected(), Env.INSTANCE.getTrMaxHop());
+				_route.compute(_hostIpTextField.getText(), _monitor, _resolveHostname.isSelected(), 1000 * Integer.parseInt(_timeOut.getValue().toString()), _ipV4.isSelected(), Env.INSTANCE.getTrMaxHop());
 			} else {
 				_monitor.setCanceled(true);
 				_traceRouteButton.setEnabled(false);

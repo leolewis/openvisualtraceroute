@@ -208,8 +208,7 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 	/**
 	 * Constructor
 	 *
-	 * @param route
-	 * @param networkInterfaceChooser
+	 * @param services
 	 */
 	public RouteTablePanel(final ServiceFactory services) {
 		super(services);
@@ -218,8 +217,6 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 
 	/**
 	 * Initialization of the panel
-	 *
-	 * @param networkInterfaceChooser
 	 */
 	@SuppressWarnings("serial")
 	private void init() {
@@ -310,7 +307,7 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 	}
 
 	/**
-	 * @see org.leo.traceroute.core.RouteListener#newRoute(boolean)
+	 * @see org.leo.traceroute.core.route.IRouteListener#newRoute(boolean)
 	 */
 	@Override
 	public void newRoute(final boolean dnsLookup) {
@@ -320,7 +317,7 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 	}
 
 	/**
-	 * @see org.leo.traceroute.core.RouteListener#routePointAdded(org.leo.traceroute.core.RoutePoint)
+	 * @see org.leo.traceroute.core.route.IRouteListener#routePointAdded(org.leo.traceroute.core.route.RoutePoint)
 	 */
 	@Override
 	public void routePointAdded(final RoutePoint p) {
@@ -328,7 +325,7 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 	}
 
 	/**
-	 * @see org.leo.traceroute.core.RouteListener#done()
+	 * @see org.leo.traceroute.core.route.IRouteListener#routeDone(long, long) ()
 	 */
 	@Override
 	public void routeDone(final long tracerouteTime, final long lengthInKm) {
@@ -336,7 +333,7 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 	}
 
 	/**
-	 * @see org.leo.traceroute.core.RouteListener#error(org.leo.traceroute.core.RouteException)
+	 * @see org.leo.traceroute.core.route.IRouteListener#error(Exception, Object) (org.leo.traceroute.core.route.RouteException)
 	 */
 	@Override
 	public void error(final Exception exception, final Object origin) {
@@ -344,7 +341,7 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 	}
 
 	/**
-	 * @see org.leo.traceroute.core.RouteListener#cancelled()
+	 * @see org.leo.traceroute.core.route.IRouteListener#routeCancelled()
 	 */
 	@Override
 	public void routeCancelled() {
@@ -352,7 +349,7 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 	}
 
 	/**
-	 * @see org.leo.traceroute.core.RouteListener#timeout()
+	 * @see org.leo.traceroute.core.route.IRouteListener#routeTimeout()
 	 */
 	@Override
 	public void routeTimeout() {
@@ -369,9 +366,6 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 
 	/**
 	 * Trace root ended
-	 *
-	 * @param complete complete or cancel/error
-	 * @param label label to show in the progress bar
 	 */
 	private void traceRouteEnded() {
 		_searching = false;
@@ -379,7 +373,7 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 	}
 
 	/**
-	 * @see org.leo.traceroute.core.IRouteListener#focusRoute(org.leo.traceroute.core.RoutePoint, boolean, boolean)
+	 * @see org.leo.traceroute.core.route.IRouteListener#focusRoute(RoutePoint, boolean, boolean) 
 	 */
 	@Override
 	public void focusRoute(final RoutePoint point, final boolean isTracing, final boolean animation) {

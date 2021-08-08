@@ -17,6 +17,8 @@
  */
 package org.leo.traceroute.core.network;
 
+import org.leo.traceroute.core.ServiceFactory.Mode;
+
 /**
  * ISnifferNetworkInterfaceListener $Id: INetworkInterfaceListener.java 126 2014-11-22 03:43:45Z leolewis $
  * <pre>
@@ -25,5 +27,5 @@ package org.leo.traceroute.core.network;
  */
 public interface INetworkInterfaceListener<T> {
 
-	void notifyNewNetworkInterface(T device, byte[] mac);
+	void notifyNewNetworkInterface(T device, Mode mode, byte[] mac);
 }
