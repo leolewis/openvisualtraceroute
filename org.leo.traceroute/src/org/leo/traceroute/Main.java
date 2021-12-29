@@ -31,7 +31,6 @@ import org.leo.traceroute.ui.TraceRouteFrame;
 import org.leo.traceroute.ui.geo.WWJPanel.DebugGLAutoDrawable;
 import org.leo.traceroute.ui.util.SplashScreen;
 import org.leo.traceroute.ui.util.SwingUtilities4;
-import org.leo.traceroute.util.CheckThreadViolationRepaintManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
