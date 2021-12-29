@@ -22,16 +22,7 @@ import java.awt.BorderLayout;
 import java.awt.Dialog.ModalityType;
 import java.awt.FlowLayout;
 
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import org.leo.traceroute.core.ServiceFactory;
 import org.leo.traceroute.core.geo.GeoPoint;
@@ -72,17 +63,11 @@ public class WhoIsPanel extends AbstractPanel {
 		_whois.addListener(this);
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.whois.IWhoIsListener#startWhoIs(org.leo.traceroute.core.geo.GeoPoint, java.lang.String)
-	 */
 	@Override
 	public void startWhoIs(final String host) {
 		_textArea.setText(Resources.getLabel("wait"));
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.whois.IWhoIsListener#focusWhoIs(org.leo.traceroute.core.geo.GeoPoint)
-	 */
 	@Override
 	public void focusWhoIs(final GeoPoint point) {
 		_label.setText("<html>Who is <b>" + Column.IP.getLabel() + ":</b> " + point.getIp() + "   " + "<b>" + Column.HOSTNAME.getLabel() + ":</b> " + point.getHostname()
@@ -90,9 +75,6 @@ public class WhoIsPanel extends AbstractPanel {
 		_label.setIcon(point.getCountryFlag(Resolution.R32));
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.whois.IWhoIsListener#whoIsResult(java.lang.String)
-	 */
 	@Override
 	public void whoIsResult(final String result) {
 		SwingUtilities.invokeLater(() -> {
@@ -101,9 +83,6 @@ public class WhoIsPanel extends AbstractPanel {
 		});
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.whois.IWhoIsListener#error(java.lang.Exception)
-	 */
 	@Override
 	public void error(final Exception error, final Object origin) {
 		SwingUtilities.invokeLater(() -> {
@@ -118,12 +97,6 @@ public class WhoIsPanel extends AbstractPanel {
 		super.dispose();
 	}
 
-	/**
-	 * Show a dialog with whois data for the given point
-	 * @param parent
-	 * @param whois
-	 * @param point
-	 */
 	public static void showWhoIsDialog(final JComponent parent, final ServiceFactory services, final GeoPoint point) {
 		final WhoIsPanel panel = new WhoIsPanel(services);
 		final JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(parent), "Who is " + point.getIp(), ModalityType.APPLICATION_MODAL) {

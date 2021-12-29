@@ -21,7 +21,7 @@ Class-Path: .
   lib/gdal.jar
   lib/gluegen-rt-natives-linux-i586.jar
   lib/commons-lang3-3.3.2.jar
-  lib/dnsjava-3.0.2.jar
+  lib/dnsjava-3.4.3.jar
   lib/jogl-all-natives-windows-i586.jar
   lib/concurrent-trees-2.3.0.jar
   lib/guava-18.0.jar

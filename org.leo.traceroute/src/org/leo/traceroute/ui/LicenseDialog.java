@@ -22,15 +22,7 @@ import java.awt.FlowLayout;
 import java.awt.Window;
 import java.awt.event.KeyEvent;
 
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.KeyStroke;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 
 import org.leo.traceroute.install.Env;
 import org.leo.traceroute.resources.Resources;

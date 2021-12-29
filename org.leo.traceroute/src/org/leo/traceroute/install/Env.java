@@ -288,6 +288,14 @@ public enum Env {
 		System.setProperty("awt.useSystemAAFontSettings", "on");
 		System.setProperty("swing.aatext", "true");
 		System.setProperty("java.net.useSystemProxies", "true");
+		if (Configuration.isMacOS()) {
+			System.setProperty("apple.laf.useScreenMenuBar", "true");
+			System.setProperty("com.apple.mrj.application.growbox.intrudes", "false");
+			System.setProperty("com.apple.mrj.application.apple.menu.about.name", Resources.getLabel("appli.title.short"));
+		} else if (Configuration.isWindowsOS()) {
+			System.setProperty("sun.awt.noerasebackground", "true");
+		}
+
 //		System.setProperty("jogl.windows.useWGLVersionOf5WGLGDIFuncSet", "true");
 		final Proxy proxy = getProxy();
 		if (proxy != null) {
@@ -309,17 +317,6 @@ public enum Env {
 		final Pair<OS, Arch> archOs = checkArchAndOs();
 		_os = archOs.getLeft();
 		_arch = archOs.getRight();
-		if (_os == OS.win) {
-			String path;
-			if (_arch == Arch.x64) {
-				path = "x64";
-			} else {
-				path = "Win32";
-			}
-			path = System.getenv("ProgramFiles(X86)") + "/Win10Pcap/" + path + "/";
-			System.setProperty("org.pcap4j.core.pcapLibName", path + "wpcap.dll");
-			System.setProperty("org.pcap4j.core.packetLibName", path + "Packet.dll");
-		}
 		try {
 			loadConfig();
 		} catch (final Exception e) {
@@ -526,12 +523,6 @@ public enum Env {
 						@Override
 						public java.security.cert.X509Certificate[] getAcceptedIssuers() {
 							return null;
-						}
-
-						public void checkClientTrusted(final X509Certificate[] certs, final String authType) {
-						}
-
-						public void checkServerTrusted(final X509Certificate[] certs, final String authType) {
 						}
 
 						@Override

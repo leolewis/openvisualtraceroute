@@ -17,15 +17,15 @@
  */
 package org.leo.traceroute.ui;
 
-import java.awt.BorderLayout;
-import java.awt.Frame;
-import java.awt.HeadlessException;
+import java.awt.*;
+import java.util.Map.Entry;
 
-import javax.swing.JFrame;
+import javax.swing.*;
 
 import org.leo.traceroute.core.ServiceFactory;
 import org.leo.traceroute.install.Env;
 import org.leo.traceroute.resources.Resources;
+import org.leo.traceroute.ui.util.SwingUtilities4;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,17 +61,29 @@ public class TraceRouteFrame extends JFrame {
 		_mainPanel = new MainPanel(services);
 		getContentPane().add(_mainPanel, BorderLayout.CENTER);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		services.updateStartup("init.completed", true);
+		SwingUtilities4.applyFont(this, Env.INSTANCE.getFont());
 		pack();
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		if (Env.INSTANCE.getAppX() != null && Env.INSTANCE.getAppY() != null) {
-			setLocation(Env.INSTANCE.getAppX(), Env.INSTANCE.getAppY());
+			if (Env.INSTANCE.getAppX() + Env.INSTANCE.getAppWidth() > screenSize.width
+					|| Env.INSTANCE.getAppY() + Env.INSTANCE.getAppHeight() > screenSize.height) {
+				setLocationRelativeTo(null);
+			} else {
+				setLocation(Env.INSTANCE.getAppX(), Env.INSTANCE.getAppY());
+			}
 		} else {
 			setLocationRelativeTo(null);
 		}
-		_mainPanel.afterShow();
+		setVisible(true);
+		toFront();
+		getRootPane().setDefaultButton(_mainPanel.getControlPanel().getRootButton());
 
 		if (Env.INSTANCE.isFullScreen()) {
 			setExtendedState(Frame.MAXIMIZED_BOTH);
 		}
+		services.getSplash().dispose();
+		_mainPanel.afterShow();
 	}
 
 	public void close() {

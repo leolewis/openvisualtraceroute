@@ -261,7 +261,6 @@ public class OpenMapPanel extends AbstractGeoPanel {
 			}
 		});
 		add(BorderLayout.CENTER, mapPanel);
-
 	}
 
 	@Override

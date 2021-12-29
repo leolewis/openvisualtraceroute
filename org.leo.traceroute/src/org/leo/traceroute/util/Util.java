@@ -36,9 +36,11 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.net.http.HttpClient;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -401,8 +403,8 @@ public final class Util {
 
 	public static InputStream followRedirectOpenConnection(final String url) throws MalformedURLException, IOException {
 		HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-		connection.setConnectTimeout(300_000);
-		connection.setReadTimeout(300_000);
+		connection.setConnectTimeout((int) TimeUnit.MINUTES.toMillis(2));
+		connection.setReadTimeout((int) TimeUnit.MINUTES.toMillis(2));
 		connection.setInstanceFollowRedirects(true);
 		InputStream inputStream = connection.getInputStream();
 		int status = connection.getResponseCode();
@@ -417,7 +419,7 @@ public final class Util {
 			return inputStream;
 		} else {
 			IOUtils.close(connection);
-			throw new IOException("Failed to retreive data from " + url + ", Server returned " + status);
+			throw new IOException("Failed to retrieve data from " + url + ", Server returned " + status);
 		}
 	}
 }

@@ -63,9 +63,6 @@ public class ReplayPanel extends AbstractRoutePanel {
 
 	/**
 	 * Constructor
-	 *
-	 * @param route
-	 * @param statusPanel
 	 */
 	public ReplayPanel(final ServiceFactory services, final StatusPanel statusPanel) {
 		super(services);
@@ -108,58 +105,37 @@ public class ReplayPanel extends AbstractRoutePanel {
 		});
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.RouteListener#newRoute(boolean)
-	 */
 	@Override
 	public void newRoute(final boolean dnsLookup) {
 		stopReplay(true, false);
 		_replayButton.setEnabled(false);
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.RouteListener#routePointAdded(org.leo.traceroute.core.RoutePoint)
-	 */
 	@Override
 	public void routePointAdded(final RoutePoint point) {
 
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.RouteListener#done(long)
-	 */
 	@Override
 	public void routeDone(final long tracerouteTime, final long lengthInKm) {
 		traceRouteEnded();
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.RouteListener#error(java.io.IOException)
-	 */
 	@Override
 	public void error(final Exception exception, final Object origin) {
 		traceRouteEnded();
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.RouteListener#cancelled()
-	 */
 	@Override
 	public void routeCancelled() {
 		traceRouteEnded();
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.route.IRouteListener#maxHops()
-	 */
 	@Override
 	public void maxHops() {
 		traceRouteEnded();
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.RouteListener#timeout()
-	 */
 	@Override
 	public void routeTimeout() {
 		traceRouteEnded();
@@ -169,17 +145,11 @@ public class ReplayPanel extends AbstractRoutePanel {
 		_replayButton.setEnabled(true);
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.IRouteListener#focusRoute(org.leo.traceroute.core.RoutePoint, boolean, boolean)
-	 */
 	@Override
 	public void focusRoute(final RoutePoint point, final boolean isTracing, final boolean animation) {
 		_routeSelectedIndex = _route.getRoute().indexOf(point);
 	}
 
-	/**
-	 * @see org.leo.traceroute.ui.AbstractRoutePanel#dispose()
-	 */
 	@Override
 	public void dispose() {
 		super.dispose();

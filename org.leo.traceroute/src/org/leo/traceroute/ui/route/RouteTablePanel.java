@@ -316,49 +316,31 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 		_model.fireTableDataChanged();
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.route.IRouteListener#routePointAdded(org.leo.traceroute.core.route.RoutePoint)
-	 */
 	@Override
 	public void routePointAdded(final RoutePoint p) {
 		_model.fireTableDataChanged();
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.route.IRouteListener#routeDone(long, long) ()
-	 */
 	@Override
 	public void routeDone(final long tracerouteTime, final long lengthInKm) {
 		traceRouteEnded();
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.route.IRouteListener#error(Exception, Object) (org.leo.traceroute.core.route.RouteException)
-	 */
 	@Override
 	public void error(final Exception exception, final Object origin) {
 		traceRouteEnded();
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.route.IRouteListener#routeCancelled()
-	 */
 	@Override
 	public void routeCancelled() {
 		traceRouteEnded();
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.route.IRouteListener#routeTimeout()
-	 */
 	@Override
 	public void routeTimeout() {
 		traceRouteEnded();
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.route.IRouteListener#maxHops()
-	 */
 	@Override
 	public void maxHops() {
 		traceRouteEnded();
@@ -372,9 +354,6 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 		_model.fireTableDataChanged();
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.route.IRouteListener#focusRoute(RoutePoint, boolean, boolean) 
-	 */
 	@Override
 	public void focusRoute(final RoutePoint point, final boolean isTracing, final boolean animation) {
 		if (!_focusAdjusting) {
@@ -389,9 +368,6 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 		}
 	}
 
-	/**
-	 * Dispose the panel
-	 */
 	@Override
 	public void dispose() {
 		super.dispose();
@@ -401,8 +377,6 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 
 	/**
 	 * RouteTableModel
-	 *
-	 * @author Leo Lewis
 	 */
 	private class RouteTableModel extends AbstractTableModel {
 
@@ -421,25 +395,16 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 			_route = route;
 		}
 
-		/**
-		 * @see javax.swing.table.TableModel#getColumnCount()
-		 */
 		@Override
 		public int getColumnCount() {
 			return Column.values().length;
 		}
 
-		/**
-		 * @see javax.swing.table.TableModel#getRowCount()
-		 */
 		@Override
 		public int getRowCount() {
 			return _route.getRoute().size();
 		}
 
-		/**
-		 * @see javax.swing.table.TableModel#getValueAt(int, int)
-		 */
 		@Override
 		public Object getValueAt(final int row, final int col) {
 			final RoutePoint point = _route.getRoute().get(row);
@@ -451,17 +416,11 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 			return _indexToColumn.get(column).getClazz();
 		}
 
-		/**
-		 * @see javax.swing.table.AbstractTableModel#getColumnName(int)
-		 */
 		@Override
 		public String getColumnName(final int column) {
 			return _indexToColumn.get(column).getLabel();
 		}
 
-		/**
-		 * @see javax.swing.table.AbstractTableModel#isCellEditable(int, int)
-		 */
 		@Override
 		public boolean isCellEditable(final int row, final int column) {
 			if (_indexToColumn.get(column) == Column.WHO_IS) {
@@ -471,9 +430,6 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 			return false;
 		}
 
-		/**
-		 * Dispose the model
-		 */
 		public void dispose() {
 
 		}
@@ -486,13 +442,8 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 	 */
 	private class RouteCellRenderer extends DefaultTableCellRenderer {
 
-		/**  */
 		private static final long serialVersionUID = 1622508565550177571L;
 
-		/**
-		 * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable,
-		 *      java.lang.Object, boolean, boolean, int, int)
-		 */
 		@Override
 		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row,
 				final int column) {
@@ -526,7 +477,7 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 					button.setEnabled(!_searching && point != null && !point.isUnknown());
 					return button;
 				} else {
-					if ((col == Column.LATENCY || col == Column.DNS_LOOKUP) && value.equals(0l)) {
+					if ((col == Column.LATENCY || col == Column.DNS_LOOKUP) && value.equals(0L)) {
 						if (!_dnsLookup && col == Column.DNS_LOOKUP) {
 							label.setText("");
 						} else {
@@ -548,7 +499,6 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 	 */
 	public class ButtonCellEditor extends DefaultCellEditor {
 
-		/**  */
 		private static final long serialVersionUID = 5338833733700590170L;
 
 		public ButtonCellEditor() {

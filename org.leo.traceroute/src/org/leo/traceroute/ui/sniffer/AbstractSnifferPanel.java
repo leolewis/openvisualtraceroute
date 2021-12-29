@@ -48,72 +48,42 @@ public abstract class AbstractSnifferPanel extends AbstractPanel {
 	public final void newRoute(final boolean dnsLookup) {
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.route.IRouteListener#routePointAdded(org.leo.traceroute.core.route.RoutePoint)
-	 */
 	@Override
 	public final void routePointAdded(final RoutePoint point) {
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.route.IRouteListener#done(long, long)
-	 */
 	@Override
 	public final void routeDone(final long tracerouteTime, final long lengthInKm) {
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.route.IRouteListener#timeout()
-	 */
 	@Override
 	public final void routeTimeout() {
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.route.IRouteListener#maxHops()
-	 */
 	@Override
 	public void maxHops() {
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.route.IRouteListener#error(java.io.IOException)
-	 */
 	@Override
 	public final void error(final Exception exception, final Object origin) {
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.route.IRouteListener#cancelled()
-	 */
 	@Override
 	public final void routeCancelled() {
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.route.IRouteListener#focusRoute(org.leo.traceroute.core.route.RoutePoint, boolean, boolean)
-	 */
 	@Override
 	public final void focusRoute(final RoutePoint point, final boolean isTracing, final boolean animation) {
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.whois.IWhoIsListener#startWhoIs(org.leo.traceroute.core.geo.GeoPoint, java.lang.String)
-	 */
 	@Override
 	public final void startWhoIs(final String host) {
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.whois.IWhoIsListener#focusWhoIs(org.leo.traceroute.core.geo.GeoPoint)
-	 */
 	@Override
 	public void focusWhoIs(final GeoPoint point) {
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.whois.IWhoIsListener#whoIsResult(java.lang.String)
-	 */
 	@Override
 	public final void whoIsResult(final String result) {
 	}

@@ -78,7 +78,7 @@ public abstract class AbstractSniffer extends AbstractObject<IPacketListener> im
 	@Override
 	public void renotifyPackets() {
 		if (!_capture.isEmpty()) {
-			for (final IPacketListener listener : getListeners()) {
+			notifyListeners(listener -> {
 				listener.startCapture();
 				for (final AbstractPacketPoint point : _capture) {
 					listener.packetAdded(point);
@@ -87,7 +87,7 @@ public abstract class AbstractSniffer extends AbstractObject<IPacketListener> im
 				if (_focusedPoint != null) {
 					focus(_focusedPoint, false);
 				}
-			}
+			});
 		}
 	}
 
@@ -107,9 +107,7 @@ public abstract class AbstractSniffer extends AbstractObject<IPacketListener> im
 	@Override
 	public void focus(final AbstractPacketPoint point, final boolean animation) {
 		_focusedPoint = point;
-		for (final IPacketListener listener : getListeners()) {
-			listener.focusPacket(point, false, animation);
-		}
+		notifyListeners(listener -> listener.focusPacket(point, false, animation));
 	}
 
 	@Override

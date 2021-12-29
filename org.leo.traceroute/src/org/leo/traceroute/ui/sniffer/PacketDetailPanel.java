@@ -65,33 +65,21 @@ public class PacketDetailPanel extends AbstractSnifferPanel {
 		add(scroll, BorderLayout.CENTER);
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.sniffer.IPacketListener#startCapture()
-	 */
 	@Override
 	public void startCapture() {
 		_details.setText("");
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.sniffer.IPacketListener#packetAdded(org.leo.traceroute.core.sniffer.PacketPoint)
-	 */
 	@Override
 	public void packetAdded(final AbstractPacketPoint point) {
 		//		showPacket(point);
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.sniffer.IPacketListener#captureStopped()
-	 */
 	@Override
 	public void captureStopped() {
 
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.sniffer.IPacketListener#focusPacket(org.leo.traceroute.core.sniffer.PacketPoint, boolean, boolean)
-	 */
 	@Override
 	public void focusPacket(final AbstractPacketPoint point, final boolean isCapturing, final boolean animation) {
 		showPacket(point);

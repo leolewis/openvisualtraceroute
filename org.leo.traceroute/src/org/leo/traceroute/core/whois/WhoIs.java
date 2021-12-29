@@ -83,24 +83,18 @@ public class WhoIs extends AbstractObject<IWhoIsListener> {
 		} catch (final Exception e) {
 			_whois = null;
 			_point = null;
-			for (final IWhoIsListener listener : getListeners()) {
-				listener.error(new IOException("Failed to get the whois info", e), this);
-			}
+			notifyListeners(listener -> listener.error(new IOException("Failed to get the whois info", e), WhoIs.this));
 		}
 	}
 
 	private void doRun(final String ipOrHost, String cmd) {
 		try {
-			for (final IWhoIsListener listener : getListeners()) {
-				listener.startWhoIs(ipOrHost);
-			}
+			notifyListeners(listener -> listener.startWhoIs(ipOrHost));
 			final InetAddress address = InetAddress.getByName(ipOrHost);
 			_point = _geo.populateGeoDataForIP(new GeoPoint(), address.getHostAddress(), address.getHostName());
 
 			_point.setHostname(_dns.dnsLookup(_point.getIp()));
-			for (final IWhoIsListener listener : getListeners()) {
-				listener.focusWhoIs(_point);
-			}
+			notifyListeners(listener -> listener.focusWhoIs(_point));
 
 			if (Env.INSTANCE.getOs() == OS.win) {
 				cmd = Env.NATIVE_FOLDER + Util.FILE_SEPARATOR + OS.win.name() + Util.FILE_SEPARATOR + cmd + ".exe";
@@ -150,9 +144,7 @@ public class WhoIs extends AbstractObject<IWhoIsListener> {
 			}
 			_whois = res.toString().replace("&gt;", "").replace("\n\n", "");
 			if (!_cancel) {
-				for (final IWhoIsListener listener : getListeners()) {
-					listener.whoIsResult(_whois);
-				}
+				notifyListeners(listener -> listener.whoIsResult(_whois));
 			}
 		} catch (final Exception e) {
 			if (Env.INSTANCE.getOs() == OS.linux && e.getMessage().contains("Cannot run program \"" + cmd + "\": error=2, No such file or directory")) {
@@ -162,9 +154,7 @@ public class WhoIs extends AbstractObject<IWhoIsListener> {
 			LOGGER.error("WhoIs failed", e);
 			_whois = null;
 			_point = null;
-			for (final IWhoIsListener listener : getListeners()) {
-				listener.error(new IOException("Failed to get the whois info", e), WhoIs.this);
-			}
+			notifyListeners(listener -> listener.error(new IOException("Failed to get the whois info", e), WhoIs.this));
 		}
 	}
 
@@ -181,15 +171,11 @@ public class WhoIs extends AbstractObject<IWhoIsListener> {
 	 */
 	public void renotifyWhoIs() {
 		if (_point != null) {
-			for (final IWhoIsListener listener : getListeners()) {
+			notifyListeners(listener -> {
 				listener.startWhoIs(_point.getHostname());
-			}
-			for (final IWhoIsListener listener : getListeners()) {
 				listener.focusWhoIs(_point);
-			}
-			for (final IWhoIsListener listener : getListeners()) {
 				listener.whoIsResult(_whois);
-			}
+			});
 		}
 	}
 

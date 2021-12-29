@@ -18,6 +18,11 @@
  */
 package org.leo.traceroute.core;
 
+import org.leo.traceroute.ui.AbstractPanel;
+import org.leo.traceroute.ui.util.SwingUtilities4;
+
+import javax.swing.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -32,7 +37,9 @@ import java.util.concurrent.Executors;
  */
 public abstract class AbstractObject<T> implements IDisposable {
 
-	/** Threads pool */
+	/**
+	 * Threads pool
+	 */
 	protected ExecutorService _threadPool = Executors.newFixedThreadPool(5, r -> {
 		final Thread t = new Thread(r);
 		t.setDaemon(true);
@@ -43,17 +50,21 @@ public abstract class AbstractObject<T> implements IDisposable {
 
 	/**
 	 * Service Init
+	 *
 	 * @param factory
 	 */
 	public void init(final ServiceFactory factory) throws Exception {
 		_factory = factory;
 	}
 
-	/** Set of listeners */
+	/**
+	 * Set of listeners
+	 */
 	private final Set<T> _listeners = new HashSet<>();
 
 	/**
 	 * Add listener
+	 *
 	 * @param listener
 	 */
 	public void addListener(final T listener) {
@@ -62,18 +73,11 @@ public abstract class AbstractObject<T> implements IDisposable {
 
 	/**
 	 * Remove listener
+	 *
 	 * @param listener
 	 */
 	public void removeListener(final T listener) {
 		_listeners.remove(listener);
-	}
-
-	/**
-	 * Return the value of the field listeners
-	 * @return the value of listeners
-	 */
-	public Set<T> getListeners() {
-		return new HashSet<>(_listeners);
 	}
 
 	/**
@@ -83,5 +87,27 @@ public abstract class AbstractObject<T> implements IDisposable {
 	public void dispose() {
 		_listeners.clear();
 		_threadPool.shutdown();
+	}
+
+	public void notifyListeners(INotifyRunnable<T> notify) {
+		for (T listener : _listeners) {
+			if (listener instanceof AbstractPanel) {
+				if (SwingUtilities.isEventDispatchThread()) {
+					notify.run(listener);
+				} else {
+					try {
+						SwingUtilities.invokeAndWait(() -> notify.run(listener));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			} else {
+				notify.run(listener);
+			}
+		}
+	}
+	@FunctionalInterface
+	public interface INotifyRunnable<T> {
+		void run(T listener);
 	}
 }

@@ -71,19 +71,10 @@ public class AutoCompleteProvider extends AbstractObject<Void> {
 	@Override
 	public void init(final ServiceFactory factory) throws IOException, ClassNotFoundException {
 		if (Env.HISTORY.exists()) {
-			FileInputStream is = null;
-			ObjectInput input = null;
-			try {
-				is = new FileInputStream(Env.HISTORY);
-				input = new ObjectInputStream(is);
+			try (FileInputStream is = new FileInputStream(Env.HISTORY); ObjectInput input = new ObjectInputStream(is)){
 				_map = (HashMap<String, Integer>) input.readObject();
 			} catch (final Exception e) {
 				Env.HISTORY.delete();
-			} finally {
-				IOUtils.closeQuietly(is);
-				if (input != null) {
-					input.close();
-				}
 			}
 		}
 		if (_map == null) {
@@ -132,25 +123,12 @@ public class AutoCompleteProvider extends AbstractObject<Void> {
 	@Override
 	public void dispose() {
 		if (_map != null) {
-			FileOutputStream os = null;
-			ObjectOutput output = null;
-			try {
-				os = new FileOutputStream(Env.HISTORY);
-				output = new ObjectOutputStream(os);
+			try (FileOutputStream os = new FileOutputStream(Env.HISTORY); ObjectOutput output = new ObjectOutputStream(os)) {
 				output.writeObject(_map);
 				output.flush();
 			} catch (final Exception e) {
 				LOGGER.error("Failed to persist history", e);
 				Env.HISTORY.delete();
-			} finally {
-				IOUtils.closeQuietly(os);
-				if (output != null) {
-					try {
-						output.close();
-					} catch (final IOException e) {
-
-					}
-				}
 			}
 		}
 	}

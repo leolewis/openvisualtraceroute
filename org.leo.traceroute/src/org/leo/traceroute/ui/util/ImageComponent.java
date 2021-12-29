@@ -25,10 +25,10 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.RenderingHints;
 
-import javax.swing.JComponent;
-
 import org.leo.traceroute.install.Env;
 import org.leo.traceroute.install.Env.OS;
+
+import javax.swing.*;
 
 /**
  * ImagePanel $Id: ImageComponent.java 181 2011-08-29 07:14:02Z leolewis $
@@ -63,9 +63,6 @@ public class ImageComponent extends JComponent {
 		setSize(getPreferredSize());
 	}
 
-	/**
-	 * @see javax.swing.JComponent#paintComponent(java.awt.Graphics)
-	 */
 	@Override
 	public synchronized void paintComponent(final Graphics g) {
 		super.paintComponent(g);
@@ -83,11 +80,11 @@ public class ImageComponent extends JComponent {
 				title += _text[0].charAt(i) + "   ";
 			}
 			final float factor = Env.INSTANCE.getOs() == OS.win ? 3f : 2.2f;
-			g2D.drawString(title, new Double(0.5 * (_img.getWidth(null) - title.length() * size / factor)).intValue(), _img.getHeight(null) - 70 - (_text.length) * size);
+			g2D.drawString(title, Double.valueOf(0.5 * (_img.getWidth(null) - title.length() * size / factor)).intValue(), _img.getHeight(null) - 70 - (_text.length) * size);
 			for (int i = 1; i < _text.length; i++) {
 				size -= 2;
 				g2D.setFont(new Font("Arial", Font.PLAIN, size));
-				g2D.drawString(_text[i], new Double(0.5 * (_img.getWidth(null) - _text[i].length() * size / factor)).intValue(),
+				g2D.drawString(_text[i], Double.valueOf(0.5 * (_img.getWidth(null) - _text[i].length() * size / factor)).intValue(),
 						_img.getHeight(null) - 20 - (_text.length - i) * size);
 			}
 		}

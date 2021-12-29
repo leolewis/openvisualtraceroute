@@ -35,7 +35,6 @@ Limitations, Known issues :
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Wish list : 
-- ipv6 support
 - traceroute server mode
 - display active connections
 - export and import traceroute data

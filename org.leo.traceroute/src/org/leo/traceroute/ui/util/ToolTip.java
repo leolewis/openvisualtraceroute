@@ -32,14 +32,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.JToggleButton;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.leo.traceroute.resources.Resources;
@@ -97,12 +90,9 @@ public enum ToolTip {
 		_dialogs = new ArrayList<>();
 		int num = 0;
 		final Window w = SwingUtilities.getWindowAncestor(_component);
-
 		for (final JComponent c : _components) {
 			num++;
-
 			buildDialog(w, c, num);
-
 		}
 		final JDialog over = new JDialog(w, ModalityType.DOCUMENT_MODAL);
 		final MouseAdapter dispose = new MouseAdapter() {

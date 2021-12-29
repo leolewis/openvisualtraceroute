@@ -202,9 +202,6 @@ public class PacketTablePanel extends AbstractSnifferPanel implements IConfigPro
 
 	/**
 	 * Constructor
-	 *
-	 * @param route
-	 * @param networkInterfaceChooser
 	 */
 	public PacketTablePanel(final ServiceFactory services) {
 		super(services);
@@ -213,8 +210,6 @@ public class PacketTablePanel extends AbstractSnifferPanel implements IConfigPro
 
 	/**
 	 * Initialization of the panel
-	 *
-	 * @param networkInterfaceChooser
 	 */
 	@SuppressWarnings("serial")
 	private void init() {
@@ -278,9 +273,6 @@ public class PacketTablePanel extends AbstractSnifferPanel implements IConfigPro
 		return getClass().getSimpleName();
 	}
 
-	/**
-	 * @see org.leo.traceroute.install.Env.IConfigProvider#load(java.util.Map)
-	 */
 	@Override
 	public void load(final Map<String, String> config) {
 		for (int colIndex = 0; colIndex < _table.getColumnCount(); colIndex++) {
@@ -292,9 +284,6 @@ public class PacketTablePanel extends AbstractSnifferPanel implements IConfigPro
 		}
 	}
 
-	/**
-	 * @see org.leo.traceroute.install.Env.IConfigProvider#save()
-	 */
 	@Override
 	public Map<String, String> save() {
 		final Map<String, String> widths = new HashMap<>();
@@ -306,9 +295,6 @@ public class PacketTablePanel extends AbstractSnifferPanel implements IConfigPro
 		return widths;
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.sniffer.IPacketListener#startCapture()
-	 */
 	@Override
 	public void startCapture() {
 		_running = true;
@@ -316,9 +302,6 @@ public class PacketTablePanel extends AbstractSnifferPanel implements IConfigPro
 		_model.fireTableDataChanged();
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.sniffer.IPacketListener#packetAdded(org.leo.traceroute.core.sniffer.PacketPoint)
-	 */
 	@Override
 	public void packetAdded(final AbstractPacketPoint point) {
 		final int selection = _table.getSelectionModel().getMaxSelectionIndex();
@@ -326,17 +309,11 @@ public class PacketTablePanel extends AbstractSnifferPanel implements IConfigPro
 		_table.getSelectionModel().setSelectionInterval(selection, selection);
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.sniffer.IPacketListener#captureStopped()
-	 */
 	@Override
 	public void captureStopped() {
 		_running = false;
 	}
 
-	/**
-	 * @see org.leo.traceroute.core.sniffer.IPacketListener#focusPacket(org.leo.traceroute.core.sniffer.PacketPoint, boolean, boolean)
-	 */
 	@Override
 	public void focusPacket(final AbstractPacketPoint point, final boolean isCapturing, final boolean animation) {
 		if (!_selectionAdjusting) {
@@ -351,9 +328,6 @@ public class PacketTablePanel extends AbstractSnifferPanel implements IConfigPro
 		}
 	}
 
-	/**
-	 * Dispose the panel
-	 */
 	@Override
 	public void dispose() {
 		super.dispose();
@@ -375,32 +349,21 @@ public class PacketTablePanel extends AbstractSnifferPanel implements IConfigPro
 
 		/**
 		 * Constructor
-		 *
-		 * @param sniffer
 		 */
 		public CaptureTableModel(final IPacketsSniffer sniffer) {
 			_sniffer = sniffer;
 		}
 
-		/**
-		 * @see javax.swing.table.TableModel#getColumnCount()
-		 */
 		@Override
 		public int getColumnCount() {
 			return Column.values().length;
 		}
 
-		/**
-		 * @see javax.swing.table.TableModel#getRowCount()
-		 */
 		@Override
 		public int getRowCount() {
 			return _sniffer.getCapture().size();
 		}
 
-		/**
-		 * @see javax.swing.table.TableModel#getValueAt(int, int)
-		 */
 		@Override
 		public Object getValueAt(final int row, final int col) {
 			final AbstractPacketPoint point = _sniffer.getCapture().get(row);
@@ -412,17 +375,11 @@ public class PacketTablePanel extends AbstractSnifferPanel implements IConfigPro
 			return _indexToColumn.get(modelCol).getClazz();
 		}
 
-		/**
-		 * @see javax.swing.table.AbstractTableModel#getColumnName(int)
-		 */
 		@Override
 		public String getColumnName(final int column) {
 			return _indexToColumn.get(column).getLabel();
 		}
 
-		/**
-		 * @see javax.swing.table.AbstractTableModel#isCellEditable(int, int)
-		 */
 		@Override
 		public boolean isCellEditable(final int row, final int col) {
 			if (_indexToColumn.get(col) == Column.WHO_IS) {
@@ -448,10 +405,6 @@ public class PacketTablePanel extends AbstractSnifferPanel implements IConfigPro
 		/**  */
 		private static final long serialVersionUID = 1622508565550177571L;
 
-		/**
-		 * @see javax.swing.table.DefaultTableCellRenderer#getTableCellRendererComponent(javax.swing.JTable,
-		 *      java.lang.Object, boolean, boolean, int, int)
-		 */
 		@Override
 		public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected, final boolean hasFocus, final int row,
 				final int column) {

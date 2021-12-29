@@ -20,6 +20,7 @@ package org.leo.traceroute.core.network;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 
 import org.leo.traceroute.core.IComponent;
 import org.leo.traceroute.core.ServiceFactory;
@@ -78,9 +79,9 @@ public class DNSLookupService implements IComponent {
 
 			final Message response = _resolver.send(query);
 
-			final Record[] answers = response.getSectionArray(Section.ANSWER);
-			if (answers.length > 0) {
-				String ret = answers[0].rdataToString();
+			final List<Record> answers = response.getSection(Section.ANSWER);
+			if (!answers.isEmpty()) {
+				String ret = answers.get(0).rdataToString();
 				if (ret.endsWith(".")) {
 					ret = ret.substring(0, ret.length() - 1);
 				}

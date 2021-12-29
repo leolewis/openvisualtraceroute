@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
+import com.maxmind.geoip2.exception.AddressNotFoundException;
+import com.maxmind.geoip2.exception.GeoIp2Exception;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.io.IOUtils;
@@ -82,9 +84,6 @@ public class GeoService implements IComponent {
 	private final List<LocRecord> _rawLocRecords = new ArrayList<>();
 	private final Map<String, LocRecord> _rawLocRecordsMap = new HashMap<>();
 
-	/**
-	 * @see org.leo.traceroute.core.IComponent#init(org.leo.traceroute.core.ServiceFactory)
-	 */
 	@Override
 	public void init(final ServiceFactory services) throws IOException {
 		doInit(services, 0);
@@ -97,8 +96,10 @@ public class GeoService implements IComponent {
 		try {
 			if (Env.GEO_DATA_FILE.exists() && (Env.GEO_DATA_FILE.lastModified() + TimeUnit.DAYS.toMillis(30)) < System.currentTimeMillis()) {
 				// geoip db expires after once month
-				Env.GEO_DATA_FILE.renameTo(Env.GEO_DATA_FILE_OLD);
-				LOGGER.info("GeoIP database expired, force redownloading a new one");
+				Env.GEO_DATA_FILE_OLD.delete();
+				if (Env.GEO_DATA_FILE.renameTo(Env.GEO_DATA_FILE_OLD)) {
+					LOGGER.info("GeoIP database expired, force redownloading a new one");
+				}
 			} else {
 				LOGGER.info("Use geoip db {} which is {} day(s) old", Env.GEO_DATA_FILE.getAbsolutePath(),
 						TimeUnit.MILLISECONDS.toDays(System.currentTimeMillis() - Env.GEO_DATA_FILE.lastModified()));
@@ -154,6 +155,8 @@ public class GeoService implements IComponent {
 				Env.GEO_DATA_FILE.delete();
 				doInit(services, retry);
 			}
+		} catch (Exception e) {
+			_publicIp = Pair.of(ip, null);
 		}
 		if (LOC_RECORDS.exists()) {
 			final Pair<String, Exception> error = parseAndLoadDNSRecords(IOUtils.toString(new FileInputStream(LOC_RECORDS)));
@@ -200,7 +203,11 @@ public class GeoService implements IComponent {
 			}
 			// nothing in the loc records, check with the geoip db
 			if (location == null) {
-				location = _lookupService.city(InetAddress.getByName(ip));
+				try {
+					location = _lookupService.city(InetAddress.getByName(ip));
+				} catch (Exception e) {
+
+				}
 			}
 			if (location != null) {
 				final City city = location.getCity();
@@ -282,7 +289,7 @@ public class GeoService implements IComponent {
 			LOGGER.info("Delete " + Env.GEO_DATA_FILE.getAbsolutePath() + " to force redownloading the file on next startup");
 			Env.GEO_DATA_FILE_OLD.delete();
 			if (!Env.GEO_DATA_FILE.renameTo(Env.GEO_DATA_FILE_OLD)) {
-				LOGGER.error("Failed to delete geoip db {} {}", Env.GEO_DATA_FILE.getAbsolutePath());
+				LOGGER.error("Failed to delete geoip db {}", Env.GEO_DATA_FILE.getAbsolutePath());
 			}
 		}
 		try {

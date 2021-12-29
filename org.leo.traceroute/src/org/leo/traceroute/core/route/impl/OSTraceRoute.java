@@ -2,6 +2,7 @@ package org.leo.traceroute.core.route.impl;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.leo.traceroute.core.network.DNSLookupService;
+import org.leo.traceroute.core.network.INetworkInterfaceListener;
 import org.leo.traceroute.core.route.IRouteListener;
 import org.leo.traceroute.core.route.MaxHopsException;
 import org.leo.traceroute.core.route.RouteException;
@@ -13,12 +14,15 @@ import org.leo.traceroute.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
-public class OSTraceRoute extends AbstractTraceRoute {
+public class OSTraceRoute extends AbstractTraceRoute<INetworkInterfaceListener<?>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OSTraceRoute.class);
 
@@ -34,10 +38,7 @@ public class OSTraceRoute extends AbstractTraceRoute {
         try {
             String cmd;
             if (Env.INSTANCE.getOs() == OS.win) {
-                cmd = "tracert";
-                if (!resolveHostname) {
-                    cmd += " -d";
-                }
+                cmd = "tracert -d -w 1000";
                 if (!ipV4) {
                     cmd += " -6";
                 }
@@ -47,10 +48,7 @@ public class OSTraceRoute extends AbstractTraceRoute {
                 if (!ipV4) {
                     cmd += "6";
                 }
-                cmd += " -q 1";
-                if (!resolveHostname) {
-                    cmd += " -n";
-                }
+                cmd += " -q 1 -n";
                 cmd += " -m " + maxHops;
             }
             final Process process = Runtime.getRuntime().exec(cmd + " " + formatedDest);
@@ -82,6 +80,7 @@ public class OSTraceRoute extends AbstractTraceRoute {
                             linebuffer.append(c);
                         }
                     } while (c != '\n');
+                    //System.out.println(lineNum + ":" + linebuffer);
                     lineNum++;
                     if (lineNum <= ignoreLines) {
                         continue;
@@ -112,34 +111,39 @@ public class OSTraceRoute extends AbstractTraceRoute {
                     final String ip;
                     String host = "";
                     final int latency;
-                    final int dnslookupTime = DNSLookupService.UNDEF;
+                    int dnslookupTime = DNSLookupService.UNDEF;
 
                     if (Env.INSTANCE.getOs() == OS.win) {
                         latency = (parseWindowsTime(routePoint[1]) + parseWindowsTime(routePoint[2]) + parseWindowsTime(routePoint[3])) / 3;
-                        if (resolveHostname) {
-                            if (routePoint.length > 5) {
-                                host = routePoint[4];
-                                ip = routePoint[5].replace("[", "").replace("]", "");
-                            } else {
-                                ip = routePoint[4];
-                            }
-                        } else {
+//                        if (resolveHostname) {
+//                            if (routePoint.length > 5) {
+//                                host = routePoint[4];
+//                                ip = routePoint[5].replace("[", "").replace("]", "");
+//                            } else {
+//                                ip = routePoint[4];
+//                            }
+//                        } else {
                             ip = routePoint[4];
-                        }
+//                        }
                     } else {
-                        if (resolveHostname) {
-                            if (routePoint.length > 3) {
-                                host = routePoint[1];
-                                ip = routePoint[2].replace("(", "").replace(")", "");
-                                latency = (int) Float.parseFloat(routePoint[3]);
-                            } else {
-                                ip = routePoint[1].replace("(", "").replace(")", "");
-                                latency = (int) Float.parseFloat(routePoint[2]);
-                            }
-                        } else {
+//                        if (resolveHostname) {
+//                            if (routePoint.length > 3) {
+//                                host = routePoint[1];
+//                                ip = routePoint[2].replace("(", "").replace(")", "");
+//                                latency = (int) Float.parseFloat(routePoint[3]);
+//                            } else {
+//                                ip = routePoint[1].replace("(", "").replace(")", "");
+//                                latency = (int) Float.parseFloat(routePoint[2]);
+//                            }
+//                        } else {
                             ip = routePoint[1];
                             latency = (int) Float.parseFloat(routePoint[2]);
-                        }
+//                        }
+                    }
+                    if (resolveHostname) {
+                        final long now = System.currentTimeMillis();
+                        host = _services.getDnsLookup().dnsLookup(ip);
+                        dnslookupTime = (int) (System.currentTimeMillis() - now);
                     }
                     previous = addPoint(Pair.of(ip, host), latency, dnslookupTime);
                 }
@@ -187,15 +191,5 @@ public class OSTraceRoute extends AbstractTraceRoute {
             return 1;
         }
         return Integer.parseInt(str);
-    }
-
-    @Override
-    public void addListener(IRouteListener listener) {
-
-    }
-
-    @Override
-    public void removeListener(IRouteListener listener) {
-
     }
 }

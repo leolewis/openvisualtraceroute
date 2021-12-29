@@ -26,8 +26,10 @@ import org.leo.traceroute.core.sniffer.IPacketsSniffer;
 import org.leo.traceroute.core.sniffer.impl.EmptyPacketsSniffer;
 import org.leo.traceroute.core.whois.WhoIs;
 import org.leo.traceroute.install.Env;
+import org.leo.traceroute.ui.TraceRouteFrame;
 import org.leo.traceroute.ui.util.SplashScreen;
 
+import javax.swing.*;
 import java.util.Arrays;
 
 /**
@@ -57,6 +59,7 @@ public class ServiceFactory {
 	private final AutoCompleteProvider _autocomplete;
 
 	private final SplashScreen _splash;
+	private TraceRouteFrame _main;
 
 	public ServiceFactory(final ITraceRoute traceroute, final IPacketsSniffer sniffer, final INetworkService<?> networkService,
 			final DNSLookupService dnsLookup, final GeoService geo, final AutoCompleteProvider autoComplete, final WhoIs whois) {
@@ -74,8 +77,9 @@ public class ServiceFactory {
 	/**
 	 * Constructor
 	 */
-	public ServiceFactory(final SplashScreen splash) {
+	public ServiceFactory(final SplashScreen splash, TraceRouteFrame main) {
 		_splash = splash;
+		_main = main;
 
 		_networkService = new EmptyNetworkService();
 
@@ -95,9 +99,7 @@ public class ServiceFactory {
 		_sniffer.init(this);
 		_autocomplete.init(this);
 		_whois.init(this);
-		Arrays.asList(Mode.values()).forEach(m -> {
-			_networkService.notifyInterface(m);
-		});
+		Arrays.asList(Mode.values()).forEach(_networkService::notifyInterface);
 		if (!isEmbeddedTRAvailable()) {
 			Env.INSTANCE.setUseOSTraceroute(true);
 		} else {
@@ -204,6 +206,9 @@ public class ServiceFactory {
 		if (_splash != null) {
 			_splash.updateStartup(labelKey, incStep);
 		}
+	}
 
+	public JFrame getMain() {
+		return _main;
 	}
 }

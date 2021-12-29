@@ -5,8 +5,6 @@
 ==============================================================================================
  Open Visual Trace Route components License
 
- Network API : Jpcap (GNU LGPL, http://netresearch.ics.uci.edu/kfujii/Jpcap/doc/index.html)
- Network API : JNetPcap (GNU LGPL, http://jnetpcap.com/)
  Ip to city mapping Database : This product includes GeoLite data created by MaxMind, available from http://maxmind.com/
  Ip to city mapping API : MaxMind (GNU LGPL, http://www.maxmind.com/app/city#api)
  3D Map component : Worl Wind Java (NASA Open Source Agreement, http://worldwind.arc.nasa.gov/java/)
@@ -15,7 +13,6 @@
  DNS lookup : dnsjava (BSD http://www.xbill.org/dnsjava/)
  Concurrent Trees : Apache License 2.0 https://code.google.com/p/concurrent-trees/#Concurrency_Support
  GNU-whois for Win32 v1.12 : GNU2.0 - https://sourceforge.net/projects/whoiswin/
- Winpcap: Copyright (c) 1999 - 2005 NetGroup, Politecnico di Torino (Italy). Copyright (c) 2005 - 2010 CACE Technologies, Davis (California).https://www.winpcap.org/misc/copyright.htm
  JFontChooser : (http://jfontchooser.osdn.jp/site/jfontchooser/index.html MIT/X Consortium License)
  
  * Special thanks to Centauri39 for the German translation

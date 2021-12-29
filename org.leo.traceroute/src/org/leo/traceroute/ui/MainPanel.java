@@ -112,8 +112,6 @@ public class MainPanel extends JPanel {
 		if (!Env.INSTANCE.isOpenGLAvailable()) {
 			LOGGER.warn("No graphic card that supports required OpenGL features has been detected. The 3D map will be not be available");
 		}
-		ToolTipManager.sharedInstance().setEnabled(false);
-		ToolTipManager.sharedInstance().setInitialDelay(10);
 		// init panels
 		_statusPanel = new StatusPanel(_services);
 		_replayPanel = new ReplayPanel(_services, _statusPanel);
@@ -264,14 +262,11 @@ public class MainPanel extends JPanel {
 	 */
 	public void afterShow() {
 
-		final SwingWorker<Void, Void> initWorker = new SwingWorker<Void, Void>() {
+		final SwingWorker<String, Void> initWorker = new SwingWorker<String, Void>() {
 
 			@Override
-			protected Void doInBackground() throws Exception {
-				// init services
-				_controlPanel.updateButtons();
+			protected String doInBackground() throws Exception {
 				try {
-					_services.updateStartup("init.check.update", true);
 					final String[] latestVersion = IOUtils.toString(Util.followRedirectOpenConnection(Env.INSTANCE.getVersionUrl())).replace(" ", "").split("\\.");
 					final String[] currentVersion = Resources.getVersion().replace(" ", "").split("\\.");
 					final int[] latestDigits = new int[latestVersion.length];
@@ -283,8 +278,7 @@ public class MainPanel extends JPanel {
 					final boolean newVersionAvailable = (latestDigits[0] > currentDigits[0] || (latestDigits[0] == currentDigits[0] && latestDigits[1] > currentDigits[1])
 							|| (latestDigits[0] == currentDigits[0] && latestDigits[1] == currentDigits[1] && latestDigits[2] > currentDigits[2]));
 					if (newVersionAvailable) {
-						final String content = IOUtils.toString(Util.followRedirectOpenConnection(Env.INSTANCE.getWhatsnewUrl()));
-						_controlPanel.setNewVersionAvailable(content);
+						return IOUtils.toString(Util.followRedirectOpenConnection(Env.INSTANCE.getWhatsnewUrl()));
 					}
 				} catch (final Exception e) {
 					LOGGER.info("Cannot check latest version");
@@ -295,31 +289,23 @@ public class MainPanel extends JPanel {
 			@Override
 			protected void done() {
 				try {
-					get();
+					String content = get();
+					if (content != null) {
+						_controlPanel.setNewVersionAvailable(content);
+					}
 				} catch (final Exception e) {
-					LOGGER.error("Error while initializing the application", e);
-					_services.getSplash().dispose();
-					JOptionPane.showMessageDialog(null, Resources.getLabel("error.init", e.getMessage()), Resources.getLabel("fatal.error"), JOptionPane.ERROR_MESSAGE);
-					System.exit(-1);
+					LOGGER.error("Error while checking update", e);
 				}
-				_services.updateStartup("init.completed", true);
-				_controlPanel.setEnabled(true);
-				if (Env.INSTANCE.isIs3dMap()) {
-					_3dPanel.afterShow(_controlPanel.getCurrentMode());
-				} else {
-					_2dPanel.afterShow(_controlPanel.getCurrentMode());
-				}
-				_services.getSplash().dispose();
-				final Window windowAncestor = SwingUtilities.getWindowAncestor(MainPanel.this);
-				windowAncestor.toFront();
-				SwingUtilities4.applyFont(windowAncestor, Env.INSTANCE.getFont());
-				windowAncestor.toFront();
-				getRootPane().setDefaultButton(_controlPanel.getRootButton());
 			}
-
 		};
-		// wait for the route tracer to be initialized
-		initWorker.execute();
+		//initWorker.execute();
+		_controlPanel.setEnabled(true);
+		if (Env.INSTANCE.isIs3dMap()) {
+			_3dPanel.afterShow(_controlPanel.getCurrentMode());
+		} else {
+			_2dPanel.afterShow(_controlPanel.getCurrentMode());
+		}
+		_controlPanel.updateButtons();
 	}
 
 	/**
@@ -358,4 +344,7 @@ public class MainPanel extends JPanel {
 		return _split;
 	}
 
+	public ControlPanel getControlPanel() {
+		return _controlPanel;
+	}
 }

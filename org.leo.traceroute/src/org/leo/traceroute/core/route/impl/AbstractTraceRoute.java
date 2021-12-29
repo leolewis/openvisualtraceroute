@@ -48,6 +48,7 @@ import org.leo.traceroute.core.route.RouteException;
 import org.leo.traceroute.core.route.RoutePoint;
 import org.leo.traceroute.install.Env;
 import org.leo.traceroute.install.Env.OS;
+import org.leo.traceroute.ui.AbstractPanel;
 import org.leo.traceroute.ui.route.RouteTablePanel.Column;
 import org.leo.traceroute.ui.task.CancelMonitor;
 import org.leo.traceroute.ui.util.SwingUtilities4;
@@ -97,30 +98,19 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 			while (!isInterrupted()) {
 				try {
 					final RoutePoint point = _notifyQueue.poll(10, TimeUnit.MILLISECONDS);
-					// notify in the EDT
 					if (point != null) {
-						SwingUtilities4.invokeInEDT(() -> {
-							// notify route point added
-							for (final IRouteListener listener : getListeners()) {
-								listener.routePointAdded(point);
-							}
-							// focus on the point
-							for (final IRouteListener listener : getListeners()) {
-								listener.focusRoute(point, true, true);
-							}
-							_notified.incrementAndGet();
-						});
+						// notify route point added
+						notifyListeners((listener) -> listener.routePointAdded(point));
+						// focus on the point
+						notifyListeners((listener) -> listener.focusRoute(point, true, true));
+						_notified.incrementAndGet();
 					}
 				} catch (final InterruptedException e) {
 
 				}
-
 			}
 		}
 	};
-	{
-		_notifyThread.setDaemon(true);
-	}
 
 	/**
 	 * Constructor
@@ -132,6 +122,7 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 	@Override
 	public void init(final ServiceFactory services) throws IOException {
 		_services = services;
+		_notifyThread.setDaemon(true);
 		_notifyThread.start();
 	}
 
@@ -175,9 +166,7 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 			_threadPool.execute(() -> {
 				try {
 					// notify new route
-					for (final IRouteListener listener : getListeners()) {
-						listener.newRoute(resolveHostname);
-					}
+					notifyListeners((listener) -> listener.newRoute(resolveHostname));
 					// compute route
 					final long time = System.currentTimeMillis();
 					// check for time out if required
@@ -206,9 +195,7 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 					if (!timedOut.get()) {
 						// if monitor canceled, notify canceled
 						if (monitor.isCanceled()) {
-							for (final IRouteListener listener2 : getListeners()) {
-								listener2.routeCancelled();
-							}
+							notifyListeners(listener -> listener.routeCancelled());
 						} else {
 							// notify done
 							_tracerouteTime = System.currentTimeMillis() - time;
@@ -216,15 +203,11 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 							while (_notified.get() < _route.size()) {
 								Thread.sleep(100);
 							}
-							for (final IRouteListener listener3 : getListeners()) {
-								listener3.routeDone(_tracerouteTime, _lengthInKm.get());
-							}
+							notifyListeners(listener -> listener.routeDone(_tracerouteTime, _lengthInKm.get()));
 						}
 					} else {
 						// notify listeners
-						for (final IRouteListener listener4 : getListeners()) {
-							listener4.routeTimeout();
-						}
+						notifyListeners(listener -> listener.routeTimeout());
 					}
 					// if the traceroute didn't failed, add it to the history
 					_services.getAutocomplete().addToHistory(dest);
@@ -234,15 +217,11 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 						if (e instanceof MaxHopsException) {
 							// notify max hops
 							LOGGER.warn("Traceroute to {} stopped because reached the max hops", fdest);
-							for (final IRouteListener listener5 : getListeners()) {
-								listener5.maxHops();
-							}
+							notifyListeners(listener -> listener.maxHops());
 						} else {
 							// notify error
 							LOGGER.error("Traceroute to {} failed", fdest, e);
-							for (final IRouteListener listener6 : getListeners()) {
-								listener6.error(e, AbstractTraceRoute.this);
-							}
+							notifyListeners(listener -> listener.error(e, AbstractTraceRoute.this));
 						}
 					}
 				} finally {
@@ -253,9 +232,7 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 			if (!monitor.isCanceled()) {
 				// notify error
 				LOGGER.error("Traceroute failed", e);
-				for (final IRouteListener listener : getListeners()) {
-					listener.error(e, AbstractTraceRoute.this);
-				}
+				notifyListeners(listener -> listener.error(e, AbstractTraceRoute.this));
 			}
 			_semaphore.release();
 		}
@@ -287,7 +264,7 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 		if (!_route.isEmpty()) {
 			previous = _route.get(_route.size() - 1);
 		}
-		if (ip.startsWith("192.168.") || ip.equals("127.0.0.1")) {
+		if (ip.startsWith("192.168.") || ip.equals("127.0.0.1") || ip.startsWith("fc00::/7")) {
 			// private Ips, calculate location with public IP
 			point = _services.getGeo().populateGeoDataForIP(new RoutePoint(), _services.getGeo().getPublicIp().getLeft(), null);
 			point.setIp(ip);
@@ -347,9 +324,7 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 	@Override
 	public void focus(final RoutePoint point, final boolean animation) {
 		_focusedPoint = point;
-		for (final IRouteListener listener : getListeners()) {
-			listener.focusRoute(point, false, animation);
-		}
+		notifyListeners(listener -> listener.focusRoute(point, false, animation));
 	}
 
 	@Override
@@ -393,7 +368,7 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 	@Override
 	public void renotifyRoute() {
 		if (!_route.isEmpty()) {
-			for (final IRouteListener listener : getListeners()) {
+			notifyListeners(listener -> {
 				listener.newRoute(_resolveHostname);
 				for (final RoutePoint point : _route) {
 					listener.routePointAdded(point);
@@ -402,7 +377,7 @@ public abstract class AbstractTraceRoute<T> extends AbstractObject<IRouteListene
 				if (_focusedPoint != null) {
 					focus(_focusedPoint, false);
 				}
-			}
+			});
 		}
 	}
 

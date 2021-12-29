@@ -119,15 +119,6 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/dnsjava-2.1.7.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/gdal.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -299,15 +290,6 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/jnetpcap.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/jogl-all-natives-linux-amd64.jar!/" />
         </CLASSES>
         <JAVADOC />
@@ -336,15 +318,6 @@
       <library>
         <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/jogl-all.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/jpcap.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -435,6 +408,5 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="lib" level="project" />
-    <orderEntry type="library" name="commons-codec-1.3" level="project" />
   </component>
 </module>
