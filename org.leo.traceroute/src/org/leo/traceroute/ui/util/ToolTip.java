@@ -18,15 +18,8 @@
  */
 package org.leo.traceroute.ui.util;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
+import java.awt.*;
 import java.awt.Dialog.ModalityType;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.RenderingHints;
-import java.awt.Window;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -35,7 +28,9 @@ import java.util.List;
 import javax.swing.*;
 
 import org.apache.commons.lang3.StringUtils;
+import org.leo.traceroute.install.Env;
 import org.leo.traceroute.resources.Resources;
+import org.leo.traceroute.ui.TraceRouteFrame;
 
 /**
  * ToolTip $Id$
@@ -47,20 +42,18 @@ public enum ToolTip {
 
 	INSTANCE;
 
-	private List<JDialog> _dialogs;
+//	private List<JDialog> _dialogs;
 	private List<JComponent> _components;
 	private Component _component;
-	private Point location;
 
 	private void showToolTips(final Component component) {
 		_component = component;
-		location = _component.getLocationOnScreen();
 		_components = new ArrayList<>();
 		searchTooltip(_component);
 		showToolTips();
 	}
 
-	public JButton buildHelpButton(final Component component, final int h) {
+	public JButton buildHelpButton(final Component component) {
 		final JButton helpButton = new JButton(Resources.getImageIcon("help.png"));
 		helpButton.setToolTipText(Resources.getLabel("help.tooltip"));
 		helpButton.addActionListener(e -> showToolTips(component));
@@ -87,64 +80,39 @@ public enum ToolTip {
 	}
 
 	private void showToolTips() {
-		_dialogs = new ArrayList<>();
+		final JRootPane rootPane = SwingUtilities.getRootPane(_component);
+		final JPanel panel = new JPanel(null);
+		panel.setOpaque(false);
+		panel.setPreferredSize(new Dimension(rootPane.getPreferredSize().width, rootPane.getPreferredSize().height));
 		int num = 0;
-		final Window w = SwingUtilities.getWindowAncestor(_component);
 		for (final JComponent c : _components) {
 			num++;
-			buildDialog(w, c, num);
+			buildDialog(panel, c, num);
 		}
-		final JDialog over = new JDialog(w, ModalityType.DOCUMENT_MODAL);
-		final MouseAdapter dispose = new MouseAdapter() {
+		rootPane.setGlassPane(panel);
+		panel.setVisible(true);
+		panel.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseClicked(final MouseEvent e) {
-				for (final JDialog d : _dialogs) {
-					d.dispose();
-				}
-				_dialogs.clear();
-				over.dispose();
+			public void mouseClicked(MouseEvent e) {
+				rootPane.getGlassPane().setVisible(false);
 			}
-		};
-		for (final JDialog d : _dialogs) {
-			d.addMouseListener(dispose);
-		}
-		over.setUndecorated(true);
-		over.setOpacity(0.2f);
-		final JPanel panel = new JPanel();
-		panel.setPreferredSize(w.getSize());
-		over.getContentPane().add(panel);
-		over.pack();
-		over.setLocationRelativeTo(w);
-		over.addMouseListener(dispose);
-		over.setVisible(true);
+		});
 	}
 
-	private void buildDialog(final Window w, final JComponent component, final int num) {
+	private void buildDialog(final JPanel panel, final JComponent component, final int num) {
 		final Color color = color(num);
-		final JDialog description = new JDialog(w, ModalityType.MODELESS);
-		description.setUndecorated(true);
 		final JLabel label = new AntialisingJLabel("<html><font size=5>&nbsp;" + string(num) + "&nbsp;" + component.getToolTipText() + "&nbsp;</font></html>");
 		label.setBackground(color);
-		description.getContentPane().setBackground(color);
-		description.getContentPane().add(label);
-		description.pack();
+		label.setOpaque(true);
+		label.setBounds( 35 + Env.INSTANCE.getSeparator(),  35 + 35 * num, label.getPreferredSize().width, label.getPreferredSize().height + 4);
+		panel.add(label);
 
-		description.setLocation(location.x + 25, location.y + 85 + 35 * num);
-		description.setSize(description.getWidth(), description.getHeight() + 4);
-		_dialogs.add(description);
-
-		description.setVisible(true);
-		final JDialog number = new JDialog(w, ModalityType.MODELESS);
-		number.setUndecorated(true);
 		final JLabel labelNumber = new AntialisingJLabel("<html><b><font size=5>&nbsp;" + string(num) + "&nbsp;</font></b></html>");
 		labelNumber.setBackground(color);
-		number.getContentPane().add(labelNumber);
-		number.getContentPane().setBackground(color);
-		number.pack();
-		number.setLocationRelativeTo(component);
-		number.setVisible(true);
-
-		_dialogs.add(number);
+		labelNumber.setOpaque(true);
+		labelNumber.setBounds(4 + component.getLocationOnScreen().x - _component.getLocationOnScreen().x + component.getPreferredSize().width / 2 - labelNumber.getPreferredSize().width / 2,
+				_component.getLocation().y + 6, labelNumber.getPreferredSize().width, labelNumber.getPreferredSize().height + 4);
+		panel.add(labelNumber);
 	}
 
 	private static String string(final int num) {
@@ -196,7 +164,7 @@ public enum ToolTip {
 	private static Color color(final int num) {
 		switch (num) {
 		case 1:
-			return Color.BLUE.brighter();
+			return new Color(115, 182, 250);
 		case 2:
 			return Color.GREEN;
 		case 3:

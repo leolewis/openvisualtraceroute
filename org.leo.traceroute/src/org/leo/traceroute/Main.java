@@ -20,12 +20,9 @@ package org.leo.traceroute;
 import javax.swing.*;
 
 import gov.nasa.worldwind.Configuration;
-import gov.nasa.worldwindx.examples.DebuggingGLErrors;
-import jogamp.opengl.windows.wgl.WGLUtil;
 import org.leo.traceroute.core.ServiceFactory;
 import org.leo.traceroute.install.Env;
 import org.leo.traceroute.install.Env.OS;
-import org.leo.traceroute.install.EnvException;
 import org.leo.traceroute.resources.Resources;
 import org.leo.traceroute.ui.TraceRouteFrame;
 import org.leo.traceroute.ui.geo.WWJPanel.DebugGLAutoDrawable;
@@ -62,8 +59,8 @@ public class Main {
 				LOGGER.error("Uncaught error", e);
 			}
 		});
-		Configuration.setValue("gov.nasa.worldwind.avkey.WorldWindowClassName", DebugGLAutoDrawable.class.getName());
 		ToolTipManager.sharedInstance().setEnabled(false);
+		ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
 		ToolTipManager.sharedInstance().setInitialDelay(10);
 		try {
 			Env.INSTANCE.initEnv();
@@ -82,7 +79,7 @@ public class Main {
 			}
 			_instance = new TraceRouteFrame();
 
-			final SplashScreen splash = new SplashScreen(_instance, !Env.INSTANCE.isHideSplashScreen(), Env.INSTANCE.getOs() != OS.mac ? 10 : 7);
+			final SplashScreen splash = new SplashScreen(_instance, !Env.INSTANCE.isHideSplashScreen(), 6);
 			SwingUtilities4.invokeInEDT(() -> {
 				splash.updateStartup("application.startup");
 				splash.setVisible(true);

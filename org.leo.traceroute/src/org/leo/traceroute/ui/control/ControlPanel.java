@@ -327,13 +327,14 @@ public class ControlPanel extends AbstractPanel {
 		_openConfigDialogButton.addActionListener(e -> new ConfigDialog(SwingUtilities.getWindowAncestor(ControlPanel.this), services).setVisible(true));
 		otherControls.add(_openConfigDialogButton);
 
-		otherControls.add(ToolTip.INSTANCE.buildHelpButton(this, H));
+		otherControls.add(ToolTip.INSTANCE.buildHelpButton(this));
 
 		add(otherControls);
 		add(_customControls);
 
 		setMode(mode, false);
 		setEnabled(false);
+
 	}
 
 	/**

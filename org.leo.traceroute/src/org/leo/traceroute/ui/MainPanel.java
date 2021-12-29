@@ -180,6 +180,8 @@ public class MainPanel extends JPanel {
 			_rightSplit.setTopComponent(_packetTablePanel);
 			_rightSplit.setBottomComponent(_packetDetailsPanel);
 		} else {
+			_services.getTraceroute().clear();
+			_services.getSniffer().clear();
 			if (_packetTablePanel != null) {
 				_packetTablePanel.dispose();
 			}
@@ -298,7 +300,7 @@ public class MainPanel extends JPanel {
 				}
 			}
 		};
-		//initWorker.execute();
+		initWorker.execute();
 		_controlPanel.setEnabled(true);
 		if (Env.INSTANCE.isIs3dMap()) {
 			_3dPanel.afterShow(_controlPanel.getCurrentMode());
