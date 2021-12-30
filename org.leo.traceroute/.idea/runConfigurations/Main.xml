@@ -1,8 +1,10 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Main" type="Application" factoryName="Application" nameIsGenerated="true">
-    <option name="ALTERNATIVE_JRE_PATH" value="11" />
+    <option name="ALTERNATIVE_JRE_PATH" value="C:/Program Files/Java/jdk-17.0.1" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <option name="MAIN_CLASS_NAME" value="org.leo.traceroute.Main" />
     <module name="org.leo.traceroute" />
+    <option name="VM_PARAMETERS" value="--add-exports java.base/java.lang=ALL-UNNAMED --add-exports java.desktop/sun.awt=ALL-UNNAMED --add-exports java.desktop/sun.java2d=ALL-UNNAMED" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="org.leo.traceroute.*" />

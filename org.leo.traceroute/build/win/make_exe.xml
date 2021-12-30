@@ -27,6 +27,7 @@
     <maxVersion>99.9.9</maxVersion>
     <jdkPreference>preferJre</jdkPreference>
     <runtimeBits>64/32</runtimeBits>
+    <opt>--add-exports java.base/java.lang=ALL-UNNAMED --add-exports java.desktop/sun.awt=ALL-UNNAMED --add-exports java.desktop/sun.java2d=ALL-UNNAMED</opt>
   </jre>
   <versionInfo>
     <fileVersion>2.0.0.0</fileVersion>

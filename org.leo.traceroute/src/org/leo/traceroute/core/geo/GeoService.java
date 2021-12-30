@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
+import com.maxmind.db.InvalidDatabaseException;
 import com.maxmind.geoip2.exception.AddressNotFoundException;
 import com.maxmind.geoip2.exception.GeoIp2Exception;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -137,24 +138,23 @@ public class GeoService implements IComponent {
 			IOUtils.closeQuietly(tis);
 			IOUtils.closeQuietly(out);
 		}
+		// public IP
+		final String ip = Util.getPublicIp();
+		_publicIp = Pair.of(ip, InetAddress.getByName(ip));
+		services.updateStartup("init.public.ip", retry == 0);
 		// init lookup service
 		services.updateStartup("init.geoip", retry == 0);
-		_lookupService = new DatabaseReader.Builder(Env.GEO_DATA_FILE).fileMode(FileMode.MEMORY).build();
-
-		// public IP
-		services.updateStartup("init.public.ip", retry == 0);
-		final String ip = Util.getPublicIp();
 		try {
-			_publicIp = Pair.of(ip, InetAddress.getByName(ip));
+			_lookupService = new DatabaseReader.Builder(Env.GEO_DATA_FILE).fileMode(FileMode.MEMORY).build();
 			computePublicIpGeoLocation();
-		} catch (final UnknownHostException e) {
-			_publicIp = Pair.of(ip, null);
-		} catch (final ArrayIndexOutOfBoundsException e) {
+		} catch (final ArrayIndexOutOfBoundsException | InvalidDatabaseException e) {
 			LOGGER.info("Corrupted GeoIP database, force redownloading a new one");
-			if (retry++ > 2) {
+			if (retry++ <= 2) {
 				Env.GEO_DATA_FILE.delete();
 				doInit(services, retry);
+				return;
 			}
+			throw new IOException(Resources.getLabel("geoip.init.failed"), e);
 		} catch (Exception e) {
 			_publicIp = Pair.of(ip, null);
 		}

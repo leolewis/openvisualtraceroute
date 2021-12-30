@@ -19,13 +19,11 @@ package org.leo.traceroute;
 
 import javax.swing.*;
 
-import gov.nasa.worldwind.Configuration;
 import org.leo.traceroute.core.ServiceFactory;
 import org.leo.traceroute.install.Env;
 import org.leo.traceroute.install.Env.OS;
 import org.leo.traceroute.resources.Resources;
 import org.leo.traceroute.ui.TraceRouteFrame;
-import org.leo.traceroute.ui.geo.WWJPanel.DebugGLAutoDrawable;
 import org.leo.traceroute.ui.util.SplashScreen;
 import org.leo.traceroute.ui.util.SwingUtilities4;
 import org.slf4j.Logger;

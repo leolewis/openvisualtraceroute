@@ -103,7 +103,8 @@ public class OSTraceRoute extends AbstractTraceRoute<INetworkInterfaceListener<?
                     }
                     if (line.contains("*")) {
                         if (previous != null) {
-                            addPoint(previous.toUnkown());
+                            previous = previous.toUnkown();
+                            addPoint(previous);
                         }
                         continue;
                     }

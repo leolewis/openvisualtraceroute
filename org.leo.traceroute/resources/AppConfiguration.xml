@@ -16,14 +16,14 @@
     <Feature className="gov.nasa.worldwindx.applications.worldwindow.features.swinglayermanager.LayerManagerDialog"/>
 <!--    <Feature className="gov.nasa.worldwindx.applications.worldwindow.features.CoordinatesDisplay"/>-->
     <Feature className="gov.nasa.worldwindx.applications.worldwindow.features.Crosshair"/>
-    <Feature className="gov.nasa.worldwindx.applications.worldwindow.features.GazetteerPanel"/>
     <Feature className="gov.nasa.worldwindx.applications.worldwindow.features.swinglayermanager.ActiveLayersPanel"/>
     <Feature className="gov.nasa.worldwindx.applications.worldwindow.features.swinglayermanager.LayerManagerPanel"/>
     <Feature className="gov.nasa.worldwindx.applications.worldwindow.features.WMSDialog"/>
-    <Feature className="gov.nasa.worldwindx.applications.worldwindow.features.YahooGazetteer"/>
+
     <Feature className="gov.nasa.worldwindx.applications.worldwindow.features.ImportedDataDialog"/>
     <Feature className="gov.nasa.worldwindx.applications.worldwindow.features.Navigation"/>
     <Feature className="gov.nasa.worldwindx.applications.worldwindow.features.Graticule"/>
     <Feature className="gov.nasa.worldwindx.applications.worldwindow.features.LatLonGraticule"/>
     <Feature className="gov.nasa.worldwindx.applications.worldwindow.features.UTMGraticule"/>
+
 </Configuration>
