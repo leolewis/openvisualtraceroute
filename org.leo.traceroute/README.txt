@@ -3,6 +3,12 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Version 2.0.0
+Starting version 2.0.0, I decided to deprecate the sniffer features and refocus the tool to its original purpose: a visual traceroute.
+Reasoning around the decision were ultimately time to maintain the application while the various libraries it depends on were being upgraded to non compatible APIs or plainly deprecated.
+This decision will also make the application runnable without admin privilege and external software required to be installed (except Java), which was one of the pain point in the installation of versions 1.7 and prior.
+
+Full code source is as always available on Github https://github.com/leolewis/openvisualtraceroute and anyone is free to branch the version
+
 I could successfully make this version on multiple systems, but my tests do not cover everything, so if you find a bug, a typo in some label feel free to post a bug report and/or fix
 - on Sourceforge http://sourceforge.net/projects/openvisualtrace/
 - or by email at leo.lewis.software@gmail.com
@@ -21,17 +27,16 @@ See http://visualtraceroute.net/installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 OS/Arch notice :
 Tested on the following systems :
-- Windows 10 64 bits
-- Ubuntu 17.10 64 bits
-- Linux Mint 18.2 MATE 64 bits
-- OpenSUSE Leap 42.3 64 bits KDE
-- MacOS X 10.10
+- Windows 11 64 bits
+- Ubuntu 20.04 64 bits
+- OpenSUSE Leap 15.3 64 bits
+
+With Java versions
+- 11~17
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Limitations, Known issues :
 - Systems that don't have a graphic card/drivers that supports required OpenGL features will not be able to use the 3D map
-- System not correctly setup in term of network/privileges/OS will not be able to use the embedded trace route implementation and will default to the OS traceroute implementation
-- Sniffer feature is not available on MacOS systems
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Wish list : 
@@ -44,7 +49,7 @@ Release Note
 2.0.0
 This release
 - Library: Upgrade to worldwind 2.2.0
-- Library: upgrade to Java 11
+- Library: upgrade to Java 11+
 - Deprecate embedded trace route mode and sniffer mode
 
 Release Note 
