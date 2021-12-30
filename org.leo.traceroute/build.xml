@@ -327,8 +327,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 		<delete dir="${basedir}/product/rpm" />
 		<mkdir dir="${basedir}/product/rpm" />
 
-		<desktopentry toFile="${basedir}/product/rpm/ovtr.desktop" name="Open Visual Traceroute" comment="Traceroute that displays route data in a map component." exec="/usr/share/${appli.name}/run.sh" path="/usr/share/${appli.name}/" icon="/usr/share/${appli.name}/resources/icon.png" categories="Utility;" terminal="true" type="Application" />
-
 		<copy todir="${basedir}/product/rpm">
 			<fileset dir="${basedir}/product/universal">
 				<include name="*.sh" />
@@ -344,6 +342,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 				<exclude name="**/*.exe" />
 			</fileset>
 		</copy>
+
+		<desktopentry toFile="${basedir}/product/rpm/ovtr.desktop" name="Open Visual Traceroute" comment="Traceroute that displays route data in a map component." exec="/usr/share/${appli.name}/run.sh" path="/usr/share/${appli.name}/" icon="/usr/share/${appli.name}/resources/icon.png" categories="Utility;" terminal="false" type="Application" />
+
 		<redline group="OpenVisualTraceroute" name="ovtr" architecture="I386" version="${version.full}" destination="${basedir}/released">
 			<rpmfileset prefix="/usr/share/applications" file="product/rpm/ovtr.desktop" />
 			<rpmfileset prefix="/usr/share/${appli.name}" file="product/rpm/*.txt" />
@@ -372,6 +373,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 				<exclude name="**/*.exe" />
 			</fileset>
 		</copy>
+
+		<desktopentry toFile="${basedir}/product/rpm/ovtr.desktop" name="Open Visual Traceroute" comment="Traceroute that displays route data in a map component." exec="/usr/share/${appli.name}/run.sh" path="/usr/share/${appli.name}/" icon="/usr/share/${appli.name}/resources/icon.png" categories="Utility;" terminal="false" type="Application" />
+
 		<redline group="OpenVisualTraceroute" name="ovtr" architecture="X86_64" version="${version.full}" destination="${basedir}/released">
 			<rpmfileset prefix="/usr/share/applications" file="product/rpm/ovtr.desktop" />
 			<rpmfileset prefix="/usr/share/${appli.name}" file="product/rpm/*.txt" />
