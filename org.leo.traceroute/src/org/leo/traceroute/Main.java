@@ -85,14 +85,14 @@ public class Main {
 					UIManager.put("List.textForeground", new Color( 104, 93, 156));
 					UIManager.put("Tree.textForeground", new Color( 104, 93, 156));
 				}
-				if (Env.INSTANCE.getOs() != OS.mac) {
-					for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-						if ("Nimbus".equals(info.getName())) {
-							UIManager.setLookAndFeel(info.getClassName());
-							break;
-						}
+
+				for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+					if ("Nimbus".equals(info.getName())) {
+						UIManager.setLookAndFeel(info.getClassName());
+						break;
 					}
-				} else {
+				}
+				if (Env.INSTANCE.getOs() == OS.mac) {
 					try {
 						gov.nasa.worldwindx.applications.sar.OSXAdapter.setQuitHandler(null, Main.class.getMethod("exit", (Class<?>[]) null));
 					} catch (final Exception e) {

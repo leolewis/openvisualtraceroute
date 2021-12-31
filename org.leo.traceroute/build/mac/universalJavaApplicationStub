@@ -41,7 +41,6 @@
 ##################################################################################
 
 
-
 # function 'stub_logger()'
 #
 # A logger which logs to the macOS Console.app using the 'syslog' command

@@ -290,13 +290,7 @@ public enum Env {
 		System.setProperty("awt.useSystemAAFontSettings", "on");
 		System.setProperty("swing.aatext", "true");
 		System.setProperty("java.net.useSystemProxies", "true");
-		if (Configuration.isMacOS()) {
-			System.setProperty("apple.laf.useScreenMenuBar", "true");
-			System.setProperty("com.apple.mrj.application.growbox.intrudes", "false");
-			System.setProperty("com.apple.mrj.application.apple.menu.about.name", Resources.getLabel("appli.title.short"));
-		} else if (Configuration.isWindowsOS()) {
-			System.setProperty("sun.awt.noerasebackground", "true");
-		}
+
 
 //		System.setProperty("jogl.windows.useWGLVersionOf5WGLGDIFuncSet", "true");
 		final Proxy proxy = getProxy();
@@ -325,6 +319,13 @@ public enum Env {
 			LOGGER.error("Error while loading application saved configuration", e);
 			JOptionPane.showMessageDialog(null, Resources.getLabel("error.init", e.getMessage()), Resources.getLabel("fatal.error"), JOptionPane.ERROR_MESSAGE);
 			System.exit(-1);
+		}
+		if (Configuration.isMacOS()) {
+			System.setProperty("apple.laf.useScreenMenuBar", "true");
+			System.setProperty("com.apple.mrj.application.growbox.intrudes", "false");
+			System.setProperty("com.apple.mrj.application.apple.menu.about.name", Resources.getLabel("appli.title.short"));
+		} else if (Configuration.isWindowsOS()) {
+			System.setProperty("sun.awt.noerasebackground", "true");
 		}
 		return archOs;
 	}
