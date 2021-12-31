@@ -355,6 +355,8 @@ public class ControlPanel extends AbstractPanel {
 		showUpdateDialog.setToolTipText(Resources.getLabel("new.version.title"));
 		showUpdateDialog.addActionListener(e -> showUpdateDialog(content));
 		add(showUpdateDialog);
+		invalidate();
+		revalidate();
 	}
 
 	private void showUpdateDialog(final String content) {
