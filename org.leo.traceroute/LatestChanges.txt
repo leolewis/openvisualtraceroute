@@ -1,8 +1,9 @@
-Version 1.7.0
-- Feature: DNS loc records feature
-- Feature: Use system proxy when available, allow to specify user and password
-- Feature: Anti-aliasing fonts
-- Library: Upgrade world wind version
-- Library: Upgrade required Java version to 1.8
-- Fix    : Fix hanging network interface detection
-- Fix    : Increase geoip db download timeout to avoid issue on first startup
+Version 2.0.0
+Starting this version, I decided to deprecate the sniffer feature and refocus the tool on its original purpose: a visual traceroute.
+Reasoning around the decision were ultimately time to maintain the application while the various libraries it depends on were being upgraded to non compatible APIs or plainly deprecated.
+This decision will also make the application runnable without admin privilege and external software required to be installed (except Java), which was one of the pain point in the installation of versions 1.7 and prior.
+
+- Library: Upgrade to worldwind 2.2.0
+- Library: upgrade to Java 11+
+- Feature: UI Dark mode
+- Deprecate embedded trace route mode and sniffer mode

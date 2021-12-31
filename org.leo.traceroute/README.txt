@@ -30,6 +30,7 @@ Tested on the following systems :
 - Windows 11 64 bits
 - Ubuntu 20.04 64 bits
 - OpenSUSE Leap 15.3 64 bits
+- MacOSX
 
 With Java versions
 - 11~17
