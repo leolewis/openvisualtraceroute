@@ -3,11 +3,11 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Version 2.0.0
-Starting version 2.0.0, I decided to deprecate the sniffer features and refocus the tool to its original purpose: a visual traceroute.
+Starting version 2.0.0, I decided to deprecate the sniffer feature and refocus the tool on its original purpose: a visual traceroute.
 Reasoning around the decision were ultimately time to maintain the application while the various libraries it depends on were being upgraded to non compatible APIs or plainly deprecated.
 This decision will also make the application runnable without admin privilege and external software required to be installed (except Java), which was one of the pain point in the installation of versions 1.7 and prior.
 
-Full code source is as always available on Github https://github.com/leolewis/openvisualtraceroute and anyone is free to branch the version
+Full code source is as always available on Github https://github.com/leolewis/openvisualtraceroute and anyone is free to branch the version.
 
 I could successfully make this version on multiple systems, but my tests do not cover everything, so if you find a bug, a typo in some label feel free to post a bug report and/or fix
 - on Sourceforge http://sourceforge.net/projects/openvisualtrace/
