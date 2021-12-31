@@ -50,6 +50,7 @@ Release Note
 This release
 - Library: Upgrade to worldwind 2.2.0
 - Library: upgrade to Java 11+
+- Feature: UI Dark mode
 - Deprecate embedded trace route mode and sniffer mode
 
 Release Note 

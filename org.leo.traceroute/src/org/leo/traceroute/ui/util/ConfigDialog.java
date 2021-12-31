@@ -100,34 +100,38 @@ public class ConfigDialog extends JDialog {
 		linkPanel.add(new HyperlinkLabel(Resources.getLabel("website"), Env.INSTANCE.getWebsitetUrl()));
 		linkPanel.add(new HyperlinkLabel(Resources.getLabel("support"), Env.INSTANCE.getSupportUrl()));
 		linkPanel.add(new HyperlinkLabel(Resources.getLabel("facebook"), Env.INSTANCE.getFacebookUrl()));
+		linkPanel.add(new HyperlinkLabel(Resources.getLabel("donate.label"), Env.INSTANCE.getDonateUrl()));
 
 		generalPanel.add(linkPanel);
 
 		final JPanel languagePanel = new JPanel();
 		languagePanel.setLayout(new FlowLayout(FlowLayout.LEFT, HGAP, VGAP));
+		languagePanel.add(new JLabel(Resources.getLabel("appli.language.label")));
 		// add the combo of selection of the language of the application
-		final JComboBox languageCombo = new JComboBox();
-		languageCombo.setPreferredSize(new Dimension(100, ControlPanel.H));
+		ButtonGroup languageGroup = new ButtonGroup();
 		for (final Language language : Language.values()) {
 			if (language.isEnabled()) {
-				languageCombo.addItem(language);
+				JRadioButton button = new JRadioButton(language.getLanguageName());
+				button.setActionCommand(language.name());
+				if (language == Env.INSTANCE.getAppliLanguage()) {
+					button.setSelected(true);
+				}
+				languageGroup.add(button);
+				languagePanel.add(button);
 			}
 		}
-		languageCombo.setSelectedItem(Env.INSTANCE.getAppliLanguage());
-		languageCombo.setRenderer(new DefaultListCellRenderer() {
-			private static final long serialVersionUID = -9191123841398822547L;
-
-			@Override
-			public Component getListCellRendererComponent(final JList list, final Object value, final int index, final boolean isSelected, final boolean cellHasFocus) {
-				super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-				setText(((Language) value).getLanguageName());
-				return this;
-			}
-
-		});
-		languagePanel.add(new JLabel(Resources.getLabel("appli.language.label")));
-		languagePanel.add(languageCombo);
 		generalPanel.add(languagePanel);
+
+		final JPanel theme = new JPanel();
+		theme.setLayout(new FlowLayout(FlowLayout.LEFT, HGAP, VGAP));
+		theme.add(new JLabel(Resources.getLabel("dark.theme")));
+		final JToggleButton darkTheme = new JToggleButton(Resources.getImageIcon("theme.png"), Env.INSTANCE.isDarkTheme());
+		darkTheme.setPreferredSize(new Dimension(100, ControlPanel.H));
+		darkTheme.setToolTipText(Resources.getLabel("dark.theme"));
+		darkTheme.setText((Resources.getLabel(darkTheme.isSelected() ? "yes" : "no")));
+		darkTheme.addActionListener(e -> darkTheme.setText((Resources.getLabel(darkTheme.isSelected() ? "yes" : "no"))));
+		theme.add(darkTheme);
+		generalPanel.add(theme);
 
 		final JPanel splash = new JPanel();
 		splash.setLayout(new FlowLayout(FlowLayout.LEFT, HGAP, VGAP));
@@ -138,6 +142,7 @@ public class ConfigDialog extends JDialog {
 		showSplash.setText((Resources.getLabel(showSplash.isSelected() ? "yes" : "no")));
 		showSplash.addActionListener(e -> showSplash.setText((Resources.getLabel(showSplash.isSelected() ? "yes" : "no"))));
 		splash.add(showSplash);
+//		generalPanel.add(splash);
 
 		final JPanel font = new JPanel();
 		font.setLayout(new FlowLayout(FlowLayout.LEFT, HGAP, VGAP));
@@ -428,15 +433,12 @@ public class ConfigDialog extends JDialog {
 			final StringBuffer message = new StringBuffer();
 			boolean cancelled = false;
 			try {
-				final Language appliLanguage = (Language) languageCombo.getSelectedItem();
+				final Language appliLanguage = Language.valueOf(languageGroup.getSelection().getActionCommand());
 				if (Env.INSTANCE.getAppliLanguage() != appliLanguage) {
-					final int select = JOptionPane.showConfirmDialog(ConfigDialog.this, Resources.getLabel("restart.appli.required"), "", JOptionPane.OK_CANCEL_OPTION);
-					if (select == JOptionPane.OK_OPTION) {
-						Env.INSTANCE.setAppliLanguage(appliLanguage);
-					} else {
-						languageCombo.setSelectedItem(Env.INSTANCE.getAppliLanguage());
-						cancelled = true;
-					}
+					JOptionPane.showConfirmDialog(ConfigDialog.this, Resources.getLabel("restart.appli.required"), "", JOptionPane.OK_OPTION);
+					Env.INSTANCE.setAppliLanguage(appliLanguage);
+				} else if (Env.INSTANCE.isDarkTheme() != darkTheme.isSelected()) {
+					JOptionPane.showConfirmDialog(ConfigDialog.this, Resources.getLabel("restart.appli.required"), "", JOptionPane.OK_OPTION);
 				}
 			} catch (final Exception exp) {
 				error = true;
@@ -461,6 +463,7 @@ public class ConfigDialog extends JDialog {
 					Env.INSTANCE.setUseOSTraceroute(useOSTraceroute.isSelected());
 					Env.INSTANCE.setTrMaxHop((Integer) maxHops.getValue());
 					Env.INSTANCE.setDisableHistory(!history.isSelected());
+					Env.INSTANCE.setDarkTheme(darkTheme.isSelected());
 					Env.INSTANCE.setHideSplashScreen(!showSplash.isSelected());
 					Env.INSTANCE.setMapShowLabel(mapShowLabel.isSelected());
 					if (Env.INSTANCE.isDisableHistory()) {

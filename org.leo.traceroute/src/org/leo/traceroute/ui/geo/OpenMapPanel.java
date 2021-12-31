@@ -83,7 +83,8 @@ public class OpenMapPanel extends AbstractGeoPanel {
 	enum Theme {
 
 		NORMAL(new Color(121, 193, 192), "72CE9F", "EDF2AD"),
-		DARK(new Color(10, 10, 35), "0000FF", "000000");
+		DARK(new Color(152, 146, 146),
+				Integer.toHexString(new Color(169,46,34).getRGB()).substring(2), "000000");
 
 		private Color bg;
 		private String line;
@@ -179,7 +180,7 @@ public class OpenMapPanel extends AbstractGeoPanel {
 	private final Map<String, Pair<OMText, Image>> _toAvoidDuplicatedLabels = new HashMap<>();
 	private Pair<OMText, Image> _sourcePoint;
 	private final MapBean _mapBean;
-	private final Theme _theme = Theme.NORMAL;
+	private final Theme _theme = Env.INSTANCE.isDarkTheme() ? Theme.DARK : Theme.NORMAL;
 	private final Map<String, Pair<OMLine, MutableInt>> _packetDestCoordToPath = new HashMap<>();
 	private int _selectionIndex;
 

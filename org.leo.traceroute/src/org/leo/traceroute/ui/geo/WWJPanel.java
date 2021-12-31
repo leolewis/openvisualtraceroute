@@ -41,6 +41,7 @@ import gov.nasa.worldwind.*;
 import gov.nasa.worldwind.formats.shapefile.ShapefileLayerFactory;
 import gov.nasa.worldwind.layers.*;
 import gov.nasa.worldwindx.applications.worldwindow.core.*;
+import gov.nasa.worldwindx.applications.worldwindow.features.swinglayermanager.*;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.tuple.Pair;
 import org.leo.traceroute.core.ServiceFactory;
@@ -159,10 +160,10 @@ public class WWJPanel extends AbstractGeoPanel {
 			if (toolBar != null) {
 				add(toolBar.getJToolBar(), BorderLayout.PAGE_START);
 			}
-			StatusPanel status = _controller.getStatusPanel();
-			if (status != null) {
-				add(status.getJPanel(), BorderLayout.PAGE_END);
-			}
+//			StatusPanel status = _controller.getStatusPanel();
+//			if (status != null) {
+//				add(status.getJPanel(), BorderLayout.PAGE_END);
+//			}
 			add(_controller.getWWPanel().getJPanel(), BorderLayout.CENTER);
 		} catch (final Exception e) {
 			LOGGER.error(e.getLocalizedMessage(), e);
@@ -493,6 +494,13 @@ public class WWJPanel extends AbstractGeoPanel {
 //			getLayerManager().addLayer(world, worldPath);
 //			getLayerManager().getNode(worldPath).setSelected(true);
 //			getLayerManager().selectLayer(world, true);
+			ControlsPanelImpl dialog = (ControlsPanelImpl) getRegisteredObject("gov.nasa.worldwindx.applications.worldwindow.ControlsPanel");
+			for (Component c : dialog.getJPanel().getComponents()) {
+				if (c instanceof JSplitPane) {
+					JSplitPane split = (JSplitPane) c;
+					split.setBottomComponent(null);
+				}
+			}
 		}
 
 		@Override

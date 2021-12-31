@@ -452,13 +452,25 @@ public class RouteTablePanel extends AbstractRoutePanel implements IConfigProvid
 				final JLabel label = (JLabel) c;
 				// bg selection color
 				if (isSelected) {
-					label.setBackground(new Color(200, 200, 255));
+					if (Env.INSTANCE.isDarkTheme()) {
+						label.setBackground(new Color(169,46,34));
+					} else {
+						label.setBackground(new Color(200, 200, 255));
+					}
 				} else {
 					// otherwise, alternate bg color
 					if (row % 2 == 0) {
-						label.setBackground(new Color(245, 245, 245));
+						if (Env.INSTANCE.isDarkTheme()) {
+							label.setBackground(new Color(176,179,50));
+						} else {
+							label.setBackground(new Color(245, 245, 245));
+						}
 					} else {
-						label.setBackground(new Color(254, 254, 254));
+						if (Env.INSTANCE.isDarkTheme()) {
+							label.setBackground(new Color(128,128,128));
+						} else {
+							label.setBackground(new Color(254, 254, 254));
+						}
 					}
 				}
 				final Column col = _indexToColumn.get(column);

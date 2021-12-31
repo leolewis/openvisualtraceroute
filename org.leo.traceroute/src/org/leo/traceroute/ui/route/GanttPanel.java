@@ -194,15 +194,25 @@ public class GanttPanel extends AbstractRoutePanel {
 
 		_chart = ChartFactory.createGanttChart("", "", "", collection, true, true, false);
 		_chart.setAntiAlias(true);
-		_chart.setBackgroundPaint(new Color(240, 240, 240, 255));
+		if (Env.INSTANCE.isDarkTheme()) {
+			_chart.setBackgroundPaint(new Color( 128, 128, 128));
+		} else {
+			_chart.setBackgroundPaint(new Color(240, 240, 240));
+		}
 		_chart.setBorderVisible(false);
 		_chart.setTextAntiAlias(true);
 
 		updateLegend();
 
 		final CategoryPlot plot = _chart.getCategoryPlot();
-		final Color grey = new Color(200, 200, 200, 255);
-		plot.setBackgroundPaint(Color.WHITE);
+		final Color grey;
+		if (Env.INSTANCE.isDarkTheme()) {
+			grey = new Color(255, 255, 255);
+			_chart.setBackgroundPaint(new Color( 128, 128, 128));
+		} else {
+			plot.setBackgroundPaint(Color.WHITE);
+			grey = new Color(200, 200, 200);
+		}
 		plot.getRangeAxis().setTickLabelsVisible(false);
 		plot.getRangeAxis().setTickMarksVisible(false);
 		plot.getRangeAxis().setVisible(false);

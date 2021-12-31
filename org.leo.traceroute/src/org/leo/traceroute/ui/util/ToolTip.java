@@ -103,12 +103,18 @@ public enum ToolTip {
 		final Color color = color(num);
 		final JLabel label = new AntialisingJLabel("<html><font size=5>&nbsp;" + string(num) + "&nbsp;" + component.getToolTipText() + "&nbsp;</font></html>");
 		label.setBackground(color);
+		if (Env.INSTANCE.isDarkTheme()) {
+			label.setForeground(new Color( 128, 128, 128));
+		}
 		label.setOpaque(true);
 		label.setBounds( 35 + Env.INSTANCE.getSeparator(),  35 + 35 * num, label.getPreferredSize().width, label.getPreferredSize().height + 4);
 		panel.add(label);
 
 		final JLabel labelNumber = new AntialisingJLabel("<html><b><font size=5>&nbsp;" + string(num) + "&nbsp;</font></b></html>");
 		labelNumber.setBackground(color);
+		if (Env.INSTANCE.isDarkTheme()) {
+			labelNumber.setForeground(new Color( 128, 128, 128));
+		}
 		labelNumber.setOpaque(true);
 		labelNumber.setBounds(4 + component.getLocationOnScreen().x - _component.getLocationOnScreen().x + component.getPreferredSize().width / 2 - labelNumber.getPreferredSize().width / 2,
 				_component.getLocation().y + 6, labelNumber.getPreferredSize().width, labelNumber.getPreferredSize().height + 4);

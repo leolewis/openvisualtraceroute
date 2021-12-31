@@ -218,6 +218,7 @@ public enum Env {
 	private static final String FONT_NAME = "font.name";
 	private static final String FONT_SIZE = "font.size";
 	private static final String FONT_STYLE = "font.style";
+	private static final String DARK_THEME = "theme.dark";
 
 	/** App config  */
 	private final Properties _conf = new Properties();
@@ -238,6 +239,7 @@ public enum Env {
 	private int _rightSeparator;
 	/** 2d/3d map */
 	private boolean _is3dMap;
+	private boolean _darkTheme;
 	/** Trace route or sniffer mode */
 	private Mode _mode;
 
@@ -438,6 +440,7 @@ public enum Env {
 			_conf.put(FONT_NAME, String.valueOf(_font.getFontName()));
 			_conf.put(FONT_SIZE, String.valueOf(_font.getSize()));
 			_conf.put(FONT_STYLE, String.valueOf(_font.getStyle()));
+			_conf.put(DARK_THEME, String.valueOf(_darkTheme));
 			for (final IConfigProvider c : _configProvider) {
 				for (final Entry<String, String> entry : c.save().entrySet()) {
 					_conf.put(c.name() + "." + entry.getKey(), entry.getValue());
@@ -505,6 +508,7 @@ public enum Env {
 			_trInterfaceIndex = Integer.parseInt(_conf.getProperty(TR_INTERFACE, "-1"));
 			//_tracerouteAnonymous = Boolean.parseBoolean(conf.getProperty(TRACEROUTE_ANONYMOUS, "false"));
 			_disableHistory = Boolean.parseBoolean(_conf.getProperty(DISABLE_HISTORY, "false"));
+			_darkTheme = Boolean.parseBoolean(_conf.getProperty(DARK_THEME, "true"));
 			_animationSpeed = Integer.parseInt(_conf.getProperty(ANIMATION_SPEED, "1000"));
 			_mapLineThickness = Integer.parseInt(_conf.getProperty(MAP_LINE_THICKNESS, "3"));
 			_replaySpeed = Integer.parseInt(_conf.getProperty(REPLAY_SPEED, "2000"));
@@ -1106,6 +1110,14 @@ public enum Env {
 		for (final IMapConfigListener listener : _showLabelsListener) {
 			listener.setLineThickness(mapLineThickness);
 		}
+	}
+
+	public boolean isDarkTheme() {
+		return _darkTheme;
+	}
+
+	public void setDarkTheme(boolean darkTheme) {
+		_darkTheme = darkTheme;
 	}
 
 	private static Proxy getProxy() {
