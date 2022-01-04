@@ -44,7 +44,8 @@ Wish list :
 - traceroute server mode
 - display active connections
 - export and import traceroute data
- 
+- clean up WW cache data when uninstalling the app (worldwind26.arc.nasa.gov)
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Release Note
 2.0.0

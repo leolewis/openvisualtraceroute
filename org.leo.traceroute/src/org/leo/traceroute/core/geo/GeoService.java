@@ -108,7 +108,19 @@ public class GeoService implements IComponent {
 			services.updateStartup("updating.geoip", retry == 0);
 
 			if (!Env.GEO_DATA_FILE.exists()) {
-				final String url = Env.INSTANCE.getGeoIpLocation();
+				final String[] urls = Env.INSTANCE.getGeoIpLocation();
+				String url = null;
+				for (String u : urls) {
+					try {
+						InetAddress.getByName(u.replace("https://", "").replace("http://", "").split("/")[0]);
+						url = u;
+					} catch (Exception e) {
+						LOGGER.info("Can't resolve " + u + ", skip and try next one");
+					}
+				}
+				if (url == null) {
+					throw new IOException(Resources.getLabel("geoip.init.failed"));
+				}
 				LOGGER.info("Downloading GeoIP database to " + Env.GEO_DATA_FILE.getAbsolutePath() + "...");
 				final byte[] buffer = new byte[1024];
 				gzis = new GZIPInputStream(Util.followRedirectOpenConnection(url));

@@ -598,7 +598,7 @@ public class ControlPanel extends AbstractPanel {
 			// top panel, start/cancel button and JTextField
 			_traceRouteButton = new JButton(GO_IMG);
 			_traceRouteButton.setToolTipText(Resources.getLabel("search.button"));
-			_hostIpTextField = new JTextField(17);
+			_hostIpTextField = new JTextField(22);
 			_hostIpTextField.setText(Resources.getLabel("url.tooltip"));
 			_hostIpTextField.setCaretPosition(0);
 

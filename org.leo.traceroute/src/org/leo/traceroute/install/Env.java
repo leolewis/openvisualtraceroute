@@ -87,12 +87,15 @@ public enum Env {
 	public enum OS {
 		win,
 		linux,
-		mac
+		mac,
+		solaris
 	}
 
 	public enum Arch {
 		x86,
-		x64
+		x64,
+		armv6,
+		armv6hf
 	}
 
 	/**
@@ -265,7 +268,7 @@ public enum Env {
 
 	// dynamic conf
 	private String[] _ipResolvers;
-	private String _geoIpLocation;
+	private String[] _geoIpLocation;
 	private String _donateUrl;
 	private String _websitetUrl;
 	private String _supportUrl;
@@ -520,7 +523,7 @@ public enum Env {
 			_appY = _conf.containsKey(APP_Y) ? Integer.parseInt(_conf.getProperty(APP_Y)) : null;
 			final String fontName = _conf.getProperty(FONT_NAME, "SansSerif");
 			final int fontSize = Integer.parseInt(_conf.getProperty(FONT_SIZE, "9"));
-			final int fontStyle = Integer.parseInt(_conf.getProperty(FONT_STYLE, String.valueOf(Font.PLAIN)));
+			final int fontStyle = Integer.parseInt(_conf.getProperty(FONT_STYLE, String.valueOf(Font.BOLD)));
 			_font = new Font(fontName, fontStyle, fontSize);
 			if (!Boolean.parseBoolean(_conf.getProperty("strictSSL", "false"))) {
 				try {
@@ -891,7 +894,10 @@ public enum Env {
 			if (ips != null) {
 				_ipResolvers = ips.split(",");
 			}
-			_geoIpLocation = prop.getProperty("geo.ip.location2");
+			final String geoDBs = prop.getProperty("geo.ip.location3");
+			if (geoDBs != null) {
+				_geoIpLocation = geoDBs.split(",");
+			}
 			_donateUrl = prop.getProperty("donate.url");
 			_versionUrl = prop.getProperty("version.url");
 			_whatsnewUrl = prop.getProperty("whats.new.url");
@@ -905,10 +911,10 @@ public enum Env {
 			IOUtils.closeQuietly(dynConf);
 		}
 		if (_geoIpLocation == null) {
-			_geoIpLocation = Resources.getStatic("update.geoip.url");
+			_geoIpLocation = Resources.getStatic("update.geoip.url").split(",");
 		}
 		if (_ipResolvers == null) {
-			_ipResolvers = new String[] { "http://www.trackip.net/ip", "https://api.ipify.org/" };
+			_ipResolvers = new String[] { "http://api.ipify.org/", "http://bot.whatismyipaddress.com/" };
 		}
 		if (_donateUrl == null) {
 			_donateUrl = Resources.getStatic("donate.url");
@@ -937,7 +943,7 @@ public enum Env {
 		return _ipResolvers;
 	}
 
-	public String getGeoIpLocation() {
+	public String[] getGeoIpLocation() {
 		return _geoIpLocation;
 	}
 

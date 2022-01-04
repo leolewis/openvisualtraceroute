@@ -296,6 +296,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 				<include name="*.txt" />
 				<include name="resources/*.*" />
 				<exclude name="**/*linux-amd64.jar" />
+				<exclude name="**/*linux-arm*.jar" />
+				<exclude name="**/*solaris*.jar" />
 			</tarfileset>
 			<tarfileset file="${basedir}/product/deb/ovtr.desktop" prefix="usr/share/applications" />
 		</deb>
@@ -318,6 +320,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 				<include name="*.txt" />
 				<include name="resources/*.*" />
 				<exclude name="**/*linux-i586.jar" />
+				<exclude name="**/*linux-arm*.jar" />
+				<exclude name="**/*solaris*.jar" />
 			</tarfileset>
 			<tarfileset file="${basedir}/product/deb/ovtr.desktop" prefix="usr/share/applications" />
 		</deb>
@@ -339,6 +343,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 				<exclude name="**/*windows*.jar" />
 				<exclude name="**/*macosx*.jar" />
 				<exclude name="**/*linux-amd64.jar" />
+				<exclude name="**/*linux-arm*.jar" />
+				<exclude name="**/*solaris*.jar" />
 				<exclude name="**/*.exe" />
 			</fileset>
 		</copy>
@@ -370,6 +376,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 				<exclude name="**/*windows*.jar" />
 				<exclude name="**/*macosx*.jar" />
 				<exclude name="**/*linux-i586.jar" />
+				<exclude name="**/*linux-arm*.jar" />
+				<exclude name="**/*solaris*.jar" />
 				<exclude name="**/*.exe" />
 			</fileset>
 		</copy>
