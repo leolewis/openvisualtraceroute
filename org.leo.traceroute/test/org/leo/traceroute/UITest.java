@@ -62,7 +62,7 @@ public class UITest {
 	/**
 	 * @param args
 	 */
-	public static void main(final String[] args) throws HeadlessException, EnvException {
+	public static void main(final String[] args) throws Exception {
 		ToolTipManager.sharedInstance().setEnabled(false);
 		ToolTipManager.sharedInstance().setInitialDelay(10);
 		final JFrame f = new JFrame();
@@ -82,7 +82,11 @@ public class UITest {
 		b.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent e) {
-				display(f, sub);
+				try {
+					display(f, sub);
+				} catch (Exception exception) {
+					exception.printStackTrace();
+				}
 			}
 		});
 		f.getContentPane().add(main, BorderLayout.CENTER);
@@ -93,7 +97,7 @@ public class UITest {
 
 	}
 
-	private static void display(JFrame frame, final JPanel sub) {
+	private static void display(JFrame frame, final JPanel sub) throws Exception {
 		final ServiceFactory services = new ServiceFactory(new AbstractTraceRoute<Void>() {
 			@Override
 			protected void computeRoute(final String formatedDest, final CancelMonitor monitor, final boolean resolveHostname,

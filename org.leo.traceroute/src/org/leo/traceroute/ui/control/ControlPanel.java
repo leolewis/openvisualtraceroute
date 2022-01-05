@@ -344,6 +344,9 @@ public class ControlPanel extends AbstractPanel {
 		if (!getServices().isSnifferAvailable()) {
 			_snifferButton.setVisible(false);
 		}
+		if (!Env.INSTANCE.isOpenGLAvailable()) {
+			_switch2D3D.setVisible(false);
+		}
 	}
 
 	/**

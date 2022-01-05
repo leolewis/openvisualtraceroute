@@ -346,8 +346,10 @@ public enum Env {
 		}
 		if (osName.toLowerCase().contains("win")) {
 			os = OS.win;
-		} else if (osName.toLowerCase().contains("linux")) {
+		} else if (osName.toLowerCase().contains("linux") || osName.toLowerCase().contains("bsd")) {
 			os = OS.linux;
+		} else if (osName.toLowerCase().contains("solaris")) {
+			os = OS.solaris;
 		} else if (osName.toLowerCase().contains("mac")) {
 			os = OS.mac;
 		}
@@ -362,7 +364,6 @@ public enum Env {
 	 * @return true if we are good, false otherwise
 	 */
 	public boolean isOpenGLAvailable() {
-		_openGlAvailable = true;
 		if (_openGlAvailable == null) {
 			synchronized (this) {
 				if (_openGlAvailable == null) {
@@ -392,6 +393,10 @@ public enum Env {
 			}
 		}
 		return _openGlAvailable;
+	}
+
+	public void setOpenGlAvailable(boolean openGlAvailable) {
+		_openGlAvailable = openGlAvailable;
 	}
 
 	/**
@@ -599,7 +604,7 @@ public enum Env {
 	 * @return the value of is3dMap
 	 */
 	public boolean isIs3dMap() {
-		return _is3dMap;
+		return _is3dMap && isOpenGLAvailable();
 	}
 
 	/**

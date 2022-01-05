@@ -208,15 +208,23 @@ public class MainPanel extends JPanel {
 	 */
 	private void createMap(final boolean callAfterShow) {
 		final int loc = _split.getDividerLocation();
+
 		if (Env.INSTANCE.isIs3dMap()) {
-			_3dPanel = new WWJPanel(_services);
-			_split.setLeftComponent(_3dPanel);
-			if (_2dPanel != null) {
-				_2dPanel.dispose();
-				_2dPanel = null;
-			}
-			if (callAfterShow) {
-				_3dPanel.afterShow(_controlPanel.getCurrentMode());
+			try {
+				_3dPanel = new WWJPanel(_services);
+				_split.setLeftComponent(_3dPanel);
+				if (_2dPanel != null) {
+					_2dPanel.dispose();
+					_2dPanel = null;
+				}
+				if (callAfterShow) {
+					_3dPanel.afterShow(_controlPanel.getCurrentMode());
+				}
+			} catch (Exception e) {
+				LOGGER.warn("Failed to create 3D map. Fallback to 2D: {}", e.getMessage());
+				Env.INSTANCE.setOpenGlAvailable(false);
+				createMap(callAfterShow);
+				return;
 			}
 		} else {
 			_2dPanel = new OpenMapPanel(_services);
@@ -303,7 +311,13 @@ public class MainPanel extends JPanel {
 		initWorker.execute();
 		_controlPanel.setEnabled(true);
 		if (Env.INSTANCE.isIs3dMap()) {
-			_3dPanel.afterShow(_controlPanel.getCurrentMode());
+			try {
+				_3dPanel.afterShow(_controlPanel.getCurrentMode());
+			} catch (Exception e) {
+				LOGGER.warn("Failed to create 3D map. Fallback to 2D: {}", e.getMessage());
+				Env.INSTANCE.setOpenGlAvailable(false);
+				createMap(true);
+			}
 		} else {
 			_2dPanel.afterShow(_controlPanel.getCurrentMode());
 		}

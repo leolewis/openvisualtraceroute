@@ -147,7 +147,7 @@ public class WhoIs extends AbstractObject<IWhoIsListener> {
 				notifyListeners(listener -> listener.whoIsResult(_whois));
 			}
 		} catch (final Exception e) {
-			if (Env.INSTANCE.getOs() == OS.linux && e.getMessage().contains("Cannot run program \"" + cmd + "\": error=2, No such file or directory")) {
+			if ((Env.INSTANCE.getOs() == OS.linux || Env.INSTANCE.getOs() == OS.solaris) && e.getMessage().contains("Cannot run program \"" + cmd + "\": error=2, No such file or directory")) {
 				doRun(ipOrHost, "jwhois");
 				return;
 			}

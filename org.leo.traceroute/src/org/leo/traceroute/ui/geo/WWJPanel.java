@@ -114,61 +114,56 @@ public class WWJPanel extends AbstractGeoPanel {
 	/**
 	 * Constructor
 	 */
-	public WWJPanel(final ServiceFactory services) {
+	public WWJPanel(final ServiceFactory services) throws Exception {
 		super(services);
-		try {
-			if (_controller == null) {
-				_controller = new WWJController(_services);
-				_controller.getWWd().addSelectListener(event -> {
-					if (event.getEventAction().equals(SelectEvent.LEFT_CLICK) && event.hasObjects() && event.getTopObject() instanceof ScreenAnnotation) {
-						final ScreenAnnotation sa = (ScreenAnnotation) event.getTopObject();
-						final List<GeoPoint> points = _annotationToPoint.get(sa);
-						if (_lastSelection != null && _lastSelection.getLeft().getAnnotation() == sa) {
-							// if same selection, rotate point
-							_selectionIndex = (_selectionIndex + 1) % (points.size());
-						} else {
-							_selectionIndex = 0;
-						}
-						if (points == null) {
-							focus(null);
-						} else {
-							focus(points.get(_selectionIndex));
-						}
+		if (_controller == null) {
+			_controller = new WWJController(_services);
+			_controller.getWWd().addSelectListener(event -> {
+				if (event.getEventAction().equals(SelectEvent.LEFT_CLICK) && event.hasObjects() && event.getTopObject() instanceof ScreenAnnotation) {
+					final ScreenAnnotation sa = (ScreenAnnotation) event.getTopObject();
+					final List<GeoPoint> points = _annotationToPoint.get(sa);
+					if (_lastSelection != null && _lastSelection.getLeft().getAnnotation() == sa) {
+						// if same selection, rotate point
+						_selectionIndex = (_selectionIndex + 1) % (points.size());
+					} else {
+						_selectionIndex = 0;
 					}
-				});
-				_controller.getWWd().getInputHandler().addMouseListener(new MouseAdapter() {
-					@Override
-					public void mouseClicked(final MouseEvent e) {
-						final Position currentPosition = _controller.getWWd().getCurrentPosition();
-						if (currentPosition != null) {
-							onMousePosition(currentPosition.getLatitude().getDegrees(), currentPosition.getLongitude().getDegrees());
-						}
+					if (points == null) {
+						focus(null);
+					} else {
+						focus(points.get(_selectionIndex));
 					}
+				}
+			});
+			_controller.getWWd().getInputHandler().addMouseListener(new MouseAdapter() {
+				@Override
+				public void mouseClicked(final MouseEvent e) {
+					final Position currentPosition = _controller.getWWd().getCurrentPosition();
+					if (currentPosition != null) {
+						onMousePosition(currentPosition.getLatitude().getDegrees(), currentPosition.getLongitude().getDegrees());
+					}
+				}
 
-					@Override
-					public void mouseDragged(final MouseEvent e) {
-						final Position currentPosition = _controller.getWWd().getCurrentPosition();
-						if (currentPosition != null && _lastSelection != null) {
-							final LabeledPath path = _lastSelection.getKey();
-							path.getAnnotation().setScreenPoint(e.getLocationOnScreen());
-						}
+				@Override
+				public void mouseDragged(final MouseEvent e) {
+					final Position currentPosition = _controller.getWWd().getCurrentPosition();
+					if (currentPosition != null && _lastSelection != null) {
+						final LabeledPath path = _lastSelection.getKey();
+						path.getAnnotation().setScreenPoint(e.getLocationOnScreen());
 					}
-				});
-			}
+				}
+			});
+		}
 
-			ToolBar toolBar = _controller.getToolBar();
-			if (toolBar != null) {
-				add(toolBar.getJToolBar(), BorderLayout.PAGE_START);
-			}
+		ToolBar toolBar = _controller.getToolBar();
+		if (toolBar != null) {
+			add(toolBar.getJToolBar(), BorderLayout.PAGE_START);
+		}
 //			StatusPanel status = _controller.getStatusPanel();
 //			if (status != null) {
 //				add(status.getJPanel(), BorderLayout.PAGE_END);
 //			}
-			add(_controller.getWWPanel().getJPanel(), BorderLayout.CENTER);
-		} catch (final Exception e) {
-			LOGGER.error(e.getLocalizedMessage(), e);
-			GlassPane.displayMessage(this, "Error while initializing the World Wind Component\n" + e.getMessage(), Resources.getImageIcon("error.png"));
-		}
+		add(_controller.getWWPanel().getJPanel(), BorderLayout.CENTER);
 	}
 
 	@Override
