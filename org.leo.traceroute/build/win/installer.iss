@@ -40,6 +40,7 @@ Source: "D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\win\ov
 Source: "D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\win\org.leo.traceroute.jar"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\win\lib\*"; Excludes: "*linux*,*macosx*"; DestDir: "{app}\lib"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\win\resources\*"; DestDir: "{app}\resources"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\win\native\*"; DestDir: "{app}\native"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

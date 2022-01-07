@@ -31,6 +31,7 @@ Tested on the following systems :
 - Ubuntu 20.04 64 bits
 - OpenSUSE Leap 15.3 64 bits
 - MacOSX
+- FreeBSD 13.0 Xfce 
 
 With Java versions
 - 11~17

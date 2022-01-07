@@ -143,6 +143,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 				<include name="**/*" />
 			</fileset>
 		</copy>
+		<mkdir dir="${dest.dir}/native" />
+		<copy todir="${dest.dir}/native">
+			<fileset dir="${basedir}/native/">
+				<include name="**/*" />
+			</fileset>
+		</copy>
 		<copy todir="${dest.dir}" file="${basedir}/LICENSE.txt" />
 		<copy todir="${dest.dir}" file="${basedir}/README.txt" />
 	</target>
