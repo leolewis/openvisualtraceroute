@@ -208,9 +208,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 		</exec>
 	</target>
 	<target name="package_mac">
+		<delete dir="${basedir}/product/mac" />
+		<mkdir dir="${basedir}/product/mac" />
 		<taskdef name="jarbundler" classname="com.ultramixer.jarbundler.JarBundler" classpathref="ant.classpath" />
 		<jarbundler dir="product/mac" name="OpenVisualTraceroute" mainclass="org.leo.traceroute.Main"
-			jvmversion="${version}+" version="${version}" icon="build/mac/icon.icns"
+			jvmversion="${java.version}+" version="${version}" icon="build/mac/icon.icns"
 			bundleid="org.leo.traceroute.Main" signature="ovtr" build="0" antialiasedtext="true" antialiasedgraphics="true"
 		    stubfile="build/mac/universalJavaApplicationStub" useJavaXKey="true">
 			<jarfileset dir="product/universal">
