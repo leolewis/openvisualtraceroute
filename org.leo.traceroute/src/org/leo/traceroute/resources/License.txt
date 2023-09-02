@@ -7,7 +7,7 @@
 
  Ip to city mapping Database : This product includes GeoLite data created by MaxMind, available from http://maxmind.com/
  Ip to city mapping API : MaxMind (GNU LGPL, http://www.maxmind.com/app/city#api)
- 3D Map component : Worl Wind Java (NASA Open Source Agreement, http://worldwind.arc.nasa.gov/java/)
+ 3D Map component : World Wind Java (NASA Open Source Agreement, http://worldwind.arc.nasa.gov/java/)
  2D Map component : OpenMap(tm) Version 5.0.3  Copyright (C) BBNT Solutions LLC. See http://code.google.com/p/openmap/ for details.
  Countries Flags icons : Copyright (c) 2013 Go Squared Ltd. http://www.gosquared.com/ (MIT license)
  DNS lookup : dnsjava (BSD http://www.xbill.org/dnsjava/)
