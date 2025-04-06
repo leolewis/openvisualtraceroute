@@ -2,10 +2,13 @@
 ~~~~~~~ Open Visual Trace Route ~~~~~~~ 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Version 2.0.0
+Version 2.1.0
+
 Starting version 2.0.0, I decided to deprecate the sniffer feature and refocus the tool on its original purpose: a visual traceroute.
 Reasoning around the decision were ultimately time to maintain the application while the various libraries it depends on were being upgraded to non compatible APIs or plainly deprecated.
 This decision will also make the application runnable without admin privilege and external software required to be installed (except Java), which was one of the pain point in the installation of versions 1.7 and prior.
+
+Version 2.1.0 now also embed an open source Temurin JRE in the installer. This will avoid the friction that many users reported with installing the right version of Java.
 
 Full code source is as always available on Github https://github.com/leolewis/openvisualtraceroute and anyone is free to branch the version.
 
@@ -34,7 +37,7 @@ Tested on the following systems :
 - FreeBSD 13.0 Xfce 
 
 With Java versions
-- 11~17
+- 11~21
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Limitations, Known issues :
@@ -49,8 +52,12 @@ Wish list :
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Release Note
+
+2.1.0
+Preview:
+- Windows Installer: Embed JRE with the installer
+
 2.0.0
-This release
 - Library: Upgrade to worldwind 2.2.0
 - Library: upgrade to Java 11+
 - Feature: UI Dark mode

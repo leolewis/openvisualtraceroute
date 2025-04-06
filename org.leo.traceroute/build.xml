@@ -198,7 +198,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 				<include name="**/*.exe" />
 			</fileset>
 		</copy>
+		<copy todir="${basedir}/product/win/jre">
+			<fileset dir="${basedir}/build/win/jre/">
+				<include name="**/*" />
+			</fileset>
+		</copy>
+		<property environment="env"/>
 		<exec executable="C:\Program Files (x86)\Launch4j\launch4jc.exe">
+			<env key="JAVA_HOME" value="D:/jdk-21.0.1+12/"/>
 			<arg value="${basedir}/build/win/make_exe.xml" />
 		</exec>
 	</target>

@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Open Visual Traceroute"
-#define MyAppVersion "2.0.0"
+#define MyAppVersion "2.1.0"
 #define MyAppPublisher "Leo Lewis"
 #define MyAppURL "https://sourceforge.net/projects/openvisualtrace/"
 #define MyAppExeName "ovtr.exe"
@@ -23,7 +23,7 @@ DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 LicenseFile=D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\win\License.txt
 OutputDir=D:\workspace\git\openvisualtraceroute\org.leo.traceroute\released
-OutputBaseFilename=OpenVisualTraceroute2.0.0
+OutputBaseFilename=OpenVisualTraceroute2.1.0
 SetupIconFile=D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\win\resources\icon.ico
 Compression=lzma
 SolidCompression=yes
@@ -41,6 +41,7 @@ Source: "D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\win\or
 Source: "D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\win\lib\*"; Excludes: "*linux*,*macosx*"; DestDir: "{app}\lib"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\win\resources\*"; DestDir: "{app}\resources"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\win\native\*"; DestDir: "{app}\native"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\win\jre\*"; DestDir: "{app}\jre"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
@@ -57,3 +58,5 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChang
 procedure ExitProcess(exitCode:integer);
   external 'ExitProcess@kernel32.dll stdcall';
 
+[UninstallDelete]
+    Type: filesandordirs; Name: "{%USERPROFILE}\ovtr\"
