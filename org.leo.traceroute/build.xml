@@ -210,7 +210,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 		</exec>
 	</target>
 	<target name="installer_win">
-		<exec executable="C:\Program Files (x86)\Inno Setup 6\ISCC.exe">
+		<exec executable="C:\Users\Leo\AppData\Local\Programs\Inno Setup 6\ISCC.exe">
 			<arg value="${basedir}/build/win/installer.iss" />
 		</exec>
 	</target>

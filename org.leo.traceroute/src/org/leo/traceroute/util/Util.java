@@ -36,7 +36,6 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.net.http.HttpClient;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -210,7 +209,6 @@ public final class Util {
 	 *
 	 * @param point1
 	 * @param point2
-	 * @param globe
 	 * @return
 	 */
 	public static int distance(final RoutePoint point1, final RoutePoint point2) {

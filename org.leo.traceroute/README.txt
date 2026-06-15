@@ -2,7 +2,7 @@
 ~~~~~~~ Open Visual Trace Route ~~~~~~~ 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Version 2.1.0
+Version 2.1.1
 
 Starting version 2.0.0, I decided to deprecate the sniffer feature and refocus the tool on its original purpose: a visual traceroute.
 Reasoning around the decision were ultimately time to maintain the application while the various libraries it depends on were being upgraded to non compatible APIs or plainly deprecated.
@@ -53,8 +53,10 @@ Wish list :
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Release Note
 
+2.1.1
+- Fix: 3D map not properly rendering on Windows with high resolution screen with scaling
+
 2.1.0
-Preview:
 - Windows Installer: Embed JRE with the installer
 
 2.0.0

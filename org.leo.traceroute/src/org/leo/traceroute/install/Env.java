@@ -528,7 +528,7 @@ public enum Env {
 			_appY = _conf.containsKey(APP_Y) ? Integer.parseInt(_conf.getProperty(APP_Y)) : null;
 			final String fontName = _conf.getProperty(FONT_NAME, "SansSerif");
 			final int fontSize = Integer.parseInt(_conf.getProperty(FONT_SIZE, "9"));
-			final int fontStyle = Integer.parseInt(_conf.getProperty(FONT_STYLE, String.valueOf(Font.BOLD)));
+			final int fontStyle = Integer.parseInt(_conf.getProperty(FONT_STYLE, String.valueOf(Font.PLAIN)));
 			_font = new Font(fontName, fontStyle, fontSize);
 			if (!Boolean.parseBoolean(_conf.getProperty("strictSSL", "false"))) {
 				try {

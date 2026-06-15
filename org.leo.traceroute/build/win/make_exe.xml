@@ -3,7 +3,7 @@
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
   <jar> 	</jar>
-  <outfile>D:\workspace\git\openvisualtraceroute\org.leo.traceroute\product\win\ovtr.exe</outfile>
+  <outfile>C:\Data\workspace\git\openvisualtraceroute\org.leo.traceroute\product\win\ovtr.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
@@ -13,7 +13,7 @@
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
-  <icon>D:\workspace\git\openvisualtraceroute\org.leo.traceroute\resources\icon.ico</icon>
+  <icon>C:\Data\workspace\git\openvisualtraceroute\org.leo.traceroute\resources\icon.ico</icon>
   <classPath>
     <mainClass>org.leo.traceroute.Main</mainClass>
     <cp>org.leo.traceroute.jar</cp>
@@ -26,11 +26,11 @@
     <opt>--add-exports java.base/java.lang=ALL-UNNAMED --add-exports java.desktop/sun.awt=ALL-UNNAMED --add-exports java.desktop/sun.java2d=ALL-UNNAMED</opt>
   </jre>
   <versionInfo>
-    <fileVersion>2.1.0.0</fileVersion>
+    <fileVersion>2.1.1.0</fileVersion>
     <txtFileVersion>1.0</txtFileVersion>
     <fileDescription>Open Visual Traceroute</fileDescription>
     <copyright>Leo Lewis</copyright>
-    <productVersion>2.1.0.0</productVersion>
+    <productVersion>2.1.1.0</productVersion>
     <txtProductVersion>1.0</txtProductVersion>
     <productName>Open Visual Traceroute</productName>
     <companyName>Leo Lewis</companyName>
